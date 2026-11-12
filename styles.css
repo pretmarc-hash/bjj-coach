@@ -141,3 +141,17 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--green-2); o
   .tabbar { max-width: 720px; left: 50%; transform: translateX(-50%); border-radius: 18px 18px 0 0; border: 1px solid var(--line); }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Calendario */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.cal .h { font-size: 12px; color: var(--muted); padding: 4px 0; }
+.cal button { aspect-ratio: 1; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--ink); font: inherit; font-size: 14px; position: relative; padding: 0; cursor: pointer; }
+.cal button.today { border-color: var(--green); font-weight: 700; }
+.cal button.sel { background: var(--green); color: #fff; }
+.cal .dot { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; gap: 2px; }
+.cal .dot i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.cal .dot i.plan { background: transparent; border: 1.5px solid var(--green); }
+.cal .dot i.miss { background: var(--red); }
+.cal .dot i.extra { box-shadow: 0 0 0 1.5px var(--gold); }
+.cal button.sel .dot i { background: #fff; border-color: #fff; }
+.row.wrap { flex-wrap: wrap; }

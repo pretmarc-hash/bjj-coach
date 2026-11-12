@@ -1,0 +1,1271 @@
+{
+ "nota": "Fichas detalladas. Contenido redactado por Claude a partir de conocimiento general, SIN contrastar con fuentes (st='ficha'). Revisa con tu profesor antes de darlo por bueno. No incluyen enlaces ni vídeos porque no se han verificado.",
+ "details": [
+  {
+   "id": "closed-guard",
+   "st": "ficha",
+   "from": "Guardia cerrada",
+   "to": "Guardia cerrada",
+   "desc": "Estás de espaldas con las piernas cruzadas alrededor de la cintura del rival. Sirve para controlar su postura, romper su base y atacar con barridos y finalizaciones.",
+   "variants": [
+    "Con agarres de manga y cuello (GI)",
+    "Con control de muñecas y cabeza (NO-GI)"
+   ],
+   "entries": [
+    "Tirar a guardia",
+    "Recuperar guardia tras un escape de cadera"
+   ],
+   "next": [
+    "scissor-sweep",
+    "hip-bump-sweep",
+    "flower-sweep",
+    "armbar",
+    "triangle",
+    "kimura",
+    "guillotine"
+   ],
+   "defenses": [
+    "Postura erguida con manos en las caderas",
+    "Abrir las piernas levantándose con base"
+   ],
+   "mistakes": [
+    "Dejar que el rival mantenga la postura",
+    "Cruzar los tobillos y quedarse pasivo",
+    "Atacar sin romper antes su postura"
+   ],
+   "diff": 1,
+   "related": [
+    "scissor-sweep",
+    "armbar",
+    "triangle",
+    "posture"
+   ]
+  },
+  {
+   "id": "butterfly-guard",
+   "st": "ficha",
+   "from": "Sentado",
+   "to": "Guardia mariposa",
+   "desc": "Estás sentado con los pies (ganchos) por dentro de los muslos del rival. Permite elevar y desequilibrar con control de las caderas y los agarres por debajo.",
+   "variants": [
+    "Con underhooks",
+    "Con control de manga (GI)"
+   ],
+   "entries": [
+    "Desde sentado frente al rival",
+    "Al recuperar guardia desde media guardia"
+   ],
+   "next": [
+    "butterfly-sweep",
+    "arm-drag",
+    "sit-through",
+    "back-take"
+   ],
+   "defenses": [
+    "Bajar el centro de gravedad y presionar sobre las rodillas",
+    "Cerrar las piernas con agarre de rodillas"
+   ],
+   "mistakes": [
+    "Perder los underhooks",
+    "Dejar la espalda recta sin ángulo",
+    "Elevar sin desplazar al rival de su base"
+   ],
+   "diff": 2,
+   "related": [
+    "butterfly-sweep",
+    "arm-drag",
+    "hip-control"
+   ]
+  },
+  {
+   "id": "half-guard",
+   "st": "ficha",
+   "from": "Media guardia",
+   "to": "Media guardia",
+   "desc": "Atrapas una pierna del rival entre las tuyas, quedando de lado. Es una posición de lucha por el underhook y el control de la cabeza.",
+   "variants": [
+    "Knee Shield",
+    "Z-Guard",
+    "Lockdown",
+    "Deep Half"
+   ],
+   "entries": [
+    "Desde guardia cerrada abierta",
+    "Al escapar de control lateral"
+   ],
+   "next": [
+    "old-school-sweep",
+    "waiter-sweep",
+    "john-wayne-sweep",
+    "wrestle-up",
+    "back-take"
+   ],
+   "defenses": [
+    "Crossface y aplastar con la cadera",
+    "Liberar la pierna con el knee cut"
+   ],
+   "mistakes": [
+    "Quedarse plano de espaldas",
+    "Perder el underhook",
+    "No usar el marco antes de que el rival presione"
+   ],
+   "diff": 2,
+   "related": [
+    "knee-shield",
+    "lockdown",
+    "deep-half-guard",
+    "underhook"
+   ]
+  },
+  {
+   "id": "de-la-riva",
+   "st": "ficha",
+   "from": "Guardia abierta",
+   "to": "De La Riva",
+   "desc": "Enganchas por fuera la pierna adelantada del rival con tu gancho, controlando el pie o el tobillo y la manga. Genera ángulo para barrer o tomar la espalda.",
+   "variants": [
+    "Con agarre de tobillo",
+    "Con agarre de pantalón",
+    "Double De La Riva"
+   ],
+   "entries": [
+    "Desde guardia abierta con el rival de pie"
+   ],
+   "next": [
+    "berimbolo",
+    "de-la-riva-sweep",
+    "back-take"
+   ],
+   "defenses": [
+    "Pisar la cadera del gancho",
+    "Pasar con velocidad (toreando)"
+   ],
+   "mistakes": [
+    "Dejar el pie sin conexión",
+    "No mantener la cadera activa",
+    "Gancho sin presión hacia dentro"
+   ],
+   "diff": 3,
+   "related": [
+    "reverse-de-la-riva",
+    "berimbolo",
+    "de-la-riva-sweep"
+   ]
+  },
+  {
+   "id": "x-guard",
+   "st": "ficha",
+   "from": "Guardia abierta",
+   "to": "Guardia X",
+   "desc": "Te colocas debajo del rival con un gancho en su muslo y el otro pie en su cadera o pierna contraria, para elevarle y barrerle.",
+   "variants": [
+    "X-Guard desde de la Riva",
+    "X-Guard con control de manga"
+   ],
+   "entries": [
+    "Desde De La Riva",
+    "Desde guardia abierta con rival de pie"
+   ],
+   "next": [
+    "x-guard-sweep",
+    "single-leg-x"
+   ],
+   "defenses": [
+    "Girar y pasar por el lado",
+    "Bajar el peso sobre la pierna atrapada"
+   ],
+   "mistakes": [
+    "Quedar demasiado lejos",
+    "No tener control de la pierna contraria"
+   ],
+   "diff": 3,
+   "related": [
+    "single-leg-x",
+    "x-guard-sweep",
+    "de-la-riva"
+   ]
+  },
+  {
+   "id": "single-leg-x",
+   "st": "ficha",
+   "from": "Guardia abierta",
+   "to": "Single Leg X",
+   "desc": "Posición de enredo de piernas donde aíslas una pierna del rival entre las tuyas, con un pie en la cadera. Se usa para barrer o atacar el pie.",
+   "variants": [
+    "Versión con agarre de tobillo",
+    "Versión sentada"
+   ],
+   "entries": [
+    "Desde X-Guard",
+    "Desde guardia abierta"
+   ],
+   "next": [
+    "single-leg-x-sweep",
+    "straight-ankle-lock",
+    "outside-ashi"
+   ],
+   "defenses": [
+    "Retirar la pierna con giro",
+    "Pasar sobre la pierna aislada"
+   ],
+   "mistakes": [
+    "Perder el control del tobillo",
+    "Dejar la cadera lejos"
+   ],
+   "diff": 3,
+   "related": [
+    "ashi-garami",
+    "x-guard",
+    "straight-ankle-lock"
+   ],
+   "nota": "Según una fuente consultada (Sweet Science of Fighting), la posición básica de Ashi Garami también se llama single-leg X."
+  },
+  {
+   "id": "fifty-fifty",
+   "st": "ficha",
+   "from": "Enredo de piernas",
+   "to": "50/50",
+   "desc": "Ambos tienen una pierna enredada con la del otro, con las piernas cruzadas. Fue una posición de empate que hoy se usa también para atacar con heel hooks y barridos.",
+   "variants": [
+    "50/50 clásico",
+    "Backside 50/50"
+   ],
+   "entries": [
+    "Desde guardia abierta",
+    "Desde un pase fallido"
+   ],
+   "next": [
+    "heel-hook-inside",
+    "backside-fifty-fifty",
+    "straight-ankle-lock"
+   ],
+   "defenses": [
+    "Controlar la cadera y la rodilla",
+    "Salir con una patada de pierna"
+   ],
+   "mistakes": [
+    "Descuidar la propia pierna",
+    "No controlar la cadera del rival"
+   ],
+   "diff": 4,
+   "related": [
+    "eighty-twenty",
+    "ninety-ten",
+    "heel-hook-inside"
+   ]
+  },
+  {
+   "id": "knee-cut",
+   "st": "ficha",
+   "from": "Rival en guardia abierta o media",
+   "to": "Control lateral",
+   "desc": "Pase de presión: la rodilla de delante cae sobre el muslo del rival mientras sacas la pierna trasera y avanzas con control de cabeza y agarre.",
+   "variants": [
+    "Con underhook",
+    "Con crossface",
+    "Desde HQ"
+   ],
+   "entries": [
+    "Desde headquarters",
+    "Desde media guardia"
+   ],
+   "next": [
+    "side-control",
+    "crossface",
+    "kesa-gatame"
+   ],
+   "defenses": [
+    "Knee shield",
+    "Recuperar con inversión",
+    "Recobrar media guardia"
+   ],
+   "mistakes": [
+    "Perder el pie atrapado",
+    "Mirar hacia el lado equivocado",
+    "No cerrar el espacio antes de avanzar"
+   ],
+   "diff": 2,
+   "related": [
+    "headquarters-pass",
+    "half-guard-passing",
+    "side-control"
+   ]
+  },
+  {
+   "id": "toreando",
+   "st": "ficha",
+   "from": "Guardia abierta",
+   "to": "Control lateral",
+   "desc": "Pase de velocidad: agarras las piernas o pantalones y las apartas de lado mientras rodeas la guardia. Se usa mucho en NO-GI y GI.",
+   "variants": [
+    "Con agarres de rodilla",
+    "Con agarre de pantalón (GI)",
+    "Doble toreando"
+   ],
+   "entries": [
+    "Desde posición de pie frente a la guardia abierta"
+   ],
+   "next": [
+    "side-control",
+    "knee-on-belly",
+    "kesa-gatame"
+   ],
+   "defenses": [
+    "Mantener los pies por delante de las caderas",
+    "Recuperar con rodillas hacia dentro"
+   ],
+   "mistakes": [
+    "Quedarse demasiado cerca",
+    "Soltar el agarre antes de pasar"
+   ],
+   "diff": 2,
+   "related": [
+    "leg-drag",
+    "long-step",
+    "x-pass"
+   ]
+  },
+  {
+   "id": "over-under",
+   "st": "ficha",
+   "from": "Rival en media guardia",
+   "to": "Control lateral",
+   "desc": "Pase de presión: un brazo pasa por encima de su pierna y otro por debajo (underhook), cargando el peso sobre el rival para soltar la pierna.",
+   "variants": [
+    "Over-under clásico"
+   ],
+   "entries": [
+    "Desde media guardia superior",
+    "Desde guardia abierta"
+   ],
+   "next": [
+    "side-control",
+    "kesa-gatame"
+   ],
+   "defenses": [
+    "Girar de lado",
+    "Frame en el cuello"
+   ],
+   "mistakes": [
+    "Dejar espacio entre las caderas",
+    "No bajar el peso"
+   ],
+   "diff": 3,
+   "related": [
+    "half-guard-passing",
+    "underhook",
+    "pressure-passing"
+   ]
+  },
+  {
+   "id": "body-lock-pass",
+   "st": "ficha",
+   "from": "Rival en guardia abierta",
+   "to": "Control lateral",
+   "desc": "Pase con control del tronco del rival con los brazos entrelazados alrededor de la cintura, avanzando con las caderas y presionando.",
+   "variants": [],
+   "entries": [
+    "Desde posición de rodillas o de pie"
+   ],
+   "next": [
+    "side-control"
+   ],
+   "defenses": [
+    "Frames con rodillas",
+    "Inversiones"
+   ],
+   "mistakes": [
+    "Perder la conexión del agarre",
+    "Quedar en postura baja sin base"
+   ],
+   "diff": 3,
+   "related": [
+    "pressure-passing",
+    "body-lock-takedown"
+   ]
+  },
+  {
+   "id": "armbar",
+   "st": "ficha",
+   "from": "Guardia, montada o espalda",
+   "to": "Armbar",
+   "desc": "Hiperextensión del codo: sujetas el brazo del rival entre tus piernas con el pulgar apuntando hacia arriba y elevas la cadera.",
+   "variants": [
+    "Desde guardia",
+    "Desde montada",
+    "Desde espalda",
+    "Flying Armbar"
+   ],
+   "entries": [
+    "Desde guardia cerrada",
+    "Desde montada",
+    "Tras una defensa de triángulo"
+   ],
+   "next": [
+    "triangle",
+    "omoplata",
+    "kimura"
+   ],
+   "defenses": [
+    "Mantener las manos agarradas y el codo cerrado",
+    "Hacer un stack",
+    "Girar para sacar el codo"
+   ],
+   "mistakes": [
+    "Dejar que el rival libere el codo",
+    "No levantar la cadera",
+    "Perder el control de la cabeza"
+   ],
+   "diff": 2,
+   "related": [
+    "triangle",
+    "omoplata",
+    "kimura",
+    "flying-armbar"
+   ]
+  },
+  {
+   "id": "kimura",
+   "st": "ficha",
+   "from": "Guardia, media guardia o control lateral",
+   "to": "Kimura",
+   "desc": "Llave de hombro con agarre figura 4 sobre la muñeca: rotas el brazo del rival hacia su espalda.",
+   "variants": [
+    "Desde guardia",
+    "Desde control lateral",
+    "Kimura trap (sistema)"
+   ],
+   "entries": [
+    "Desde guardia cerrada",
+    "Desde control lateral"
+   ],
+   "next": [
+    "armbar",
+    "back-take"
+   ],
+   "defenses": [
+    "Agarrar la propia mano",
+    "Quitar el brazo y levantar"
+   ],
+   "mistakes": [
+    "No aislar el brazo",
+    "No pegar el codo al propio cuerpo"
+   ],
+   "diff": 2,
+   "related": [
+    "americana",
+    "armbar"
+   ]
+  },
+  {
+   "id": "americana",
+   "st": "ficha",
+   "from": "Montada o control lateral",
+   "to": "Americana",
+   "desc": "Llave de hombro: con el brazo del rival fijado contra el suelo, mueves la muñeca hacia su cintura haciendo un arco.",
+   "variants": [
+    "Desde montada",
+    "Desde control lateral"
+   ],
+   "entries": [
+    "Desde montada",
+    "Desde control lateral"
+   ],
+   "next": [
+    "armbar",
+    "kimura"
+   ],
+   "defenses": [
+    "Mantener el codo pegado",
+    "Escapar el hombro"
+   ],
+   "mistakes": [
+    "Dejar espacio bajo el brazo",
+    "Tirar sin fijar el codo"
+   ],
+   "diff": 1,
+   "related": [
+    "kimura",
+    "armbar",
+    "mount"
+   ]
+  },
+  {
+   "id": "triangle",
+   "st": "ficha",
+   "from": "Guardia",
+   "to": "Triángulo",
+   "desc": "Estrangulación con las piernas alrededor del cuello y un brazo del rival. Cierras las piernas en figura 4 y aprietas.",
+   "variants": [
+    "Desde guardia cerrada",
+    "Desde guardia abierta",
+    "Desde montada"
+   ],
+   "entries": [
+    "Desde guardia cerrada",
+    "Tras un intento de postura",
+    "Desde guardia abierta con control de manga"
+   ],
+   "next": [
+    "armbar",
+    "omoplata"
+   ],
+   "defenses": [
+    "Postura",
+    "Sacar el brazo",
+    "Stack"
+   ],
+   "mistakes": [
+    "No cerrar el ángulo",
+    "No tirar de la cabeza",
+    "Cruzar mal los tobillos"
+   ],
+   "diff": 2,
+   "related": [
+    "armbar",
+    "omoplata",
+    "guillotine"
+   ]
+  },
+  {
+   "id": "rnc",
+   "st": "ficha",
+   "from": "Control de espalda",
+   "to": "Rear Naked Choke",
+   "desc": "Un brazo rodea el cuello y la otra mano cierra el agarre detrás de la cabeza, apretando los bíceps contra las arterias carótidas.",
+   "variants": [
+    "Con ganchos",
+    "Con cuerpo triángulo"
+   ],
+   "entries": [
+    "Desde control de espalda",
+    "Desde tortuga"
+   ],
+   "next": [
+    "back-control"
+   ],
+   "defenses": [
+    "Agarrar la mano",
+    "Bajar la barbilla",
+    "Escapar de la espalda"
+   ],
+   "mistakes": [
+    "No controlar el brazo del rival",
+    "Soltar los ganchos antes de tiempo"
+   ],
+   "diff": 1,
+   "related": [
+    "back-control",
+    "back-take",
+    "rnc-defense"
+   ]
+  },
+  {
+   "id": "guillotine",
+   "st": "ficha",
+   "from": "Guardia o de pie",
+   "to": "Guillotina",
+   "desc": "Estrangulación frontal: rodeas el cuello con un brazo y lo cierras con las manos, con las caderas o las piernas ayudando.",
+   "variants": [
+    "High Elbow",
+    "Arm-in",
+    "Desde guardia",
+    "Desde derribo"
+   ],
+   "entries": [
+    "Contra un double leg",
+    "Desde guardia cerrada",
+    "Desde de pie con snap down"
+   ],
+   "next": [
+    "guard-pull",
+    "armbar"
+   ],
+   "defenses": [
+    "Sacar el brazo",
+    "Postura",
+    "Presionar la cadera"
+   ],
+   "mistakes": [
+    "Agarrar solo con los brazos",
+    "No cerrar bien el codo",
+    "Dejar el brazo atrapado"
+   ],
+   "diff": 2,
+   "related": [
+    "high-elbow-guillotine",
+    "darce",
+    "anaconda"
+   ]
+  },
+  {
+   "id": "darce",
+   "st": "ficha",
+   "from": "Control lateral o media guardia",
+   "to": "D'Arce",
+   "desc": "Estrangulación con el brazo del rival rodeando su cuello. Pasas tu brazo por debajo de su axila y lo cierras con la otra mano.",
+   "variants": [
+    "Desde control lateral",
+    "Desde guardia"
+   ],
+   "entries": [
+    "Contra un rival en tortuga",
+    "Desde control lateral"
+   ],
+   "next": [
+    "anaconda",
+    "guillotine"
+   ],
+   "defenses": [
+    "Retirar el brazo atrapado",
+    "Girar hacia dentro"
+   ],
+   "mistakes": [
+    "No cortar el ángulo",
+    "Perder la cabeza del rival"
+   ],
+   "diff": 3,
+   "related": [
+    "anaconda",
+    "arm-triangle"
+   ]
+  },
+  {
+   "id": "anaconda",
+   "st": "ficha",
+   "from": "Tortuga o control frontal",
+   "to": "Anaconda",
+   "desc": "Estrangulación similar al D'Arce pero entrando desde el otro lado: pasas el brazo por debajo de la axila lejana.",
+   "variants": [],
+   "entries": [
+    "Desde front headlock",
+    "Contra un rival que se levanta"
+   ],
+   "next": [
+    "darce",
+    "guillotine"
+   ],
+   "defenses": [
+    "Sacar el brazo",
+    "Mantener la cabeza hacia fuera"
+   ],
+   "mistakes": [
+    "Perder el agarre de los brazos",
+    "Rodar hacia el lado equivocado"
+   ],
+   "diff": 3,
+   "related": [
+    "darce",
+    "front-headlock"
+   ]
+  },
+  {
+   "id": "straight-ankle-lock",
+   "st": "ficha",
+   "from": "Guardia, control o enredo de piernas",
+   "to": "Llave de tobillo",
+   "desc": "Presión sobre el tendón de Aquiles y el pie con el antebrazo o la espinilla, extendiendo el tobillo.",
+   "variants": [
+    "Desde Single Leg X",
+    "Desde 50/50",
+    "Desde de pie"
+   ],
+   "entries": [
+    "Desde guardia con control de pierna",
+    "Desde Single Leg X"
+   ],
+   "next": [
+    "heel-hook-inside",
+    "kneebar",
+    "toe-hold"
+   ],
+   "defenses": [
+    "Retirar el pie",
+    "Girar la rodilla"
+   ],
+   "mistakes": [
+    "No fijar la cadera",
+    "Dejar el pie libre"
+   ],
+   "diff": 2,
+   "related": [
+    "single-leg-x",
+    "ashi-garami",
+    "heel-hook-inside"
+   ]
+  },
+  {
+   "id": "heel-hook-inside",
+   "st": "ficha",
+   "from": "Enredo de piernas",
+   "to": "Heel hook interno",
+   "desc": "Torsión de la rodilla aplicada sobre el talón desde posiciones de enredo de piernas. Atención: es una de las llaves más peligrosas y puede lesionar muy rápido.",
+   "variants": [
+    "Desde 50/50",
+    "Desde Saddle"
+   ],
+   "entries": [
+    "Desde 50/50",
+    "Desde Saddle",
+    "Desde Inside Ashi"
+   ],
+   "next": [
+    "straight-ankle-lock",
+    "kneebar"
+   ],
+   "defenses": [
+    "Retirar la rodilla",
+    "Controlar el pie",
+    "Girar hacia fuera"
+   ],
+   "mistakes": [
+    "Tirar con fuerza sin control",
+    "No avisar al compañero",
+    "No respetar los tiempos de tap"
+   ],
+   "diff": 4,
+   "related": [
+    "heel-hook",
+    "fifty-fifty",
+    "saddle"
+   ],
+   "nota": "Las reglas sobre heel hooks varían por federación y cinturón. Consulta las de tu competición."
+  },
+  {
+   "id": "kneebar",
+   "st": "ficha",
+   "from": "Enredo de piernas o guardia",
+   "to": "Kneebar",
+   "desc": "Hiperextensión de la rodilla, con la pierna del rival entre tus muslos y las caderas empujando hacia arriba.",
+   "variants": [
+    "Clásico",
+    "Lateral"
+   ],
+   "entries": [
+    "Desde guardia",
+    "Desde Saddle"
+   ],
+   "next": [
+    "straight-ankle-lock",
+    "toe-hold"
+   ],
+   "defenses": [
+    "Doblar la rodilla",
+    "Girar el cuerpo"
+   ],
+   "mistakes": [
+    "No fijar la rodilla",
+    "Dejar libre la pierna contraria"
+   ],
+   "diff": 3,
+   "related": [
+    "saddle",
+    "straight-ankle-lock"
+   ]
+  },
+  {
+   "id": "scissor-sweep",
+   "st": "ficha",
+   "from": "Guardia cerrada",
+   "to": "Montada",
+   "desc": "Desde guardia cerrada, abres la guardia y empujas con una pierna y sacas con la otra, volcando al rival sobre su lado hasta quedar arriba.",
+   "variants": [
+    "Con control de manga",
+    "Con agarre de cuello"
+   ],
+   "entries": [
+    "Desde guardia cerrada con rival de rodillas"
+   ],
+   "next": [
+    "mount",
+    "knee-on-belly"
+   ],
+   "defenses": [
+    "Mantener la base",
+    "Abrir las piernas"
+   ],
+   "mistakes": [
+    "No cortar el ángulo",
+    "Dejar que el rival se apoye con la mano"
+   ],
+   "diff": 1,
+   "related": [
+    "flower-sweep",
+    "hip-bump-sweep",
+    "closed-guard"
+   ]
+  },
+  {
+   "id": "flower-sweep",
+   "st": "ficha",
+   "from": "Guardia cerrada",
+   "to": "Montada",
+   "desc": "Barrido con la pierna, similar al de tijera pero usando un arco de pierna y control de una pierna del rival.",
+   "variants": [],
+   "entries": [
+    "Desde guardia cerrada con agarre de pierna"
+   ],
+   "next": [
+    "mount"
+   ],
+   "defenses": [
+    "Recuperar base",
+    "Cargar el peso"
+   ],
+   "mistakes": [
+    "No elevar bien",
+    "Soltar el control del brazo"
+   ],
+   "diff": 2,
+   "related": [
+    "scissor-sweep",
+    "closed-guard"
+   ]
+  },
+  {
+   "id": "butterfly-sweep",
+   "st": "ficha",
+   "from": "Guardia mariposa",
+   "to": "Posición superior",
+   "desc": "Con un underhook o el control de un brazo, elevas con el gancho mientras rotas hacia el lado contrario del rival.",
+   "variants": [
+    "Con underhook",
+    "Con control de manga"
+   ],
+   "entries": [
+    "Desde guardia mariposa"
+   ],
+   "next": [
+    "side-control",
+    "knee-cut"
+   ],
+   "defenses": [
+    "Sprawl",
+    "Cargar el peso hacia atrás"
+   ],
+   "mistakes": [
+    "Perder el underhook",
+    "No elevar con la rodilla"
+   ],
+   "diff": 2,
+   "related": [
+    "butterfly-guard",
+    "knee-cut"
+   ]
+  },
+  {
+   "id": "upa-escape",
+   "st": "ficha",
+   "from": "Montada",
+   "to": "Guardia o posición superior",
+   "desc": "Atrapas un brazo y el pie del mismo lado del rival, y haces un puente explosivo hacia ese lado para voltearlo.",
+   "variants": [],
+   "entries": [
+    "Cuando el rival apoya el brazo"
+   ],
+   "next": [
+    "closed-guard",
+    "mount"
+   ],
+   "defenses": [
+    "Controlar la cadera",
+    "Mantener un apoyo estable"
+   ],
+   "mistakes": [
+    "No atrapar el pie",
+    "Puente demasiado tarde o suave"
+   ],
+   "diff": 1,
+   "related": [
+    "elbow-escape",
+    "mount-escape"
+   ]
+  },
+  {
+   "id": "elbow-escape",
+   "st": "ficha",
+   "from": "Montada",
+   "to": "Guardia",
+   "desc": "Con los codos protegiendo las caderas, desplazas la cadera hacia un lado y metes la rodilla para recuperar la guardia.",
+   "variants": [
+    "Con puente previo"
+   ],
+   "entries": [
+    "Desde montada"
+   ],
+   "next": [
+    "closed-guard",
+    "half-guard"
+   ],
+   "defenses": [
+    "Presión en la cabeza",
+    "Quitar espacio"
+   ],
+   "mistakes": [
+    "Dejar los brazos extendidos",
+    "No hacer ángulo"
+   ],
+   "diff": 1,
+   "related": [
+    "upa-escape",
+    "hip-escape"
+   ]
+  },
+  {
+   "id": "technical-stand-up",
+   "st": "ficha",
+   "from": "Guardia abierta o sentado",
+   "to": "De pie",
+   "desc": "Con una mano y un pie en el suelo y la otra mano defendiendo, te levantas sin exponer el cuello ni la espalda.",
+   "variants": [],
+   "entries": [
+    "Desde guardia abierta",
+    "Desde posición sentada"
+   ],
+   "next": [
+    "double-leg",
+    "guard-pull"
+   ],
+   "defenses": [
+    "Atacar la pierna",
+    "Empujar la cabeza"
+   ],
+   "mistakes": [
+    "Dar la espalda",
+    "Dejar la mano libre muy lejos"
+   ],
+   "diff": 1,
+   "related": [
+    "hip-escape",
+    "guard-recovery"
+   ]
+  },
+  {
+   "id": "double-leg",
+   "st": "ficha",
+   "from": "De pie",
+   "to": "Posición superior",
+   "desc": "Penetras con un paso, agarras ambas piernas por detrás y empujas con el hombro para derribar al rival.",
+   "variants": [
+    "Con elevación",
+    "Con piernas",
+    "Contra la valla"
+   ],
+   "entries": [
+    "Tras cambio de nivel",
+    "Tras un arm drag"
+   ],
+   "next": [
+    "side-control",
+    "mount"
+   ],
+   "defenses": [
+    "Sprawl",
+    "Guillotina"
+   ],
+   "mistakes": [
+    "Bajar la cabeza",
+    "Agacharse sin dar el paso"
+   ],
+   "diff": 2,
+   "related": [
+    "single-leg",
+    "arm-drag",
+    "sprawl"
+   ]
+  },
+  {
+   "id": "single-leg",
+   "st": "ficha",
+   "from": "De pie",
+   "to": "Posición superior",
+   "desc": "Agarras una sola pierna del rival tras cambiar de nivel y la elevas o la barres para derribarlo.",
+   "variants": [
+    "Run the pipe",
+    "Con sweep",
+    "Con rodilla"
+   ],
+   "entries": [
+    "Desde agarre de manga",
+    "Tras fintar un double leg"
+   ],
+   "next": [
+    "side-control"
+   ],
+   "defenses": [
+    "Sprawl",
+    "Quitar el agarre"
+   ],
+   "mistakes": [
+    "Quedarse debajo",
+    "No controlar la rodilla"
+   ],
+   "diff": 2,
+   "related": [
+    "double-leg",
+    "ankle-pick"
+   ]
+  },
+  {
+   "id": "arm-drag",
+   "st": "ficha",
+   "from": "De pie, sentado o guardia",
+   "to": "Espalda o ángulo",
+   "desc": "Tiras del brazo del rival cruzándolo para obtener un ángulo lateral y llegar a su espalda.",
+   "variants": [
+    "De pie",
+    "Desde guardia mariposa"
+   ],
+   "entries": [
+    "Desde agarre de muñeca y codo"
+   ],
+   "next": [
+    "back-take",
+    "double-leg"
+   ],
+   "defenses": [
+    "Bajar el brazo",
+    "Girar"
+   ],
+   "mistakes": [
+    "Tirar sin cambio de nivel",
+    "No pivotar"
+   ],
+   "diff": 2,
+   "related": [
+    "back-take",
+    "butterfly-guard"
+   ]
+  },
+  {
+   "id": "mount",
+   "st": "ficha",
+   "from": "Montada",
+   "to": "Finalización",
+   "desc": "Estás sentado sobre el torso del rival de frente, controlando con las rodillas y el peso. Es una de las posiciones dominantes.",
+   "variants": [
+    "Mount alta",
+    "S-mount",
+    "Technical mount"
+   ],
+   "entries": [
+    "Desde control lateral",
+    "Tras un barrido"
+   ],
+   "next": [
+    "armbar",
+    "americana",
+    "back-take"
+   ],
+   "defenses": [
+    "Upa",
+    "Elbow escape"
+   ],
+   "mistakes": [
+    "Perder la base",
+    "Estar demasiado alto sin control"
+   ],
+   "diff": 1,
+   "related": [
+    "americana",
+    "armbar",
+    "upa-escape"
+   ]
+  },
+  {
+   "id": "side-control",
+   "st": "ficha",
+   "from": "Control lateral",
+   "to": "Montada",
+   "desc": "Estás de lado sobre el rival con el pecho cruzando el suyo, controlando su cabeza y cadera. Es una posición dominante básica.",
+   "variants": [
+    "Crossface",
+    "Kesa gatame",
+    "Norte-sur"
+   ],
+   "entries": [
+    "Tras pasar la guardia"
+   ],
+   "next": [
+    "mount",
+    "knee-on-belly",
+    "north-south"
+   ],
+   "defenses": [
+    "Frames",
+    "Girar hacia dentro",
+    "Recuperar guardia"
+   ],
+   "mistakes": [
+    "Dejar espacio entre los cuerpos",
+    "Descuidar la cadera del rival"
+   ],
+   "diff": 1,
+   "related": [
+    "mount",
+    "knee-on-belly",
+    "kesa-gatame"
+   ]
+  },
+  {
+   "id": "back-control",
+   "st": "ficha",
+   "from": "Espalda",
+   "to": "Rear Naked Choke",
+   "desc": "Estás detrás del rival con los pies enganchados en sus caderas y tu pecho pegado a su espalda. Es la posición dominante por excelencia.",
+   "variants": [
+    "Con ganchos",
+    "Cuerpo triángulo"
+   ],
+   "entries": [
+    "Desde guardia",
+    "Desde tortuga"
+   ],
+   "next": [
+    "rnc",
+    "bow-and-arrow"
+   ],
+   "defenses": [
+    "Escape lateral",
+    "Proteger el cuello"
+   ],
+   "mistakes": [
+    "Dejar espacio en el pecho",
+    "Perder el control del brazo"
+   ],
+   "diff": 2,
+   "related": [
+    "rnc",
+    "back-take"
+   ]
+  },
+  {
+   "id": "knee-on-belly",
+   "st": "ficha",
+   "from": "Control lateral",
+   "to": "Montada",
+   "desc": "Rodilla sobre el abdomen del rival y la otra pierna extendida. Genera presión y permite transicionar rápido.",
+   "variants": [],
+   "entries": [
+    "Desde control lateral"
+   ],
+   "next": [
+    "mount",
+    "armbar"
+   ],
+   "defenses": [
+    "Hip escape",
+    "Frame con la mano"
+   ],
+   "mistakes": [
+    "Poner el peso en los pies",
+    "No mantener la base"
+   ],
+   "diff": 1,
+   "related": [
+    "side-control",
+    "mount"
+   ]
+  },
+  {
+   "id": "saddle",
+   "st": "ficha",
+   "from": "Enredo de piernas",
+   "to": "Saddle",
+   "desc": "Posición de enredo de piernas (también Honey Hole, Inside Sankaku o 411) donde la pierna del rival queda atrapada entre las tuyas. Permite atacar la rodilla y el pie.",
+   "variants": [
+    "Con control de cadera"
+   ],
+   "entries": [
+    "Desde 50/50",
+    "Desde Inside Ashi"
+   ],
+   "next": [
+    "heel-hook-inside",
+    "kneebar"
+   ],
+   "defenses": [
+    "Retirar la rodilla",
+    "Girar el pie"
+   ],
+   "mistakes": [
+    "No controlar la cadera",
+    "Dejar espacio entre rodilla y muslos"
+   ],
+   "diff": 4,
+   "related": [
+    "ashi-garami",
+    "heel-hook-inside",
+    "kneebar"
+   ],
+   "nota": "Aquí se tratan como sinónimos Saddle, Honey Hole, Inside Sankaku y 411; hay quien los distingue. Pendiente de verificar."
+  },
+  {
+   "id": "ashi-garami",
+   "st": "ficha",
+   "from": "Guardia abierta",
+   "to": "Ashi Garami",
+   "desc": "Familia de posiciones de enredo de piernas donde aíslas un pie o una pierna del rival. La posición básica es la que se ve como Single Leg X.",
+   "variants": [
+    "Básica (straight ashi)",
+    "Outside Ashi",
+    "Inside Ashi"
+   ],
+   "entries": [
+    "Desde guardia abierta",
+    "Desde Single Leg X"
+   ],
+   "next": [
+    "straight-ankle-lock",
+    "heel-hook-inside",
+    "saddle"
+   ],
+   "defenses": [
+    "Girar el pie",
+    "Pasar la pierna"
+   ],
+   "mistakes": [
+    "Quedar demasiado lejos",
+    "No fijar la cadera"
+   ],
+   "diff": 3,
+   "related": [
+    "single-leg-x",
+    "outside-ashi",
+    "inside-ashi",
+    "saddle"
+   ],
+   "nota": "Una fuente consultada (Sweet Science of Fighting) agrupa Ashi Garami básico, Outside Ashi e Inside Ashi como tres posiciones."
+  },
+  {
+   "id": "berimbolo",
+   "st": "ficha",
+   "from": "De La Riva",
+   "to": "Espalda",
+   "desc": "Desde De La Riva giras por debajo de la pierna del rival para acabar en su espalda, usando la inversión y el control de la pierna.",
+   "variants": [
+    "Con agarre de manga",
+    "Berimbolo invertido"
+   ],
+   "entries": [
+    "Desde De La Riva"
+   ],
+   "next": [
+    "back-control"
+   ],
+   "defenses": [
+    "Bajar el peso",
+    "Retirar la pierna"
+   ],
+   "mistakes": [
+    "Perder el control de la pierna",
+    "Girar sin conexión"
+   ],
+   "diff": 4,
+   "related": [
+    "de-la-riva",
+    "back-take"
+   ]
+  }
+ ]
+}

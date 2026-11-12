@@ -1,0 +1,7 @@
+{
+ "packs": [
+  "lib-base.json",
+  "lib-extra.json",
+  "lib-fichas.json"
+ ]
+}

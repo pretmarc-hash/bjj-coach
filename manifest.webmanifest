@@ -1,0 +1,14 @@
+{
+  "name": "BJJ Personal Coach",
+  "short_name": "BJJ Coach",
+  "description": "Diario, estadísticas y entrenador local de Brazilian Jiu-Jitsu",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#2f5d50",
+  "lang": "es",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

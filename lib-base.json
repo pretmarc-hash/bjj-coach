@@ -1,0 +1,1755 @@
+{
+ "version": 1,
+ "nota": "Paquete base (nombres y alias). Estado: borrador.",
+ "techniques": [
+  {
+   "id": "closed-guard",
+   "name": "Closed Guard",
+   "es": "Guardia cerrada",
+   "alias": [
+    "Full Guard",
+    "Guardia completa"
+   ],
+   "cat": "guardia",
+   "sub": "cerrada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "open-guard",
+   "name": "Open Guard",
+   "es": "Guardia abierta",
+   "alias": [],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "butterfly-guard",
+   "name": "Butterfly Guard",
+   "es": "Guardia mariposa",
+   "alias": [
+    "Mariposa"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "de-la-riva",
+   "name": "De La Riva",
+   "es": "De La Riva",
+   "alias": [
+    "DLR",
+    "De La Riva Guard"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "reverse-de-la-riva",
+   "name": "Reverse De La Riva",
+   "es": "De La Riva invertida",
+   "alias": [
+    "RDLR",
+    "Reverse DLR"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "spider-guard",
+   "name": "Spider Guard",
+   "es": "Guardia araña",
+   "alias": [
+    "Spider"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "lasso-guard",
+   "name": "Lasso Guard",
+   "es": "Guardia lazo",
+   "alias": [
+    "Lasso"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "x-guard",
+   "name": "X-Guard",
+   "es": "Guardia X",
+   "alias": [
+    "X Guard"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "single-leg-x",
+   "name": "Single Leg X",
+   "es": "Single Leg X",
+   "alias": [
+    "SLX",
+    "Single X",
+    "Single Leg X Guard"
+   ],
+   "cat": "guardia",
+   "sub": "enredo de piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "fifty-fifty",
+   "name": "50/50",
+   "es": "50/50",
+   "alias": [
+    "Fifty Fifty",
+    "50-50 Guard"
+   ],
+   "cat": "guardia",
+   "sub": "enredo de piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "k-guard",
+   "name": "K-Guard",
+   "es": "Guardia K",
+   "alias": [
+    "K Guard"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "collar-sleeve",
+   "name": "Collar Sleeve",
+   "es": "Cuello y manga",
+   "alias": [
+    "Collar and Sleeve",
+    "Sleeve and Collar"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "gi",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "worm-guard",
+   "name": "Worm Guard",
+   "es": "Guardia gusano",
+   "alias": [
+    "Worm"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "gi",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "lapel-guard",
+   "name": "Lapel Guard",
+   "es": "Guardia de solapa",
+   "alias": [
+    "Lapel"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "half-guard",
+   "name": "Half Guard",
+   "es": "Media guardia",
+   "alias": [
+    "Half",
+    "Media guardia"
+   ],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "deep-half-guard",
+   "name": "Deep Half Guard",
+   "es": "Media guardia profunda",
+   "alias": [
+    "Deep Half"
+   ],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "z-guard",
+   "name": "Z-Guard",
+   "es": "Guardia Z",
+   "alias": [],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "knee-shield",
+   "name": "Knee Shield",
+   "es": "Escudo de rodilla",
+   "alias": [
+    "Knee Shield Half Guard"
+   ],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "lockdown",
+   "name": "Lockdown",
+   "es": "Lockdown",
+   "alias": [
+    "Lock Down"
+   ],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "butterfly-half",
+   "name": "Butterfly Half",
+   "es": "Mariposa media",
+   "alias": [
+    "Butterfly Half Guard"
+   ],
+   "cat": "guardia",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "shin-to-shin",
+   "name": "Shin-to-Shin",
+   "es": "Espinilla con espinilla",
+   "alias": [
+    "Shin to Shin",
+    "Shin Shin"
+   ],
+   "cat": "guardia",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "knee-cut",
+   "name": "Knee Cut",
+   "es": "Corte de rodilla",
+   "alias": [
+    "Knee Slice",
+    "Knee Slide"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "toreando",
+   "name": "Toreando",
+   "es": "Toreando",
+   "alias": [
+    "Bullfighter Pass",
+    "Torreando"
+   ],
+   "cat": "pase",
+   "sub": "velocidad",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "leg-drag",
+   "name": "Leg Drag",
+   "es": "Leg Drag",
+   "alias": [
+    "Leg Drag Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "over-under",
+   "name": "Over-Under",
+   "es": "Over-Under",
+   "alias": [
+    "Over Under Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "double-under",
+   "name": "Double Under",
+   "es": "Doble por debajo",
+   "alias": [
+    "Double Underhook Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "body-lock-pass",
+   "name": "Body Lock Pass",
+   "es": "Pase con body lock",
+   "alias": [
+    "Body Lock Passing"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "smash-pass",
+   "name": "Smash Pass",
+   "es": "Pase aplastando",
+   "alias": [
+    "Half Guard Smash"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "stack-pass",
+   "name": "Stack Pass",
+   "es": "Pase apilando",
+   "alias": [
+    "Stacking Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "x-pass",
+   "name": "X-Pass",
+   "es": "Pase X",
+   "alias": [
+    "X Pass"
+   ],
+   "cat": "pase",
+   "sub": "velocidad",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "long-step",
+   "name": "Long Step",
+   "es": "Paso largo",
+   "alias": [
+    "Long Step Pass"
+   ],
+   "cat": "pase",
+   "sub": "velocidad",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "backstep-pass",
+   "name": "Backstep Pass",
+   "es": "Pase con paso atras",
+   "alias": [
+    "Back Step Pass"
+   ],
+   "cat": "pase",
+   "sub": "velocidad",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "headquarters-pass",
+   "name": "Headquarters Passing",
+   "es": "Pase desde headquarters",
+   "alias": [
+    "HQ Passing",
+    "Headquarters"
+   ],
+   "cat": "pase",
+   "sub": "sistema",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "folding-pass",
+   "name": "Folding Pass",
+   "es": "Pase doblando",
+   "alias": [
+    "Fold Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "leg-weave",
+   "name": "Leg Weave",
+   "es": "Leg Weave",
+   "alias": [
+    "Leg Weave Pass"
+   ],
+   "cat": "pase",
+   "sub": "presion",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "armbar",
+   "name": "Armbar",
+   "es": "Palanca de brazo",
+   "alias": [
+    "Juji Gatame",
+    "Straight Armbar",
+    "Arm Bar"
+   ],
+   "cat": "finalizacion",
+   "sub": "brazos",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "americana",
+   "name": "Americana",
+   "es": "Americana",
+   "alias": [
+    "Keylock",
+    "Key Lock",
+    "Figure Four"
+   ],
+   "cat": "finalizacion",
+   "sub": "brazos",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "kimura",
+   "name": "Kimura",
+   "es": "Kimura",
+   "alias": [
+    "Double Wristlock",
+    "Gyaku Ude Garami"
+   ],
+   "cat": "finalizacion",
+   "sub": "brazos",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "omoplata",
+   "name": "Omoplata",
+   "es": "Omoplata",
+   "alias": [
+    "Omo Plata"
+   ],
+   "cat": "finalizacion",
+   "sub": "brazos",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "wrist-lock",
+   "name": "Wrist Lock",
+   "es": "Llave de muneca",
+   "alias": [
+    "Wristlock"
+   ],
+   "cat": "finalizacion",
+   "sub": "brazos",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "rnc",
+   "name": "Rear Naked Choke",
+   "es": "Estrangulacion desde la espalda",
+   "alias": [
+    "RNC",
+    "Mata Leao",
+    "Mata Leão",
+    "Sleeper Hold"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "guillotine",
+   "name": "Guillotine",
+   "es": "Guillotina",
+   "alias": [
+    "Guillotine Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "darce",
+   "name": "D'Arce",
+   "es": "D'Arce",
+   "alias": [
+    "D'Arce Choke",
+    "Darce",
+    "Brabo Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "anaconda",
+   "name": "Anaconda",
+   "es": "Anaconda",
+   "alias": [
+    "Anaconda Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "triangle",
+   "name": "Triangle",
+   "es": "Triangulo",
+   "alias": [
+    "Triangle Choke",
+    "Sankaku Jime"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "arm-triangle",
+   "name": "Arm Triangle",
+   "es": "Triangulo de brazo",
+   "alias": [
+    "Head and Arm Choke",
+    "Kata Gatame"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "ezekiel",
+   "name": "Ezekiel",
+   "es": "Ezequiel",
+   "alias": [
+    "Ezekiel Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "bow-and-arrow",
+   "name": "Bow and Arrow",
+   "es": "Arco y flecha",
+   "alias": [
+    "Bow and Arrow Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "cross-collar-choke",
+   "name": "Cross Collar Choke",
+   "es": "Estrangulacion de cuello cruzada",
+   "alias": [
+    "Cross Choke",
+    "Collar Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "baseball-bat-choke",
+   "name": "Baseball Bat Choke",
+   "es": "Bate de beisbol",
+   "alias": [
+    "Baseball Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "loop-choke",
+   "name": "Loop Choke",
+   "es": "Loop Choke",
+   "alias": [],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "north-south-choke",
+   "name": "North-South Choke",
+   "es": "Estrangulacion norte-sur",
+   "alias": [
+    "North South Choke"
+   ],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "japanese-necktie",
+   "name": "Japanese Necktie",
+   "es": "Corbata japonesa",
+   "alias": [],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "both",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "clock-choke",
+   "name": "Clock Choke",
+   "es": "Estrangulacion del reloj",
+   "alias": [],
+   "cat": "finalizacion",
+   "sub": "estrangulaciones",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "straight-ankle-lock",
+   "name": "Straight Ankle Lock",
+   "es": "Llave de tobillo recta",
+   "alias": [
+    "Ankle Lock",
+    "Straight Footlock",
+    "Achilles Lock"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "heel-hook-inside",
+   "name": "Inside Heel Hook",
+   "es": "Heel hook interno",
+   "alias": [
+    "Inside Heel Hook"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "nogi",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "heel-hook-outside",
+   "name": "Outside Heel Hook",
+   "es": "Heel hook externo",
+   "alias": [
+    "Outside Heel Hook"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "nogi",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "kneebar",
+   "name": "Kneebar",
+   "es": "Kneebar",
+   "alias": [
+    "Knee Bar"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "toe-hold",
+   "name": "Toe Hold",
+   "es": "Toe hold",
+   "alias": [
+    "Toehold"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "calf-slicer",
+   "name": "Calf Slicer",
+   "es": "Calf slicer",
+   "alias": [
+    "Calf Crush"
+   ],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "aoki-lock",
+   "name": "Aoki Lock",
+   "es": "Aoki Lock",
+   "alias": [],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "nogi",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "banana-split",
+   "name": "Banana Split",
+   "es": "Banana Split",
+   "alias": [],
+   "cat": "finalizacion",
+   "sub": "piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjmore.com/brazilian-jiu-jitsu-submissions/"
+   ]
+  },
+  {
+   "id": "upa-escape",
+   "name": "Upa Escape",
+   "es": "Escape upa",
+   "alias": [
+    "Trap and Roll",
+    "Bridge and Roll"
+   ],
+   "cat": "escape",
+   "sub": "montada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "elbow-escape",
+   "name": "Elbow Escape",
+   "es": "Escape de codo",
+   "alias": [
+    "Shrimp Escape",
+    "Elbow-Knee Escape"
+   ],
+   "cat": "escape",
+   "sub": "montada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "hip-escape",
+   "name": "Hip Escape",
+   "es": "Escape de cadera",
+   "alias": [
+    "Shrimp",
+    "Shrimping"
+   ],
+   "cat": "escape",
+   "sub": "movimiento",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "technical-stand-up",
+   "name": "Technical Stand-Up",
+   "es": "Levantada tecnica",
+   "alias": [
+    "Technical Stand Up",
+    "Tech Stand Up"
+   ],
+   "cat": "escape",
+   "sub": "movimiento",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "granby-roll",
+   "name": "Granby Roll",
+   "es": "Granby roll",
+   "alias": [
+    "Granby"
+   ],
+   "cat": "escape",
+   "sub": "movimiento",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "side-control-escape",
+   "name": "Side Control Escape",
+   "es": "Escape de control lateral",
+   "alias": [
+    "Side Control Escapes"
+   ],
+   "cat": "escape",
+   "sub": "control lateral",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "back-escape",
+   "name": "Back Escape",
+   "es": "Escape de la espalda",
+   "alias": [
+    "Back Escapes"
+   ],
+   "cat": "escape",
+   "sub": "espalda",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "guard-recovery",
+   "name": "Guard Recovery",
+   "es": "Recuperacion de guardia",
+   "alias": [
+    "Re-Guarding",
+    "Guard Recovery"
+   ],
+   "cat": "escape",
+   "sub": "guardia",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "scissor-sweep",
+   "name": "Scissor Sweep",
+   "es": "Barrido de tijera",
+   "alias": [
+    "Scissors Sweep"
+   ],
+   "cat": "sweep",
+   "sub": "guardia cerrada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "flower-sweep",
+   "name": "Flower Sweep",
+   "es": "Barrido flor",
+   "alias": [
+    "Pendulum Sweep"
+   ],
+   "cat": "sweep",
+   "sub": "guardia cerrada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "butterfly-sweep",
+   "name": "Butterfly Sweep",
+   "es": "Barrido de mariposa",
+   "alias": [
+    "Hook Sweep"
+   ],
+   "cat": "sweep",
+   "sub": "mariposa",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "tripod-sweep",
+   "name": "Tripod Sweep",
+   "es": "Barrido tripode",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "lumberjack-sweep",
+   "name": "Lumberjack Sweep",
+   "es": "Barrido lenador",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "balloon-sweep",
+   "name": "Balloon Sweep",
+   "es": "Barrido globo",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "abierta",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "waiter-sweep",
+   "name": "Waiter Sweep",
+   "es": "Barrido camarero",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "old-school-sweep",
+   "name": "Old School Sweep",
+   "es": "Old school sweep",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "john-wayne-sweep",
+   "name": "John Wayne Sweep",
+   "es": "John Wayne sweep",
+   "alias": [],
+   "cat": "sweep",
+   "sub": "media",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "hip-bump-sweep",
+   "name": "Hip Bump Sweep",
+   "es": "Barrido de cadera",
+   "alias": [
+    "Sit-Up Sweep"
+   ],
+   "cat": "sweep",
+   "sub": "guardia cerrada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "double-leg",
+   "name": "Double Leg",
+   "es": "Doble pierna",
+   "alias": [
+    "Double Leg Takedown"
+   ],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "single-leg",
+   "name": "Single Leg",
+   "es": "Pierna simple",
+   "alias": [
+    "Single Leg Takedown"
+   ],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "high-crotch",
+   "name": "High Crotch",
+   "es": "High crotch",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "ankle-pick",
+   "name": "Ankle Pick",
+   "es": "Ankle pick",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "snap-down",
+   "name": "Snap Down",
+   "es": "Snap down",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "arm-drag",
+   "name": "Arm Drag",
+   "es": "Arm drag",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "duck-under",
+   "name": "Duck Under",
+   "es": "Duck under",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "body-lock-takedown",
+   "name": "Body Lock Takedown",
+   "es": "Derribo con body lock",
+   "alias": [
+    "Body Lock"
+   ],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "fireman-carry",
+   "name": "Fireman's Carry",
+   "es": "Fireman's carry",
+   "alias": [
+    "Fireman Carry"
+   ],
+   "cat": "derribo",
+   "sub": "lucha",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://en.wikipedia.org/wiki/List_of_Brazilian_jiu-jitsu_techniques"
+   ]
+  },
+  {
+   "id": "uchi-mata",
+   "name": "Uchi Mata",
+   "es": "Uchi mata",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "both",
+   "lv": "morado",
+   "st": "borrador"
+  },
+  {
+   "id": "osoto-gari",
+   "name": "Osoto Gari",
+   "es": "Osoto gari",
+   "alias": [
+    "O Soto Gari"
+   ],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "ouchi-gari",
+   "name": "Ouchi Gari",
+   "es": "Ouchi gari",
+   "alias": [
+    "O Uchi Gari"
+   ],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "kouchi-gari",
+   "name": "Kouchi Gari",
+   "es": "Kouchi gari",
+   "alias": [
+    "Ko Uchi Gari"
+   ],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "seoi-nage",
+   "name": "Seoi Nage",
+   "es": "Seoi nage",
+   "alias": [
+    "Shoulder Throw"
+   ],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "harai-goshi",
+   "name": "Harai Goshi",
+   "es": "Harai goshi",
+   "alias": [],
+   "cat": "derribo",
+   "sub": "judo",
+   "gi": "gi",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "guard-pull",
+   "name": "Guard Pull",
+   "es": "Tirar a guardia",
+   "alias": [
+    "Pulling Guard"
+   ],
+   "cat": "derribo",
+   "sub": "entrada a guardia",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "standing",
+   "name": "Standing",
+   "es": "De pie",
+   "alias": [
+    "Stand Up"
+   ],
+   "cat": "posicion",
+   "sub": "de pie",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "mount",
+   "name": "Mount",
+   "es": "Montada",
+   "alias": [
+    "Full Mount",
+    "Montada"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "side-control",
+   "name": "Side Control",
+   "es": "Control lateral",
+   "alias": [
+    "Side Mount",
+    "Cien kilos",
+    "100 Kilos"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "north-south",
+   "name": "North-South",
+   "es": "Norte-sur",
+   "alias": [
+    "North South"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "back-control",
+   "name": "Back Control",
+   "es": "Control de espalda",
+   "alias": [
+    "Back Mount",
+    "Back",
+    "Espalda"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "turtle",
+   "name": "Turtle",
+   "es": "Tortuga",
+   "alias": [
+    "Turtle Position"
+   ],
+   "cat": "posicion",
+   "sub": "neutral",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "knee-on-belly",
+   "name": "Knee on Belly",
+   "es": "Rodilla en el abdomen",
+   "alias": [
+    "Knee on Stomach",
+    "Knee Ride"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "front-headlock",
+   "name": "Front Headlock",
+   "es": "Front headlock",
+   "alias": [],
+   "cat": "posicion",
+   "sub": "control",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "crucifix",
+   "name": "Crucifix",
+   "es": "Crucifijo",
+   "alias": [
+    "Crucifix Position"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "kesa-gatame",
+   "name": "Kesa Gatame",
+   "es": "Kesa gatame",
+   "alias": [
+    "Scarf Hold",
+    "Scarf"
+   ],
+   "cat": "posicion",
+   "sub": "dominante",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "truck",
+   "name": "Truck",
+   "es": "Truck",
+   "alias": [
+    "Twister Side"
+   ],
+   "cat": "posicion",
+   "sub": "control",
+   "gi": "both",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "saddle",
+   "name": "Saddle",
+   "es": "Saddle",
+   "alias": [
+    "Inside Sankaku",
+    "411",
+    "Honey Hole"
+   ],
+   "cat": "posicion",
+   "sub": "enredo de piernas",
+   "gi": "both",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "ashi-garami",
+   "name": "Ashi Garami",
+   "es": "Ashi garami",
+   "alias": [
+    "Ashi",
+    "Straight Ashi"
+   ],
+   "cat": "posicion",
+   "sub": "enredo de piernas",
+   "gi": "both",
+   "lv": "azul",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "berimbolo",
+   "name": "Berimbolo",
+   "es": "Berimbolo",
+   "alias": [],
+   "cat": "transicion",
+   "sub": "inversion",
+   "gi": "both",
+   "lv": "morado",
+   "st": "borrador"
+  },
+  {
+   "id": "kiss-of-the-dragon",
+   "name": "Kiss of the Dragon",
+   "es": "Beso del dragon",
+   "alias": [],
+   "cat": "transicion",
+   "sub": "inversion",
+   "gi": "both",
+   "lv": "morado",
+   "st": "borrador"
+  },
+  {
+   "id": "crab-ride",
+   "name": "Crab Ride",
+   "es": "Crab ride",
+   "alias": [],
+   "cat": "transicion",
+   "sub": "espalda",
+   "gi": "both",
+   "lv": "morado",
+   "st": "contrastada",
+   "src": [
+    "https://bjjgraph.org/Positions"
+   ]
+  },
+  {
+   "id": "wrestle-up",
+   "name": "Wrestle Up",
+   "es": "Wrestle up",
+   "alias": [
+    "Get Up"
+   ],
+   "cat": "transicion",
+   "sub": "levantada",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  },
+  {
+   "id": "sit-through",
+   "name": "Sit Through",
+   "es": "Sit through",
+   "alias": [],
+   "cat": "transicion",
+   "sub": "espalda",
+   "gi": "both",
+   "lv": "azul",
+   "st": "borrador"
+  },
+  {
+   "id": "back-take",
+   "name": "Back Take",
+   "es": "Toma de espalda",
+   "alias": [
+    "Back Takes",
+    "Taking the Back"
+   ],
+   "cat": "transicion",
+   "sub": "espalda",
+   "gi": "both",
+   "lv": "blanco",
+   "st": "borrador"
+  }
+ ]
+}
