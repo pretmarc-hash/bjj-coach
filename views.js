@@ -6,7 +6,7 @@
   const V = APP.views, A = APP.actions, ui = APP.ui;
   const rk = () => { const y = window.scrollY; APP.render(); window.scrollTo(0, y); };
   Object.assign(APP.titles, { juego: 'Mi juego', stats: 'Estadísticas', coach: 'Entrenador personal', biblio: 'Biblioteca técnica', mas: 'Más', ajustes: 'Ajustes', informe: 'Informe semanal', plan: 'Planificación' });
-  const names = (cat) => APP.techsBy(cat).map((t) => t.name);
+  const names = (cat) => APP.techsBy(cat).map((t) => ({ v: t.name, l: APP.tn(t.name) }));
 
   // ================= MI JUEGO =================
   ui.juegoCat = 'guardia';
@@ -50,7 +50,7 @@
   function masteryRow(t) {
     const p = S.profile || {}; const lv = S.mastery[t.id] || 0;
     const star = [].concat(p.guards || [], p.passes || [], p.subsPref || []).includes(t.name) ? ' ★' : '';
-    return '<div class="item" style="flex-direction:column;align-items:stretch"><div class="row between"><a href="#" data-act="tech" data-id="' + t.id + '" class="title" style="text-decoration:none;color:inherit">' + esc(t.name) + star + '</a><span class="pill-n">' + (lv ? APP.LEVELS[lv - 1] : 'Sin marcar') + '</span></div>' +
+    return '<div class="item" style="flex-direction:column;align-items:stretch"><div class="row between"><a href="#" data-act="tech" data-id="' + t.id + '" class="title" style="text-decoration:none;color:inherit">' + esc(APP.tn(t.name)) + star + '</a><span class="pill-n">' + (lv ? APP.LEVELS[lv - 1] : 'Sin marcar') + '</span></div>' +
       '<div class="mastery" style="margin-top:6px">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (lv === i ? 'on' : '') + '" data-act="mastery" data-id="' + t.id + '" data-l="' + i + '" aria-label="' + APP.LEVELS[i - 1] + '">' + i + '</button>').join('') + '</div></div>';
   }
   A.mastery = async (el) => { const id = el.dataset.id, l = Number(el.dataset.l); await APP.setMastery(id, l); rk(); };
@@ -63,7 +63,7 @@
     const p = S.profile; let h = '';
     if (!p || !p.done) h += '<div class="card hero"><h2>Construye tu juego</h2><p class="muted">Empieza con una entrevista técnica (4 pantallas cortas). Después podrás marcar tu nivel en cada técnica y crear cadenas de ataque.</p><button class="btn secondary" data-act="interview">Empezar entrevista</button></div>';
     else {
-      const chipsOf = (l, arr) => arr && arr.length ? '<p class="small muted" style="margin:10px 0 4px">' + l + '</p><div class="chips">' + arr.map((x) => '<span class="tag">' + esc(x) + '</span>').join('') + '</div>' : '';
+      const chipsOf = (l, arr) => arr && arr.length ? '<p class="small muted" style="margin:10px 0 4px">' + l + '</p><div class="chips">' + arr.map((x) => '<span class="tag">' + esc(APP.tn(x)) + '</span>').join('') + '</div>' : '';
       h += '<div class="card"><div class="row between"><h3>Mi perfil técnico</h3><button class="btn small secondary" data-act="interview">Editar</button></div>' +
         '<p class="muted small">' + ({ arriba: 'Prefiero luchar arriba', abajo: 'Prefiero luchar abajo', ambos: 'Lucho arriba y abajo' }[p.pref] || '') + '</p>' + chipsOf('Guardias preferidas', p.guards) + chipsOf('Pases preferidos', p.passes) + chipsOf('Finalizaciones preferidas', p.subsPref) + chipsOf('Posiciones problemáticas', p.posProblem) +
         (p.techGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos técnicos</p><p>' + esc(p.techGoals) + '</p>' : '') + (p.compGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos competitivos</p><p>' + esc(p.compGoals) + '</p>' : '') + '</div>';
@@ -81,8 +81,8 @@
     h += '<div class="card"><h3>Mis técnicas</h3><div class="seg">' + Object.keys(APP.CATS).map((c) => '<button class="' + (ui.juegoCat === c ? 'on' : '') + '" data-act="juegoCat" data-c="' + c + '">' + APP.CATS[c] + '</button>').join('') + '</div>' +
       '<div class="explain">1 No la conozco · 2 Teoría · 3 Aprendiendo · 4 Entrenando · 5 Contra resistencia</div><div class="list">' + APP.techsBy(ui.juegoCat).map(masteryRow).join('') + '</div></div>';
 
-    h += '<div class="card"><div class="row between"><h3>Cadenas técnicas</h3><button class="btn small ghost" data-act="addChain">+ Crear</button></div>' +
-      (S.chains.length ? '<div class="list">' + S.chains.map(chainHTML).join('') + '</div>' : '<p class="muted">Enlaza técnicas para visualizar tus rutas de ataque, por ejemplo: guardia → sweep → posición → finalización.</p>') + '</div>';
+    h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Árbol de decisión: toca una técnica para ver tus apuntes; usa + para añadir ramas.</div>' + APP.treeHTML() + '</div>';
+    h += '<div class="tiles"><a class="tile" href="#/apuntes"><span class="ico">📝</span><b>Apuntes</b><span class="pill-n">' + S.notes.length + ' guardados</span></a><a class="tile" href="#/fisico"><span class="ico">🧍</span><b>Mi físico</b><span class="pill-n">' + (S.body ? 'Ver recomendaciones' : 'Técnicas para tu cuerpo') + '</span></a></div>';
     return h;
   };
   A.juegoCat = (el) => { ui.juegoCat = el.dataset.c; rk(); };
@@ -128,7 +128,7 @@
         '<h3 style="margin-top:16px">Posiciones de partida</h3>' + bars(s.byStartPosition.rows, s.byStartPosition.total) + '<h3 style="margin-top:16px">Pases recibidos</h3>' + bars(s.received.rows, s.received.total, 'red');
     } else if (u.tab === 'guardias') {
       const g = r.guards;
-      b = '<div class="explain">Resultados de tus acciones desde cada posición de origen registrada.</div><h3>Sweeps conseguidos por guardia</h3>' + bars(g.sweepsByGuard.rows, g.sweepsByGuard.total) + eff(g.sweepEfficacy, 'Eficacia de sweeps') +
+      b = '<div class="explain">Resultados de tus acciones desde cada posición de origen registrada.</div><h3>Raspados conseguidos por guardia</h3>' + bars(g.sweepsByGuard.rows, g.sweepsByGuard.total) + eff(g.sweepEfficacy, 'Eficacia de raspados') +
         '<h3 style="margin-top:16px">Finalizaciones desde guardia</h3>' + bars(g.subsByGuard.rows, g.subsByGuard.total) + '<h3 style="margin-top:16px">Pases recibidos, por guardia de origen</h3>' + bars(g.passesReceivedByGuard.rows, g.passesReceivedByGuard.total, 'red') +
         '<h3 style="margin-top:16px">Recuperaciones de guardia</h3>' + (g.recoveries.total ? eff(g.recoveries, 'Retención / recuperación') : '<div class="empty">Sin datos todavía.</div>');
     } else if (u.tab === 'escapes') {
@@ -143,7 +143,7 @@
       const cmp = ST.compare(S.rounds, { from: ST.addDays(today(), -29), to: today() }, { from: ST.addDays(today(), -59), to: ST.addDays(today(), -30) }, { mode: u.mode, context: u.ctx });
       const row = (l, a, b2) => '<div class="item"><div>' + l + '</div><div><b>' + a + '</b> <span class="pill-n">vs ' + b2 + '</span></div></div>';
       const effS = (e) => e.total ? e.pct + '% (' + e.success + '/' + e.total + ')' : '—';
-      b = '<div class="grid2"><div class="card kpi"><div class="big">' + ses.length + '</div><div class="label">entrenamientos</div></div><div class="card kpi"><div class="big">' + r.rounds + '</div><div class="label">rounds</div></div></div>' +
+      b = '<div class="grid2"><div class="card kpi"><div class="big">' + ses.length + '</div><div class="label">entrenamientos</div></div><div class="card kpi"><div class="big">' + r.rounds + '</div><div class="label">rounds' + (r.roundMinutes ? ' · ' + r.roundMinutes + ' min de sparring' : '') + '</div></div></div>' + (r.rounds && r.roundsTimed < r.rounds ? '<p class="small muted">Tiempo contabilizado en ' + r.roundsTimed + ' de ' + r.rounds + ' rounds (los demás no tienen duración).</p>' : '') +
         '<h3>Resultados de los rounds</h3>' + bars(r.results, r.rounds) + '<h3 style="margin-top:16px">Rounds+acciones por semana</h3>' + APP.miniBars(r.general.byWeek) +
         '<h3 style="margin-top:16px">Comparar: últimos 30 días frente a los 30 anteriores</h3><div class="list">' + row('Rounds', cmp.a.rounds, cmp.b.rounds) + row('Finalizaciones hechas', cmp.a.subsMade, cmp.b.subsMade) + row('Finalizaciones recibidas', cmp.a.subsRecv, cmp.b.subsRecv) + row('Eficacia de finalizaciones', effS(cmp.a.subEff), effS(cmp.b.subEff)) + row('Eficacia de pases', effS(cmp.a.passEff), effS(cmp.b.passEff)) + row('Eficacia de escapes', effS(cmp.a.escapeEff), effS(cmp.b.escapeEff)) + '</div>' +
         '<div class="explain">Compara siempre el número entre paréntesis: con pocos intentos, una diferencia de porcentaje no significa nada.</div>';
@@ -180,7 +180,7 @@
       case 'neglect': {
         const ev = ST.flatten(S.rounds); if (S.rounds.length < 10) return [{ type: 'dato', text: 'Con ' + S.rounds.length + ' rounds registrados es pronto para decir si descuidas algo (mínimo 10).' }];
         const miss = []; const g = (k) => ev.some((e) => ST.KINDS[e.kind].group === k);
-        [['takedown', 'derribos'], ['sweep', 'sweeps'], ['escape', 'escapes'], ['pass', 'pases de guardia'], ['sub', 'finalizaciones']].forEach((x) => { if (!g(x[0])) miss.push(x[1]); });
+        [['takedown', 'derribos'], ['sweep', 'raspados'], ['escape', 'escapes'], ['pass', 'pases de guardia'], ['sub', 'finalizaciones']].forEach((x) => { if (!g(x[0])) miss.push(x[1]); });
         return miss.length ? [{ type: 'hipotesis', text: 'No has registrado ' + miss.join(', ') + ' en ' + S.rounds.length + ' rounds. Puede que no los trabajes o que no los estés anotando.' }] : [{ type: 'dato', text: 'Has registrado acciones en todas las áreas principales.' }];
       }
       default: return need;
@@ -205,7 +205,7 @@
     const row = (l, v) => '<div class="item"><div>' + l + '</div><div><b>' + v + '</b></div></div>';
     return '<div class="row between" style="margin-bottom:12px"><a class="btn small ghost" style="text-decoration:none" href="#/informe/' + prev + '">← Anterior</a><b>' + fmtDate(r.from) + ' – ' + fmtDate(r.to) + '</b><a class="btn small ghost" style="text-decoration:none" href="#/informe/' + next + '">Siguiente →</a></div>' +
       '<div class="card"><div class="list">' + row('Entrenamientos', r.sessions) + row('Minutos', r.minutes) + row('Rounds', r.rounds) + row('Finalizaciones realizadas', r.subsMade) + row('Finalizaciones recibidas', r.subsRecv) + row('Pases (éxitos de intentos)', eg(r.passes)) + row('Escapes (éxitos de intentos)', eg(r.escapes)) + row('Objetivos completados', r.goalsDone) + '</div></div>' +
-      '<div class="card"><h3>Técnicas trabajadas</h3>' + (r.techniques.length ? '<div class="chips">' + r.techniques.map((t) => '<span class="tag">' + esc(t.key) + ' ×' + t.n + '</span>').join('') + '</div>' : '<p class="muted">No registraste técnicas esta semana.</p>') + '</div>' +
+      '<div class="card"><h3>Técnicas trabajadas</h3>' + APP.rank(r.techniques.slice(0, 6), { empty: 'No registraste técnicas esta semana.' }) + '</div>' +
       (r.sessions + r.rounds === 0 ? '<div class="card"><p class="muted">No hay registros en esta semana.</p></div>' : '');
   };
 
@@ -219,7 +219,7 @@
       (u.pos === 'all' || t.from === u.pos || t.to === u.pos) && (!u.fav || S.favs.includes(t.id)) && (!u.learned || (S.mastery[t.id] || 0) >= 4) &&
       (!q || [t.name, t.es].concat(t.alias || []).some((n) => ST.norm(n).includes(q))));
     return '<p class="small muted">' + rows.length + ' de ' + S.lib.length + ' técnicas</p>' + (rows.length ? '<div class="list">' + rows.map((t) =>
-      '<a href="#" class="item" data-act="tech" data-id="' + t.id + '" style="text-decoration:none;color:inherit"><div><div class="title">' + (S.favs.includes(t.id) ? '★ ' : '') + esc(t.name) + '</div><div class="pill-n">' + esc(t.es) + ' · ' + APP.CATS[t.cat] + (t.st === 'sin-verificar' || t.st === 'propia' ? ' · ' + ST_LABEL[t.st] : '') + '</div></div><span class="tag">' + (S.mastery[t.id] ? S.mastery[t.id] + '/5' : t.lv) + '</span></a>').join('') + '</div>' : '<div class="empty">Ninguna técnica coincide.</div>');
+      '<a href="#" class="item" data-act="tech" data-id="' + t.id + '" style="text-decoration:none;color:inherit"><div><div class="title">' + (S.favs.includes(t.id) ? '★ ' : '') + esc(APP.tn(t.name)) + '</div><div class="pill-n">' + esc(APP.tnAlt(t)) + ' · ' + APP.CATS[t.cat] + (t.st === 'sin-verificar' || t.st === 'propia' ? ' · ' + ST_LABEL[t.st] : '') + '</div></div><span class="tag">' + (S.mastery[t.id] ? S.mastery[t.id] + '/5' : t.lv) + '</span></a>').join('') + '</div>' : '<div class="empty">Ninguna técnica coincide.</div>');
   }
   V.biblio = () => {
     const u = ui.lib; const b = (k, opts, cur) => '<div class="seg">' + opts.map((o) => '<button class="' + (cur === o[0] ? 'on' : '') + '" data-act="libf" data-k="' + k + '" data-v="' + o[0] + '">' + o[1] + '</button>').join('') + '</div>';
@@ -238,23 +238,24 @@
   A.liblearned = () => { ui.lib.learned = !ui.lib.learned; rk(); };
   const refreshList = () => { const l = APP.$('#lib-list'); if (l) l.innerHTML = libList(); };
   const listBlock = (title, arr) => arr && arr.length ? '<h3 style="margin:16px 0 6px">' + title + '</h3><ul style="margin:0;padding-left:18px">' + arr.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
-  const techChips = (ids) => ids && ids.length ? '<div class="chips">' + ids.map((i) => { const t = APP.techById(i); return t ? '<button class="chip sm" data-act="tech" data-id="' + t.id + '">' + esc(t.name) + '</button>' : ''; }).join('') + '</div>' : '';
+  const techChips = (ids) => ids && ids.length ? '<div class="chips">' + ids.map((i) => { const t = APP.techById(i); return t ? '<button class="chip sm" data-act="tech" data-id="' + t.id + '">' + esc(APP.tn(t.name)) + '</button>' : ''; }).join('') + '</div>' : '';
   A.tech = (el) => {
     const t = APP.techById(el.dataset.id); if (!t) return;
     const lv = S.mastery[t.id] || 0; const inChains = S.chains.filter((c) => c.steps.some((x) => (APP.findTech(x) || {}).id === t.id));
     const rel = new Set(); inChains.forEach((c) => c.steps.forEach((x, i) => { if ((APP.findTech(x) || {}).id === t.id) { if (c.steps[i - 1]) rel.add(c.steps[i - 1]); if (c.steps[i + 1]) rel.add(c.steps[i + 1]); } }));
     const diff = t.diff ? '<p class="small muted" style="margin:8px 0">Dificultad: ' + '●'.repeat(t.diff) + '○'.repeat(5 - t.diff) + ' (' + t.diff + '/5) · Nivel recomendado: ' + esc(t.lv) + '</p>' : '<p class="small muted" style="margin:8px 0">Nivel recomendado: ' + esc(t.lv) + '</p>';
     const srcs = (t.src || []).filter((x) => /^https?:/.test(x));
-    APP.openSheet(t.name, '<p class="muted">' + esc(t.es) + '</p>' + (t.alias && t.alias.length ? '<p class="small">También conocida como: ' + esc(t.alias.join(', ')) + '</p>' : '') +
+    const nNotes = APP.notesFor(t.name).length;
+    APP.openSheet(APP.tn(t.name), '<p class="muted">' + esc(APP.tnAlt(t)) + '</p>' + (t.alias && t.alias.length ? '<p class="small">También conocida como: ' + esc(t.alias.join(', ')) + '</p>' : '') +
       '<div class="chips"><span class="tag">' + APP.CATS[t.cat] + '</span>' + (t.sub ? '<span class="tag">' + esc(t.sub) + '</span>' : '') + '<span class="tag">' + ({ gi: 'GI', nogi: 'NO-GI', both: 'GI y NO-GI' }[t.gi] || '') + '</span><span class="tag">' + (ST_LABEL[t.st] || 'Borrador') + '</span></div>' + diff +
       (t.nota ? '<div class="explain">' + esc(t.nota) + '</div>' : '') + (t.desc ? '<p>' + esc(t.desc) + '</p>' : '<p class="muted small">Esta técnica aún no tiene ficha descriptiva.</p>') +
-      (t.from || t.to ? '<p class="small"><b>Posición inicial:</b> ' + esc(t.from || '—') + ' &nbsp; <b>Final:</b> ' + esc(t.to || '—') + '</p>' : '') +
+      (t.from || t.to ? '<p class="small"><b>Posición inicial:</b> ' + esc(t.from ? APP.tn(t.from) : '—') + ' &nbsp; <b>Final:</b> ' + esc(t.to ? APP.tn(t.to) : '—') + '</p>' : '') +
       listBlock('Variantes', t.variants) + listBlock('Entradas', t.entries) + (t.next && t.next.length ? '<h3 style="margin:16px 0 6px">Continuaciones</h3>' + techChips(t.next) : '') + listBlock('Defensas', t.defenses) + listBlock('Errores habituales', t.mistakes) +
       (t.related && t.related.length ? '<h3 style="margin:16px 0 6px">Técnicas relacionadas</h3>' + techChips(t.related) : '') +
       (srcs.length ? '<h3 style="margin:16px 0 6px">Fuentes</h3><ul style="margin:0;padding-left:18px">' + srcs.map((x) => '<li><a href="' + esc(x) + '" target="_blank" rel="noopener">' + esc(x) + '</a></li>').join('') + '</ul>' : '') +
       '<h3 style="margin:16px 0 6px">Mi nivel</h3><div class="mastery">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (lv === i ? 'on' : '') + '" data-act="mastery2" data-id="' + t.id + '" data-l="' + i + '">' + i + '</button>').join('') + '</div><p class="small muted">' + (lv ? APP.LEVELS[lv - 1] : 'Sin marcar') + '</p>' +
-      '<div class="stack"><button class="btn secondary block" data-act="learned" data-id="' + t.id + '">' + (lv >= 4 ? '✔ Marcada como aprendida' : 'Marcar como aprendida (nivel 4)') + '</button><button class="btn secondary block" data-act="fav" data-id="' + t.id + '">' + (S.favs.includes(t.id) ? '★ Quitar de favoritas' : '☆ Guardar en favoritas') + '</button><button class="btn ghost block" data-act="aliasForm" data-id="' + t.id + '">Añadir otro nombre (alias)</button></div>' +
-      (rel.size ? '<h3 style="margin:16px 0 6px">En mis cadenas</h3><div class="chips">' + Array.from(rel).map((x) => '<span class="tag">' + esc(x) + '</span>').join('') + '</div>' : ''));
+      '<div class="stack"><button class="btn block" data-act="notesOf" data-name="' + esc(t.name) + '">📝 Mis apuntes (' + nNotes + ')</button><button class="btn secondary block" data-act="learned" data-id="' + t.id + '">' + (lv >= 4 ? '✔ Marcada como aprendida' : 'Marcar como aprendida (nivel 4)') + '</button><button class="btn secondary block" data-act="fav" data-id="' + t.id + '">' + (S.favs.includes(t.id) ? '★ Quitar de favoritas' : '☆ Guardar en favoritas') + '</button><button class="btn ghost block" data-act="aliasForm" data-id="' + t.id + '">Añadir otro nombre (alias)</button></div>' +
+      '');
   };
   A.mastery2 = async (el) => { await APP.setMastery(el.dataset.id, Number(el.dataset.l)); A.tech({ dataset: { id: el.dataset.id } }); refreshList(); };
   A.learned = async (el) => { if ((S.mastery[el.dataset.id] || 0) < 4) await APP.setMastery(el.dataset.id, 4); A.tech({ dataset: { id: el.dataset.id } }); refreshList(); };
@@ -286,16 +287,21 @@
   };
 
   // ================= MÁS / AJUSTES / PLAN =================
-  V.mas = () => '<div class="card"><div class="list">' +
-    [['#/coach', '🥋', 'Entrenador personal', 'Análisis y respuestas con tus datos'], ['#/informe', '🗓', 'Informe semanal', 'Resumen de tu semana'], ['#/mensual', '📈', 'Informe mensual', 'Evolución y plan del mes'], ['#/biblio', '📚', 'Biblioteca técnica', S.lib.length + ' técnicas (borrador)'], ['#/plan', '📅', 'Planificación', 'Calendario, objetivos y recordatorios'], ['#/ajustes', '⚙', 'Ajustes y datos', 'Tema, exportar e importar']]
-      .map((x) => '<a class="item" href="' + x[0] + '" style="text-decoration:none;color:inherit"><div><div class="title">' + x[1] + ' ' + x[2] + '</div><div class="pill-n">' + x[3] + '</div></div><span class="muted">›</span></a>').join('') + '</div></div>';
+  V.mas = () => {
+    const sec = (title, rows) => '<div class="card"><h3>' + title + '</h3><div class="list">' + rows.map((x) => '<a class="item" href="' + x[0] + '" style="text-decoration:none;color:inherit"><div class="row"><span class="ico-b">' + x[1] + '</span><div><div class="title">' + x[2] + '</div><div class="pill-n">' + x[3] + '</div></div></div><span class="muted">›</span></a>').join('') + '</div></div>';
+    return sec('Jiu-jitsu', [['#/apuntes', '📝', 'Apuntes', S.notes.length + ' apuntes de técnicas'], ['#/arbol', '🌳', 'Game plan', 'Tu árbol de decisión'], ['#/fisico', '🧍', 'Mi físico', 'Técnicas recomendadas para tu cuerpo'], ['#/biblio', '📚', 'Biblioteca técnica', S.lib.length + ' técnicas (borrador)'], ['#/plan', '📅', 'Planificación', 'Calendario, objetivos y recordatorios'], ['#/coach', '🥋', 'Entrenador personal', 'Análisis y respuestas con tus datos']]) +
+      (APP.masExtra ? APP.masExtra(sec) : '') +
+      sec('Informes y ajustes', [['#/informe', '🗓', 'Informe semanal', 'Resumen de tu semana'], ['#/mensual', '📈', 'Informe mensual', 'Evolución y plan del mes'], ['#/ajustes', '⚙', 'Ajustes y datos', 'Tema, nombres, exportar e importar']]);
+  };
 
-  V.ajustes = () => '<div class="card"><h3>Apariencia</h3>' + '<div class="seg">' + [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map((t) => '<button class="' + (S.settings.theme === t[0] ? 'on' : '') + '" data-act="theme" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div></div>' +
+  V.ajustes = () => '<div class="card"><h3>Apariencia</h3>' + '<div class="seg">' + [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map((t) => '<button class="' + (S.settings.theme === t[0] ? 'on' : '') + '" data-act="theme" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
+    '<h3 style="margin-top:8px">Nombres de las técnicas</h3><div class="seg">' + [['es', 'En español'], ['int', 'Internacional']].map((t) => '<button class="' + ((S.settings.names || 'es') === t[0] ? 'on' : '') + '" data-act="namesSet" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div><p class="small muted">Puedes escribir en cualquiera de los dos: la app reconoce ambos nombres y los alias.</p></div>' +
     '<div class="card"><h3>Tus datos</h3><p class="muted small">Todo se guarda en este dispositivo. No hay cuentas ni servidores. Haz copias de seguridad de vez en cuando.</p><div class="stack"><button class="btn block" data-act="export">Exportar copia (JSON)</button><label class="btn secondary block" style="display:block;text-align:center">Importar copia<input type="file" accept="application/json,.json" data-input="importfile" hidden></label><button class="btn danger block" data-act="wipe">Borrar todos los datos</button></div></div>' +
     '<div class="card"><h3>Resumen</h3><p class="small muted">' + S.sessions.length + ' entrenamientos · ' + S.rounds.length + ' rounds · ' + S.goals.length + ' objetivos · ' + S.chains.length + ' cadenas</p></div>';
+  A.namesSet = async (el) => { S.settings.names = el.dataset.v; await APP.saveMeta('settings', S.settings); APP.buildDatalists(); rk(); };
   A.theme = async (el) => { S.settings.theme = el.dataset.v; await APP.saveMeta('settings', S.settings); APP.applyTheme(); rk(); };
   A.export = () => {
-    const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan };
+    const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan, notes: S.notes, noteTopics: S.noteTopics, tree: S.tree, body: S.body, gym: S.gym, food: S.food };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bjj-coach-' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     APP.toast('Copia exportada');
@@ -315,6 +321,7 @@
       if (d.custom && d.custom.length) { const have = new Set((S.custom || []).map((c) => c.id)); await APP.saveMeta('custom', (S.custom || []).concat(d.custom.filter((c) => !have.has(c.id)))); }
       if (d.aliases) { const al = Object.assign({}, S.aliases || {}); Object.keys(d.aliases).forEach((k) => { al[k] = Array.from(new Set((al[k] || []).concat(d.aliases[k]))); }); await APP.saveMeta('aliases', al); }
       if (d.plan) await APP.saveMeta('plan', APP.normalizePlan(d.plan));
+      for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food']) if (d[k]) await APP.saveMeta(k, d[k]);
       await APP.loadLib();
       APP.toast('Copia importada'); APP.render();
     } catch (e) { APP.toast('No se pudo importar: ' + e.message); }
@@ -325,6 +332,8 @@
     if (!APP.confirm('Última confirmación: se borrarán entrenamientos, rounds, perfil y objetivos.')) return;
     for (const st of ['sessions', 'rounds', 'chains', 'goals', 'mastery']) await APP.db.clear(st);
     await APP.db.del('meta', 'profile'); await APP.db.del('meta', 'favs'); await APP.db.del('meta', 'custom'); await APP.db.del('meta', 'aliases'); await APP.db.del('meta', 'plan'); S.plan = APP.defaultPlan();
+    for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food']) await APP.db.del('meta', k);
+    S.notes = []; S.noteTopics = {}; S.tree = { nodes: [] }; S.body = null; S.gym = null; S.food = null;
     Object.assign(S, { sessions: [], rounds: [], mastery: {}, chains: [], goals: [], profile: null, favs: [], custom: [], aliases: {} }); await APP.loadLib();
     APP.toast('Datos borrados'); APP.go('#/inicio');
   };

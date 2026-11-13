@@ -647,10 +647,11 @@
   {
    "id": "x-guard-sweep",
    "name": "X-Guard Sweep",
-   "es": "Barridos desde guardia X",
+   "es": "Raspados desde guardia X",
    "alias": [
     "X-Guard Sweeps",
-    "X Guard Sweep"
+    "X Guard Sweep",
+    "Barridos desde guardia X"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -661,10 +662,11 @@
   {
    "id": "single-leg-x-sweep",
    "name": "Single Leg X Sweep",
-   "es": "Barridos desde Single Leg X",
+   "es": "Raspados desde Single Leg X",
    "alias": [
     "Single Leg X Sweeps",
-    "SLX Sweep"
+    "SLX Sweep",
+    "Barridos desde Single Leg X"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -675,10 +677,11 @@
   {
    "id": "de-la-riva-sweep",
    "name": "De La Riva Sweep",
-   "es": "Barridos desde De La Riva",
+   "es": "Raspados desde De La Riva",
    "alias": [
     "De La Riva Sweeps",
-    "DLR Sweep"
+    "DLR Sweep",
+    "Barridos desde De La Riva"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -692,10 +695,11 @@
   {
    "id": "reverse-de-la-riva-sweep",
    "name": "Reverse De La Riva Sweep",
-   "es": "Barridos desde De La Riva invertida",
+   "es": "Raspados desde De La Riva invertida",
    "alias": [
     "Reverse De La Riva Sweeps",
-    "RDLR Sweep"
+    "RDLR Sweep",
+    "Barridos desde De La Riva invertida"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -706,9 +710,10 @@
   {
    "id": "half-guard-sweep",
    "name": "Half Guard Sweep",
-   "es": "Barridos desde media guardia",
+   "es": "Raspados desde media guardia",
    "alias": [
-    "Half Guard Sweeps"
+    "Half Guard Sweeps",
+    "Barridos desde media guardia"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -719,9 +724,10 @@
   {
    "id": "deep-half-sweep",
    "name": "Deep Half Sweep",
-   "es": "Barridos desde media guardia profunda",
+   "es": "Raspados desde media guardia profunda",
    "alias": [
-    "Deep Half Sweeps"
+    "Deep Half Sweeps",
+    "Barridos desde media guardia profunda"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -732,10 +738,11 @@
   {
    "id": "k-guard-sweep",
    "name": "K-Guard Sweep",
-   "es": "Barridos desde guardia K",
+   "es": "Raspados desde guardia K",
    "alias": [
     "K-Guard Sweeps",
-    "K Guard Sweep"
+    "K Guard Sweep",
+    "Barridos desde guardia K"
    ],
    "cat": "sweep",
    "sub": "familia",
@@ -746,9 +753,10 @@
   {
    "id": "technical-stand-up-sweep",
    "name": "Technical Stand-Up Sweep",
-   "es": "Barrido con levantada técnica",
+   "es": "Raspado con levantada técnica",
    "alias": [
-    "Technical Stand Up Sweep"
+    "Technical Stand Up Sweep",
+    "Barrido con levantada técnica"
    ],
    "cat": "sweep",
    "sub": "guardia cerrada",

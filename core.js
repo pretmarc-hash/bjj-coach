@@ -4,7 +4,7 @@
   const ST = window.BJJStats;
   const APP = (window.APP = {
     ST,
-    S: { sessions: [], rounds: [], mastery: {}, chains: [], goals: [], profile: null, settings: { theme: 'auto' }, favs: [], custom: [], aliases: {}, plan: null, lib: [] },
+    S: { sessions: [], rounds: [], mastery: {}, chains: [], goals: [], profile: null, settings: { theme: 'auto' }, favs: [], custom: [], aliases: {}, plan: null, lib: [], notes: [], noteTopics: {}, tree: { nodes: [] }, body: null, gym: null, food: null },
     views: {}, actions: {}, titles: {}, ui: {}
   });
 
@@ -12,7 +12,7 @@
   // Plan: días habituales, ajustes por fecha, entrenos extra, hechos manuales y estado de avisos.
   APP.defaultPlan = () => ({
     days: {}, overrides: {}, extras: [], done: {}, notified: {}, weeklySeen: '',
-    notif: { enabled: false, afterMin: 15, remindUnlogged: true, remindAfterH: 3, goals: false, weekly: false, weeklyDay: 7, weeklyTime: '20:00' }
+    notif: { enabled: false, before: true, beforeMin: 120, afterMin: 15, remindUnlogged: true, remindAfterH: 3, goals: false, weekly: false, weeklyDay: 7, weeklyTime: '20:00' }
   });
   APP.normalizePlan = (p) => { const d = APP.defaultPlan(); if (!p) return d; return Object.assign(d, p, { notif: Object.assign(d.notif, p.notif || {}) }); };
 
@@ -25,7 +25,7 @@
   Object.assign(APP, { esc, uid, today, nowTime, fmtDate });
 
   APP.LEVELS = ['No la conozco', 'La conozco teóricamente', 'La estoy aprendiendo', 'Puedo ejecutarla entrenando', 'La aplico contra resistencia'];
-  APP.CATS = { guardia: 'Guardias', pase: 'Pases', finalizacion: 'Finalizaciones', escape: 'Escapes', sweep: 'Sweeps', derribo: 'Derribos', posicion: 'Posiciones', transicion: 'Transiciones', retencion: 'Retención', concepto: 'Conceptos' };
+  APP.CATS = { guardia: 'Guardias', pase: 'Pases', finalizacion: 'Finalizaciones', escape: 'Escapes', sweep: 'Raspados', derribo: 'Derribos', posicion: 'Posiciones', transicion: 'Transiciones', retencion: 'Retención', concepto: 'Conceptos' };
   APP.MODES = { gi: 'GI', nogi: 'NO-GI', both: 'Ambos' };
 
   // ---------- base de datos ----------
@@ -85,6 +85,12 @@
     S.custom = meta.custom || [];
     S.plan = APP.normalizePlan(meta.plan);
     S.aliases = meta.aliases || {};
+    S.notes = meta.notes || [];
+    S.noteTopics = meta.noteTopics || {};
+    S.tree = meta.tree || { nodes: [] };
+    S.body = meta.body || null;
+    S.gym = meta.gym || null;
+    S.food = meta.food || null;
     sortSessions();
     if (navigator.storage && navigator.storage.persist) { try { navigator.storage.persist(); } catch (e) { /* ignorado */ } }
     return !!db;
@@ -118,8 +124,8 @@
   APP.buildDatalists = () => {
     let holder = document.getElementById('datalists');
     if (!holder) { holder = document.createElement('div'); holder.id = 'datalists'; document.body.appendChild(holder); }
-    const dl = (id, items) => '<datalist id="' + id + '">' + items.map((n) => '<option value="' + esc(n) + '"></option>').join('') + '</datalist>';
-    holder.innerHTML = dl('dl-tech', APP.S.lib.map((t) => t.name)) + dl('dl-pos', APP.S.lib.filter((t) => t.cat === 'posicion' || t.cat === 'guardia').map((t) => t.name));
+    const dl = (id, items) => '<datalist id="' + id + '">' + items.map((t) => '<option value="' + esc(APP.tn(t.name)) + '" label="' + esc(APP.tnAlt(t)) + '"></option>').join('') + '</datalist>';
+    holder.innerHTML = dl('dl-tech', APP.S.lib) + dl('dl-pos', APP.S.lib.filter((t) => t.cat === 'posicion' || t.cat === 'guardia'));
   };
   APP.loadLib = async function () {
     const lib = []; const byId = new Map(); idx.clear(); APP.libWarnings = [];
@@ -139,9 +145,13 @@
     (APP.S.custom || []).forEach((c) => { if (!byId.has(c.id)) { const copy = Object.assign({}, c, { custom: true, st: 'propia' }); lib.push(copy); byId.set(copy.id, copy); registerNames(copy); } });
     Object.keys(APP.S.aliases || {}).forEach((id) => { const t = byId.get(id); if (!t) return; APP.S.aliases[id].forEach((al) => { const k = ST.norm(al); if (k && !idx.has(k)) { t.alias = (t.alias || []).concat(al); idx.set(k, t); } }); });
     APP.S.lib = lib;
+    ST.setNamer(APP.tn);
     APP.buildDatalists();
   };
   APP.findTech = (text) => idx.get(ST.norm(text)) || null;
+  // Nombre para mostrar: en español por defecto (Ajustes permite el nombre internacional). La identidad guardada no cambia.
+  APP.tn = (text) => { const t = APP.findTech(text); if (!t) return text; return (APP.S.settings.names === 'int') ? t.name : (t.es || t.name); };
+  APP.tnAlt = (t) => ((APP.S.settings.names === 'int') ? (t.es || '') : t.name);
   // Una técnica o posición tiene una identidad principal: los alias se convierten en el nombre canónico.
   APP.canon = (text) => { const t = String(text || '').trim(); if (!t) return { name: '', id: null }; const f = APP.findTech(t); return f ? { name: f.name, id: f.id } : { name: t, id: null }; };
   APP.techsBy = (cat) => APP.S.lib.filter((t) => t.cat === cat);
@@ -194,7 +204,7 @@
   APP.tagField = (group, values, listId, placeholder) =>
     '<div class="chips" data-tags="' + group + '" style="margin-bottom:8px">' + (values || []).map((v) => tagChip(v)).join('') + '</div>' +
     '<div class="row"><input data-taginput="' + group + '" list="' + listId + '" placeholder="' + esc(placeholder || 'Escribe y pulsa Añadir') + '" autocomplete="off"><button type="button" class="btn secondary small" data-act="tagadd" data-g="' + group + '">Añadir</button></div>';
-  const tagChip = (v) => '<button type="button" class="chip on sm" data-act="tagdel" data-val="' + esc(v) + '">' + esc(v) + ' ✕</button>';
+  const tagChip = (v) => '<button type="button" class="chip on sm" data-act="tagdel" data-val="' + esc(v) + '">' + esc(APP.tn(v)) + ' ✕</button>';
   APP.tags = (group, root) => $$('[data-tags="' + group + '"] [data-val]', root || $('#sheet-body')).map((b) => b.dataset.val);
   APP.field = (label, inner) => '<label class="field"><span>' + label + '</span>' + inner + '</label>';
   APP.group = (label, inner) => '<div class="field"><span style="display:block;margin-bottom:6px">' + label + '</span>' + inner + '</div>';
@@ -202,9 +212,32 @@
 
   // Barras de porcentaje: siempre muestran el número de observaciones.
   APP.bars = (rows, total, cls) => rows.length
-    ? rows.map((r) => '<div class="bar ' + (cls || '') + '"><div class="meta"><span>' + esc(r.key || r.label) + '</span><span><b>' + r.pct + '%</b> <span class="pill-n">(' + r.n + ' de ' + total + ')</span></span></div><div class="track"><div class="fill" style="width:' + r.pct + '%"></div></div></div>').join('')
+    ? rows.map((r) => '<div class="bar ' + (cls || '') + '"><div class="meta"><span>' + esc(APP.tn(r.key || r.label)) + '</span><span><b>' + r.pct + '%</b> <span class="pill-n">(' + r.n + ' de ' + total + ')</span></span></div><div class="track"><div class="fill" style="width:' + r.pct + '%"></div></div></div>').join('')
     : '<div class="empty">Sin datos todavía.</div>';
-  APP.eff = (e, label) => e.total ? '<div class="bar gold"><div class="meta"><span>' + esc(label) + '</span><span><b>' + e.pct + '%</b> <span class="pill-n">(' + e.success + ' éxitos de ' + e.total + ' intentos)</span></span></div><div class="track"><div class="fill" style="width:' + e.pct + '%"></div></div></div>' : '';
+  APP.eff = (e, label) => e.total ? '<div class="bar gold"><div class="meta"><span>' + esc(APP.tn(label)) + '</span><span><b>' + e.pct + '%</b> <span class="pill-n">(' + e.success + ' éxitos de ' + e.total + ' intentos)</span></span></div><div class="track"><div class="fill" style="width:' + e.pct + '%"></div></div></div>' : '';
+  // Clasificación visual: posición, nombre, barra proporcional al máximo y recuento.
+  APP.rank = (rows, opts) => {
+    opts = opts || {}; if (!rows || !rows.length) return '<p class="muted small">' + (opts.empty || 'Sin datos todavía.') + '</p>';
+    const max = Math.max.apply(null, rows.map((r) => r.n)) || 1;
+    return '<div class="rank">' + rows.map((r, i) => '<div class="rk"><span class="pos p' + (i + 1) + '">' + (i + 1) + '</span><div class="body"><div class="nm"><span>' + esc(APP.tn(r.key)) + '</span><b>' + (opts.fmt ? opts.fmt(r) : '×' + r.n) + '</b></div><div class="track"><div class="fill ' + (opts.cls || '') + '" style="width:' + Math.max(6, Math.round((r.n / max) * 100)) + '%"></div></div></div></div>').join('') + '</div>';
+  };
+  // Anillo de progreso (0-100).
+  APP.ring = (pct, label, sub, color) => { const p = Math.max(0, Math.min(100, pct || 0)); const c = 2 * Math.PI * 34; return '<div class="ring"><svg viewBox="0 0 80 80" width="84" height="84"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--surface-2)" stroke-width="8"/><circle cx="40" cy="40" r="34" fill="none" stroke="' + (color || 'var(--green-2)') + '" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - p / 100)).toFixed(1) + '" transform="rotate(-90 40 40)"/><text x="40" y="45" text-anchor="middle" font-size="17" font-weight="800" fill="currentColor">' + esc(label) + '</text></svg>' + (sub ? '<div class="label">' + sub + '</div>' : '') + '</div>'; };
+  // Gráfico de líneas sencillo. series: [{ points: [{x: 'AAAA-MM-DD', y: n}], color, dashed }]
+  APP.line = (series, opts) => {
+    opts = opts || {}; const all = series.reduce((a, s) => a.concat(s.points), []); if (all.length < 2) return '<div class="empty">' + (opts.empty || 'Hacen falta al menos 2 registros para ver la evolución.') + '</div>';
+    const xs = all.map((p) => ST.parse(p.x).getTime()); const ys = all.map((p) => p.y); const x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs); let y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    if (y0 === y1) { y0 -= 1; y1 += 1; } const pad = (y1 - y0) * 0.12; y0 -= pad; y1 += pad;
+    const W = 320, H = 150, L = 36, R = 8, T = 8, B = 20; const px = (x) => L + (x1 === x0 ? 0.5 : (ST.parse(x).getTime() - x0) / (x1 - x0)) * (W - L - R); const py = (y) => T + (1 - (y - y0) / (y1 - y0)) * (H - T - B);
+    const fmt = (v) => (Math.abs(v) >= 100 ? Math.round(v) : Math.round(v * 10) / 10);
+    let g = ''; for (let i = 0; i <= 3; i++) { const v = y0 + ((y1 - y0) * i) / 3; g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + py(v).toFixed(1) + '" y2="' + py(v).toFixed(1) + '" stroke="var(--line)" stroke-width="1"/><text x="' + (L - 4) + '" y="' + (py(v) + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="var(--muted)">' + fmt(v) + '</text>'; }
+    const first = all.reduce((a, p) => (p.x < a ? p.x : a), all[0].x), last = all.reduce((a, p) => (p.x > a ? p.x : a), all[0].x); const lab = (d) => ST.parse(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    g += '<text x="' + L + '" y="' + (H - 4) + '" font-size="9" fill="var(--muted)">' + lab(first) + '</text><text x="' + (W - R) + '" y="' + (H - 4) + '" text-anchor="end" font-size="9" fill="var(--muted)">' + lab(last) + '</text>';
+    series.forEach((s) => { const pts = s.points.slice().sort((a, b) => a.x.localeCompare(b.x)); if (!pts.length) return; const c = s.color || 'var(--green)';
+      g += '<polyline fill="none" stroke="' + c + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"' + (s.dashed ? ' stroke-dasharray="5 4"' : '') + ' points="' + pts.map((p) => px(p.x).toFixed(1) + ',' + py(p.y).toFixed(1)).join(' ') + '"/>';
+      if (!s.dashed && pts.length <= 40) g += pts.map((p) => '<circle cx="' + px(p.x).toFixed(1) + '" cy="' + py(p.y).toFixed(1) + '" r="3" fill="' + c + '"><title>' + lab(p.x) + ': ' + fmt(p.y) + (opts.unit || '') + '</title></circle>').join(''); });
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="' + esc(opts.label || 'Evolución') + '">' + g + '</svg>';
+  };
   APP.lowN = (n) => n < 5 ? '<div class="explain">⚠ Pocos datos (n = ' + n + '). Tómalo como una pista, no como una conclusión.</div>' : '';
   APP.miniBars = (rows) => {
     rows = rows.slice(-12); if (!rows.length) return '<div class="empty">Sin datos todavía.</div>';
@@ -228,14 +261,18 @@
 
   // ---------- enrutador ----------
   APP.go = (hash) => { if (location.hash === hash) APP.render(); else location.hash = hash; };
+  APP.TABMAP = { inicio: 'inicio', entrenos: 'bjj', entreno: 'bjj', juego: 'bjj', stats: 'bjj', apuntes: 'bjj', arbol: 'bjj', fisico: 'bjj', biblio: 'bjj', plan: 'bjj', gym: 'gym', nutri: 'nutri' };
   APP.render = () => {
     const parts = (location.hash || '#/inicio').replace(/^#\//, '').split('/');
     const name = APP.views[parts[0]] ? parts[0] : 'inicio';
     const view = $('#view');
-    try { view.innerHTML = APP.views[name](parts[1]); } catch (e) { console.error(e); view.innerHTML = '<div class="card"><h3>Algo ha fallado</h3><p class="muted">' + esc(e.message) + '</p></div>'; }
+    const tab = APP.TABMAP[name] || 'mas';
+    const subnav = tab === 'bjj' ? '<nav class="subnav">' + [['entrenos', 'Entrenos'], ['juego', 'Mi juego'], ['apuntes', 'Apuntes'], ['stats', 'Estadísticas'], ['plan', 'Plan'], ['biblio', 'Técnicas']].map((x) => '<a href="#/' + x[0] + '"' + ((name === x[0] || (x[0] === 'entrenos' && name === 'entreno') || (x[0] === 'juego' && (name === 'arbol' || name === 'fisico'))) ? ' class="on"' : '') + '>' + x[1] + '</a>').join('') + '</nav>' : '';
+    APP.route = { name, arg: parts[1], tab };
+    try { view.innerHTML = subnav + APP.views[name](parts[1]); } catch (e) { console.error(e); view.innerHTML = '<div class="card"><h3>Algo ha fallado</h3><p class="muted">' + esc(e.message) + '</p></div>'; }
     $('#screen-title').textContent = (APP.titles[name] || 'BJJ Coach');
-    const tab = { inicio: 'inicio', entrenos: 'entrenos', entreno: 'entrenos', juego: 'juego', stats: 'stats' }[name] || 'mas';
     $$('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.tab === tab));
+    const fab = $('#fab'); if (fab) fab.hidden = (name === 'gym' && parts[1] === 'entreno');
     window.scrollTo(0, 0);
   };
 
@@ -253,7 +290,8 @@
     const el = e.target.closest('[data-act]');
     if (el && APP.actions[el.dataset.act]) { e.preventDefault(); APP.actions[el.dataset.act](el, e); }
   });
-  document.addEventListener('input', (e) => { const el = e.target.closest('[data-input]'); if (el && APP.actions[el.dataset.input]) APP.actions[el.dataset.input](el, e); });
+  document.addEventListener('input', (e) => { const el = e.target.closest('[data-input]'); if (el && el.type !== 'file' && APP.actions[el.dataset.input]) APP.actions[el.dataset.input](el, e); });
+  document.addEventListener('change', (e) => { const el = e.target.closest('input[type=file][data-input]'); if (el && APP.actions[el.dataset.input]) APP.actions[el.dataset.input](el, e); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.dataset && e.target.dataset.taginput) { e.preventDefault(); APP.actions.tagadd({ dataset: { g: e.target.dataset.taginput } }); }
     if (e.key === 'Escape' && APP.sheetOpen()) APP.closeSheet();

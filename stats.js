@@ -8,8 +8,8 @@
     sub_recv:      { label: 'Finalización recibida',  own: false, group: 'sub' },
     pass_made:     { label: 'Pase de guardia realizado', own: true,  group: 'pass' },
     pass_recv:     { label: 'Pase de guardia recibido',  own: false, group: 'pass' },
-    sweep_made:    { label: 'Sweep realizado', own: true,  group: 'sweep' },
-    sweep_recv:    { label: 'Sweep recibido',  own: false, group: 'sweep' },
+    sweep_made:    { label: 'Raspado realizado', own: true,  group: 'sweep' },
+    sweep_recv:    { label: 'Raspado recibido',  own: false, group: 'sweep' },
     escape:        { label: 'Escape',          own: true,  group: 'escape' },
     takedown_made: { label: 'Derribo realizado', own: true,  group: 'takedown' },
     takedown_recv: { label: 'Derribo recibido',  own: false, group: 'takedown' },
@@ -51,8 +51,11 @@
     });
     return Array.from(m, ([key, n]) => ({ key, n })).sort((a, b) => b.n - a.n || String(a.key).localeCompare(String(b.key)));
   }
-  function techName(e) { return (e.tech && String(e.tech).trim()) || 'Sin especificar'; }
-  function posName(p) { return (p && String(p).trim()) || 'Sin especificar'; }
+  // Traductor de nombres para mostrar (la app lo fija al cargar la biblioteca). Por defecto no cambia nada.
+  let namer = (x) => x;
+  function setNamer(f) { namer = typeof f === 'function' ? f : (x) => x; }
+  function techName(e) { const n = e.tech && String(e.tech).trim(); return n ? namer(n) : 'Sin especificar'; }
+  function posName(p) { const n = p && String(p).trim(); return n ? namer(n) : 'Sin especificar'; }
 
   // ---------- eventos ----------
   function flatten(rounds) {
@@ -135,6 +138,8 @@
 
     return {
       rounds: rs.length,
+      roundMinutes: rs.reduce((a, r) => a + (Number(r.duration) || 0), 0),
+      roundsTimed: rs.filter((r) => Number(r.duration) > 0).length,
       events: ev.length,
       results,
       subs: {
@@ -337,6 +342,7 @@
       sessions: ss.length,
       minutes: ss.reduce((a, s) => a + (Number(s.duration) || 0), 0),
       rounds: rs.length,
+      roundMinutes: rs.reduce((a, r) => a + (Number(r.duration) || 0), 0),
       techniques: techs,
       subsMade: rep.subs.made.total,
       subsRecv: rep.subs.received.total,
@@ -407,7 +413,7 @@
       ym, prevYm: pm, from: r.from, to: r.to,
       sessions: ss.length, prevSessions: ps.length,
       minutes: ss.reduce((a, s) => a + (Number(s.duration) || 0), 0), prevMinutes: ps.reduce((a, s) => a + (Number(s.duration) || 0), 0),
-      rounds: cur.rounds, prevRounds: prv.rounds,
+      rounds: cur.rounds, prevRounds: prv.rounds, roundMinutes: cur.roundMinutes, prevRoundMinutes: prv.roundMinutes,
       subsMade: cur.subs.made.total, prevSubsMade: prv.subs.made.total, subsRecv: cur.subs.received.total, prevSubsRecv: prv.subs.received.total,
       subEff: cur.subs.efficacy, prevSubEff: prv.subs.efficacy, passEff: cur.passes.efficacy, prevPassEff: prv.passes.efficacy, escapeEff: cur.escapes.efficacy, prevEscapeEff: prv.escapes.efficacy,
       topTechniques: tally(ss.reduce((a, s) => a.concat(splitTags(s.techniques)), []), (x) => x).slice(0, 5),
@@ -423,7 +429,7 @@
 
   const api = {
     KINDS, RESULTS, norm, pct, tally, flatten, filterRounds, efficacy, byTechEfficacy, distribution, evolution,
-    report, compare, coach, weeklyReport, sessionAnalysis, suggestGoals, monthlyReport, monthRange, prevMonth, periodKey, weekStart, addDays, diffDays, toISO, parse, splitTags, sessionsInRange
+    setNamer, report, compare, coach, weeklyReport, sessionAnalysis, suggestGoals, monthlyReport, monthRange, prevMonth, periodKey, weekStart, addDays, diffDays, toISO, parse, splitTags, sessionsInRange
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else window.BJJStats = api;

@@ -3,7 +3,7 @@
 La app es una página web. Para instalarla en el móvil hay que publicarla una vez en internet (gratis). Los datos NUNCA salen de tu móvil.
 
 ## Opción A: GitHub Pages (se puede hacer solo con el móvil)
-1. Descomprime el .zip en el móvil (app Archivos). Entra en la carpeta `bjj-coach`: verás ~20 archivos sueltos, sin subcarpetas.
+1. Descomprime el .zip en el móvil (app Archivos). Entra en la carpeta `bjj-coach`: verás 20 archivos sueltos, sin subcarpetas.
 2. Crea cuenta en github.com (gratis) desde el navegador.
 3. Pulsa "+" > "New repository". Nombre: `bjj-coach`. Marca "Public". Crea.
 4. En el repositorio: "uploading an existing file" (o Add file > Upload files). Selecciona TODOS los archivos de la carpeta y súbelos. Pulsa "Commit changes".
@@ -18,3 +18,11 @@ Entra en app.netlify.com/drop y arrastra la carpeta `bjj-coach`. Te da un enlace
 - Tus datos se guardan en el navegador de ese móvil. Haz copias desde Ajustes > Exportar.
 - Si actualizas la app, sube los archivos nuevos al mismo repositorio.
 - El repositorio público solo contiene el código, no tus datos.
+
+## Actualizar a una versión nueva
+1. Descomprime el zip nuevo.
+2. En tu repositorio de GitHub (desde el navegador, no desde la app): Add file > Upload files.
+3. Sube TODOS los archivos de la carpeta (los que ya existen se sustituyen solos) y pulsa Commit changes.
+4. Comprueba en la pestaña Code que están los 20: LEEME-PUBLICAR.md, app.js, core.js, gym.js, icon.svg, index.html, lib-base.json, lib-extra.json, lib-fichas.json, lib-index.json, manifest.webmanifest, notes.js, nutri-data.js, nutri.js, plan.js, stats.js, styles.css, sw.js, training.js, views.js.
+5. Espera 1-2 minutos y abre la app. Si sigue viéndose la versión antigua, ciérrala del todo y vuelve a abrirla dos veces.
+Tus datos no se pierden al actualizar: están en el móvil, no en GitHub.

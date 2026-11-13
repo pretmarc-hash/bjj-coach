@@ -307,9 +307,10 @@
   {
    "id": "butterfly-half",
    "name": "Butterfly Half",
-   "es": "Mariposa media",
+   "es": "Media guardia mariposa",
    "alias": [
-    "Butterfly Half Guard"
+    "Butterfly Half Guard",
+    "Mariposa media"
    ],
    "cat": "guardia",
    "sub": "media",
@@ -490,7 +491,7 @@
   {
    "id": "backstep-pass",
    "name": "Backstep Pass",
-   "es": "Pase con paso atras",
+   "es": "Pase con paso atrás",
    "alias": [
     "Back Step Pass"
    ],
@@ -549,11 +550,12 @@
   {
    "id": "armbar",
    "name": "Armbar",
-   "es": "Palanca de brazo",
+   "es": "Luxación de brazo (armbar)",
    "alias": [
     "Juji Gatame",
     "Straight Armbar",
-    "Arm Bar"
+    "Arm Bar",
+    "Palanca de brazo"
    ],
    "cat": "finalizacion",
    "sub": "brazos",
@@ -618,7 +620,7 @@
   {
    "id": "wrist-lock",
    "name": "Wrist Lock",
-   "es": "Llave de muneca",
+   "es": "Llave de muñeca",
    "alias": [
     "Wristlock"
    ],
@@ -631,12 +633,13 @@
   {
    "id": "rnc",
    "name": "Rear Naked Choke",
-   "es": "Estrangulacion desde la espalda",
+   "es": "Mataleón",
    "alias": [
     "RNC",
     "Mata Leao",
     "Mata Leão",
-    "Sleeper Hold"
+    "Sleeper Hold",
+    "Estrangulacion desde la espalda"
    ],
    "cat": "finalizacion",
    "sub": "estrangulaciones",
@@ -700,7 +703,7 @@
   {
    "id": "triangle",
    "name": "Triangle",
-   "es": "Triangulo",
+   "es": "Triángulo",
    "alias": [
     "Triangle Choke",
     "Sankaku Jime"
@@ -717,7 +720,7 @@
   {
    "id": "arm-triangle",
    "name": "Arm Triangle",
-   "es": "Triangulo de brazo",
+   "es": "Triángulo de brazo",
    "alias": [
     "Head and Arm Choke",
     "Kata Gatame"
@@ -766,10 +769,11 @@
   {
    "id": "cross-collar-choke",
    "name": "Cross Collar Choke",
-   "es": "Estrangulacion de cuello cruzada",
+   "es": "Estrangulación cruzada de solapa",
    "alias": [
     "Cross Choke",
-    "Collar Choke"
+    "Collar Choke",
+    "Estrangulacion de cuello cruzada"
    ],
    "cat": "finalizacion",
    "sub": "estrangulaciones",
@@ -783,7 +787,7 @@
   {
    "id": "baseball-bat-choke",
    "name": "Baseball Bat Choke",
-   "es": "Bate de beisbol",
+   "es": "Bate de béisbol",
    "alias": [
     "Baseball Choke"
    ],
@@ -813,7 +817,7 @@
   {
    "id": "north-south-choke",
    "name": "North-South Choke",
-   "es": "Estrangulacion norte-sur",
+   "es": "Estrangulación norte-sur",
    "alias": [
     "North South Choke"
    ],
@@ -843,7 +847,7 @@
   {
    "id": "clock-choke",
    "name": "Clock Choke",
-   "es": "Estrangulacion del reloj",
+   "es": "Estrangulación del reloj",
    "alias": [],
    "cat": "finalizacion",
    "sub": "estrangulaciones",
@@ -1034,7 +1038,7 @@
   {
    "id": "technical-stand-up",
    "name": "Technical Stand-Up",
-   "es": "Levantada tecnica",
+   "es": "Levantada técnica",
    "alias": [
     "Technical Stand Up",
     "Tech Stand Up"
@@ -1087,7 +1091,7 @@
   {
    "id": "guard-recovery",
    "name": "Guard Recovery",
-   "es": "Recuperacion de guardia",
+   "es": "Recuperación de guardia",
    "alias": [
     "Re-Guarding",
     "Guard Recovery"
@@ -1101,9 +1105,10 @@
   {
    "id": "scissor-sweep",
    "name": "Scissor Sweep",
-   "es": "Barrido de tijera",
+   "es": "Raspado de tijera",
    "alias": [
-    "Scissors Sweep"
+    "Scissors Sweep",
+    "Barrido de tijera"
    ],
    "cat": "sweep",
    "sub": "guardia cerrada",
@@ -1117,9 +1122,10 @@
   {
    "id": "flower-sweep",
    "name": "Flower Sweep",
-   "es": "Barrido flor",
+   "es": "Raspado de flor",
    "alias": [
-    "Pendulum Sweep"
+    "Pendulum Sweep",
+    "Barrido flor"
    ],
    "cat": "sweep",
    "sub": "guardia cerrada",
@@ -1133,9 +1139,10 @@
   {
    "id": "butterfly-sweep",
    "name": "Butterfly Sweep",
-   "es": "Barrido de mariposa",
+   "es": "Raspado de mariposa",
    "alias": [
-    "Hook Sweep"
+    "Hook Sweep",
+    "Barrido de mariposa"
    ],
    "cat": "sweep",
    "sub": "mariposa",
@@ -1149,8 +1156,10 @@
   {
    "id": "tripod-sweep",
    "name": "Tripod Sweep",
-   "es": "Barrido tripode",
-   "alias": [],
+   "es": "Raspado trípode",
+   "alias": [
+    "Barrido tripode"
+   ],
    "cat": "sweep",
    "sub": "abierta",
    "gi": "both",
@@ -1163,8 +1172,10 @@
   {
    "id": "lumberjack-sweep",
    "name": "Lumberjack Sweep",
-   "es": "Barrido lenador",
-   "alias": [],
+   "es": "Raspado del leñador",
+   "alias": [
+    "Barrido lenador"
+   ],
    "cat": "sweep",
    "sub": "abierta",
    "gi": "both",
@@ -1177,8 +1188,10 @@
   {
    "id": "balloon-sweep",
    "name": "Balloon Sweep",
-   "es": "Barrido globo",
-   "alias": [],
+   "es": "Raspado globo",
+   "alias": [
+    "Barrido globo"
+   ],
    "cat": "sweep",
    "sub": "abierta",
    "gi": "both",
@@ -1191,8 +1204,10 @@
   {
    "id": "waiter-sweep",
    "name": "Waiter Sweep",
-   "es": "Barrido camarero",
-   "alias": [],
+   "es": "Raspado del camarero",
+   "alias": [
+    "Barrido camarero"
+   ],
    "cat": "sweep",
    "sub": "media",
    "gi": "both",
@@ -1205,7 +1220,7 @@
   {
    "id": "old-school-sweep",
    "name": "Old School Sweep",
-   "es": "Old school sweep",
+   "es": "Raspado old school",
    "alias": [],
    "cat": "sweep",
    "sub": "media",
@@ -1219,7 +1234,7 @@
   {
    "id": "john-wayne-sweep",
    "name": "John Wayne Sweep",
-   "es": "John Wayne sweep",
+   "es": "Raspado John Wayne",
    "alias": [],
    "cat": "sweep",
    "sub": "media",
@@ -1233,9 +1248,10 @@
   {
    "id": "hip-bump-sweep",
    "name": "Hip Bump Sweep",
-   "es": "Barrido de cadera",
+   "es": "Raspado de cadera",
    "alias": [
-    "Sit-Up Sweep"
+    "Sit-Up Sweep",
+    "Barrido de cadera"
    ],
    "cat": "sweep",
    "sub": "guardia cerrada",
@@ -1249,9 +1265,10 @@
   {
    "id": "double-leg",
    "name": "Double Leg",
-   "es": "Doble pierna",
+   "es": "Derribo a dos piernas",
    "alias": [
-    "Double Leg Takedown"
+    "Double Leg Takedown",
+    "Doble pierna"
    ],
    "cat": "derribo",
    "sub": "lucha",
@@ -1265,9 +1282,10 @@
   {
    "id": "single-leg",
    "name": "Single Leg",
-   "es": "Pierna simple",
+   "es": "Derribo a una pierna",
    "alias": [
-    "Single Leg Takedown"
+    "Single Leg Takedown",
+    "Pierna simple"
    ],
    "cat": "derribo",
    "sub": "lucha",
@@ -1691,7 +1709,7 @@
   {
    "id": "kiss-of-the-dragon",
    "name": "Kiss of the Dragon",
-   "es": "Beso del dragon",
+   "es": "Beso del dragón",
    "alias": [],
    "cat": "transicion",
    "sub": "inversion",

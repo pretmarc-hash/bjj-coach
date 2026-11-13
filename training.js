@@ -37,8 +37,8 @@
     const rec = insights.find((i) => i.type === 'recomendacion') || insights[0];
 
     const strengths = [];
-    rep.subs.made.rows.filter((r) => r.n >= 2).slice(0, 2).forEach((r) => strengths.push('Finalizas con ' + r.key + ' (' + r.n + ' veces)'));
-    rep.passes.byTech.filter((x) => x.total >= 3 && x.pct >= 50).slice(0, 1).forEach((x) => strengths.push('Pase ' + x.tech + ': ' + x.success + ' de ' + x.total));
+    rep.subs.made.rows.filter((r) => r.n >= 2).slice(0, 2).forEach((r) => strengths.push('Finalizas con ' + APP.tn(r.key) + ' (' + r.n + ' veces)'));
+    rep.passes.byTech.filter((x) => x.total >= 3 && x.pct >= 50).slice(0, 1).forEach((x) => strengths.push('Pase ' + APP.tn(x.tech) + ': ' + x.success + ' de ' + x.total));
     const weaknesses = insights.filter((i) => i.type === 'patron' && /finalizado|Escapes desde|pasado la guardia|dificultad/.test(i.text)).slice(0, 3).map((i) => i.text);
 
     let h = '';
@@ -47,9 +47,15 @@
         (p.mainGoal ? '<p style="margin-top:12px"><span class="muted">Objetivo principal</span><br><b>' + esc(p.mainGoal) + '</b></p>' : '')
       : '<h2>Bienvenido</h2><p class="muted">Cuéntame cómo es tu jiu-jitsu para personalizar la app. Son 4 pantallas cortas.</p><button class="btn secondary" data-act="interview">Empezar entrevista</button>') + '</div>';
 
-    h += '<div class="grid2">' +
-      '<div class="card kpi"><div class="big">' + weekS.length + (target ? '<span class="muted" style="font-size:18px"> / ' + target + '</span>' : '') + '</div><div class="label">entrenos esta semana</div>' + (target ? '<div class="bar"><div class="track"><div class="fill" style="width:' + Math.min(100, ST.pct(weekS.length, target)) + '%"></div></div></div>' : '') + '</div>' +
-      '<div class="card kpi"><div class="big">' + minutes + '</div><div class="label">minutos esta semana</div></div></div>';
+    const weekR = S.rounds.filter((r) => r.date >= ws && r.date <= we); const sparMin = weekR.reduce((a, r) => a + (Number(r.duration) || 0), 0);
+    h += '<div class="card"><div class="row between"><h3>Esta semana</h3><a href="#/informe">Informe</a></div><div class="kpis">' +
+      APP.ring(target ? ST.pct(Math.min(weekS.length, target), target) : (weekS.length ? 100 : 0), weekS.length + (target ? '/' + target : ''), 'entrenos') +
+      '<div class="kpi"><div class="big">' + minutes + '</div><div class="label">min de entreno</div></div>' +
+      '<div class="kpi"><div class="big">' + weekR.length + '</div><div class="label">rounds' + (sparMin ? ' · ' + sparMin + ' min' : '') + '</div></div></div></div>';
+    h += '<div class="tiles t4"><a class="tile" href="#/apuntes"><span class="ico">📝</span><b>Apuntes</b></a><a class="tile" href="#/arbol"><span class="ico">🌳</span><b>Game plan</b></a><a class="tile" href="#/plan"><span class="ico">📅</span><b>Plan</b></a><a class="tile" href="#/biblio"><span class="ico">📚</span><b>Técnicas</b></a></div>';
+    if (APP.homeExtra) h += APP.homeExtra();
+    const from30 = ST.addDays(t, -29); const top = ST.tally(S.sessions.filter((x) => x.date >= from30).reduce((a, x) => a.concat(ST.splitTags(x.techniques)), []), (x) => x).slice(0, 5);
+    if (top.length) h += '<div class="card"><div class="row between"><h3>Técnicas más trabajadas</h3><span class="pill-n">últimos 30 días</span></div>' + APP.rank(top, { fmt: (r) => r.n + (r.n === 1 ? ' sesión' : ' sesiones') }) + '</div>';
 
     if (APP.plan) h += APP.plan.banner();
     h += '<div class="row" style="margin-bottom:14px"><button class="btn block" data-act="newSession">Registrar entrenamiento</button><button class="btn secondary block" data-act="newRound">Registrar round</button></div>';
@@ -166,13 +172,13 @@
     const rv = s.review; const rounds = S.rounds.filter((r) => r.sessionId === id);
     let h = '<div class="card"><div class="row between"><div><h2>' + esc(s.type || 'Entrenamiento') + '</h2><div class="muted">' + fmtDate(s.date) + (s.time ? ' · ' + s.time : '') + (s.duration ? ' · ' + s.duration + ' min' : '') + (s.mode ? ' · ' + modeLabel(s.mode) : '') + '</div></div><button class="btn small secondary" data-act="editSession" data-id="' + id + '">Editar</button></div>' +
       (s.objective ? '<p style="margin-top:10px"><span class="muted">Objetivo:</span> ' + esc(s.objective) + '</p>' : '') +
-      (s.techniques && s.techniques.length ? '<div class="chips" style="margin-top:10px">' + s.techniques.map((t) => '<span class="tag">' + esc(t) + '</span>').join('') + '</div>' : '') +
-      (s.positions && s.positions.length ? '<p class="small muted" style="margin-top:10px">Posiciones: ' + esc(s.positions.join(', ')) + '</p>' : '') +
+      (s.techniques && s.techniques.length ? '<div class="chips" style="margin-top:10px">' + s.techniques.map((t) => '<span class="tag">' + esc(APP.tn(t)) + '</span>').join('') + '</div>' : '') +
+      (s.positions && s.positions.length ? '<p class="small muted" style="margin-top:10px">Posiciones: ' + esc(s.positions.map(APP.tn).join(', ')) + '</p>' : '') +
       ((s.intensity || s.fatigue) ? '<p class="small muted">' + (s.intensity ? 'Intensidad ' + s.intensity + '/5' : '') + (s.intensity && s.fatigue ? ' · ' : '') + (s.fatigue ? 'Fatiga ' + s.fatigue + '/5' : '') + '</p>' : '') +
       (s.notes ? '<p>' + esc(s.notes) + '</p>' : '') + '</div>';
     h += '<div class="card"><div class="row between"><h3>Cuestionario</h3><button class="btn small secondary" data-act="review" data-id="' + id + '">' + (rv ? 'Editar' : 'Responder') + '</button></div>' +
       (rv ? '<div class="list">' + [['Sensación', rv.mood], ['Valoración', rv.rating ? rv.rating + '/10' : ''], ['Técnica aprendida', rv.learned], ['Salió bien', rv.good], ['Costó', rv.hard], ['Posiciones perdidas', (rv.lostPos || []).join(', ')], ['Aplicó lo estudiado', rv.applied], ['Para el próximo', rv.next], ['Otros', rv.free]].filter((x) => x[1]).map((x) => '<div class="item"><div><div class="pill-n">' + x[0] + '</div>' + esc(x[1]) + '</div></div>').join('') + '</div>' : '<p class="muted">Aún no has respondido el cuestionario de esta sesión.</p>') + '</div>';
-    h += '<div class="card"><div class="row between"><h3>Rounds (' + rounds.length + ')</h3><button class="btn small" data-act="newRound" data-sid="' + id + '">+ Round</button></div>' + (rounds.length ? '<div class="list">' + rounds.map((r) => roundRow(r)).join('') + '</div>' : '<p class="muted">No has registrado rounds en esta sesión.</p>') + '</div>';
+    h += '<div class="card"><div class="row between"><h3>Rounds (' + rounds.length + ')' + (rounds.some((r) => r.duration) ? ' · ' + rounds.reduce((a, r) => a + (Number(r.duration) || 0), 0) + ' min' : '') + '</h3><button class="btn small" data-act="newRound" data-sid="' + id + '">+ Round</button></div>' + (rounds.length ? '<div class="list">' + rounds.map((r) => roundRow(r)).join('') + '</div>' : '<p class="muted">No has registrado rounds en esta sesión.</p>') + '</div>';
     const an = ST.sessionAnalysis(s, S.rounds);
     if (rounds.length) h += '<div class="card"><h3>Análisis de la sesión</h3>' + APP.insightHTML(an) + '</div>';
     h += '<button class="btn danger block" data-act="delSession" data-id="' + id + '">Borrar sesión</button>';
@@ -184,7 +190,7 @@
   function roundRow(r) {
     const n = (r.events || []).length;
     const label = ST.RESULTS[r.result || 'none'];
-    return '<div class="item"><div><div class="title">' + label + (r.partner ? ' · ' + esc(r.partner) : '') + (r.context === 'competicion' ? ' <span class="tag">Competición</span>' : '') + '</div><div class="pill-n">' + fmtDate(r.date) + ' · ' + n + ' acontecimientos' + (r.mode ? ' · ' + modeLabel(r.mode) : '') + '</div></div><div class="row"><button class="btn small secondary" data-act="editRound" data-id="' + r.id + '">Editar</button></div></div>';
+    return '<div class="item"><div><div class="title">' + label + (r.partner ? ' · ' + esc(r.partner) : '') + (r.context === 'competicion' ? ' <span class="tag">Competición</span>' : '') + '</div><div class="pill-n">' + fmtDate(r.date) + (r.duration ? ' · ' + r.duration + ' min' : '') + ' · ' + n + ' acontecimientos' + (r.mode ? ' · ' + modeLabel(r.mode) : '') + '</div></div><div class="row"><button class="btn small secondary" data-act="editRound" data-id="' + r.id + '">Editar</button></div></div>';
   }
 
   const OWN = ['sub_made', 'pass_made', 'sweep_made', 'escape', 'takedown_made', 'guard_recovery', 'back_take', 'pos_gain'];
@@ -193,8 +199,8 @@
 
   function eventListHTML() {
     const ev = APP.ui.draft.events;
-    if (!ev.length) return '<div class="empty">Añade cada acontecimiento del round: finalizaciones, pases, sweeps…</div>';
-    return '<div class="list">' + ev.map((e, i) => '<div class="item"><div><div class="title">' + ST.KINDS[e.kind].label + (e.outcome === 'intento' ? ' <span class="tag">intento</span>' : '') + '</div><div class="pill-n">' + esc([e.tech, e.from ? 'desde ' + e.from : '', e.to ? '→ ' + e.to : ''].filter(Boolean).join(' · ')) + (e.comment ? ' · ' + esc(e.comment) : '') + '</div></div><button class="icon-btn" style="width:34px;height:34px" data-act="delEvent" data-i="' + i + '" aria-label="Quitar">✕</button></div>').join('') + '</div>';
+    if (!ev.length) return '<div class="empty">Añade cada acontecimiento del round: finalizaciones, pases, raspados…</div>';
+    return '<div class="list">' + ev.map((e, i) => '<div class="item"><div><div class="title">' + ST.KINDS[e.kind].label + (e.outcome === 'intento' ? ' <span class="tag">intento</span>' : '') + '</div><div class="pill-n">' + esc([APP.tn(e.tech), e.from ? 'desde ' + APP.tn(e.from) : '', e.to ? '→ ' + APP.tn(e.to) : ''].filter(Boolean).join(' · ')) + (e.comment ? ' · ' + esc(e.comment) : '') + '</div></div><button class="icon-btn" style="width:34px;height:34px" data-act="delEvent" data-i="' + i + '" aria-label="Quitar">✕</button></div>').join('') + '</div>';
   }
 
   function roundForm(sessionId, r) {
@@ -206,6 +212,7 @@
       group('Contexto', chips('ctx', [{ v: 'entreno', l: 'Entreno' }, { v: 'competicion', l: 'Competición' }], base.context || 'entreno')) +
       group('Modalidad', chips('rmode', MODE_OPTS, base.mode || (sess && sess.mode) || defaultMode())) +
       group('Resultado', chips('result', RESULT_OPTS, base.result || 'none')) +
+      '<div class="field"><span style="display:block;margin-bottom:6px">Duración del round (minutos)</span><div class="row"><div class="chips" style="flex:1">' + [4, 5, 6, 8, 10].map((m) => '<button type="button" class="chip sm" data-act="rdur" data-m="' + m + '">' + m + '′</button>').join('') + '</div><input type="number" id="rf-dur" inputmode="decimal" min="0" max="120" step="0.5" placeholder="min" style="width:90px" value="' + (base.duration || S.settings.lastRoundMin || '') + '"></div></div>' +
       '<div class="card" style="background:var(--surface-2);box-shadow:none"><h3>Añadir acontecimiento</h3>' +
       '<label class="field"><span>Tipo</span><select id="ev-kind" data-input="kindchange"><optgroup label="Acciones mías">' + kindOpts(OWN) + '</optgroup><optgroup label="Acciones recibidas">' + kindOpts(RECV) + '</optgroup></select></label>' +
       '<div id="ev-outcome-wrap">' + group('Resultado de la acción', chips('evout', [{ v: 'exito', l: '✔ Éxito' }, { v: 'intento', l: '✘ Intento fallido' }], 'exito')) + '</div>' +
@@ -218,6 +225,7 @@
       (base.id ? '<button class="btn danger block" style="margin-top:8px" data-act="delRound" data-id="' + base.id + '">Borrar round</button>' : '');
     APP.openSheet(base.id ? 'Editar round' : 'Nuevo round', html);
   }
+  A.rdur = (el) => { APP.$('#rf-dur').value = el.dataset.m; };
   A.newRound = (el) => {
     let sid = el && el.dataset ? el.dataset.sid : '';
     if (!sid) { const hs = location.hash.match(/#\/entreno\/(.+)/); if (hs) sid = hs[1]; }
@@ -248,12 +256,13 @@
     const old = S.rounds.find((r) => r.id === d.id) || {};
     const r = Object.assign({}, old, {
       id: old.id || uid(), sessionId: d.sessionId, date: val('rf-date') || today(), partner: val('rf-partner').trim(), context: sel('ctx')[0] || 'entreno', mode,
-      result: sel('result')[0] || 'none', events: d.events.map((e) => Object.assign({}, e, { mode })), created: old.created || Date.now()
+      result: sel('result')[0] || 'none', duration: Number(String(val('rf-dur')).replace(',', '.')) || 0, events: d.events.map((e) => Object.assign({}, e, { mode })), created: old.created || Date.now()
     });
+    if (r.duration && S.settings.lastRoundMin !== r.duration) await APP.saveMeta('settings', Object.assign({}, S.settings, { lastRoundMin: r.duration }));
     await APP.saveRound(r); APP.closeSheet(); APP.toast('Round guardado'); APP.render();
   };
   A.delRound = async (el) => { if (!APP.confirm('¿Borrar este round?')) return; await APP.deleteRound(el.dataset.id); APP.closeSheet(); APP.render(); };
 
   // ================= BOTÓN FLOTANTE =================
-  A.fab = () => APP.openSheet('¿Qué quieres registrar?', '<div class="stack"><button class="btn block" data-act="newSession">Un entrenamiento</button><button class="btn secondary block" data-act="newRound">Un round de sparring</button></div>');
+  A.fab = () => (APP.route && APP.route.tab === 'gym' && A.gymFab) ? A.gymFab() : (APP.route && APP.route.tab === 'nutri' && A.nutriFab) ? A.nutriFab() : APP.openSheet('¿Qué quieres registrar?', '<div class="stack"><button class="btn block" data-act="newSession">Un entrenamiento</button><button class="btn secondary block" data-act="newRound">Un round de sparring</button></div>');
 })();
