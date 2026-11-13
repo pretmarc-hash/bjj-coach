@@ -1,5 +1,5 @@
-const CACHE = 'bjj-coach-v8';
-const FILES = ['./', './index.html', './styles.css', './stats.js', './core.js', './training.js', './plan.js', './notes.js', './gym.js', './nutri-data.js', './nutri.js', './views.js', './app.js', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'bjj-coach-v9';
+const FILES = ['./', './index.html', './styles.css?v=9', './stats.js?v=9', './core.js?v=9', './training.js?v=9', './plan.js?v=9', './notes.js?v=9', './gym.js?v=9', './nutri-data.js?v=9', './nutri.js?v=9', './views.js?v=9', './app.js?v=9', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
@@ -15,7 +15,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: 'no-cache' })
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
