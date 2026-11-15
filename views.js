@@ -93,7 +93,7 @@
     h += '<div class="card"><h3>Mis técnicas</h3><div class="seg">' + Object.keys(APP.CATS).map((c) => '<button class="' + (ui.juegoCat === c ? 'on' : '') + '" data-act="juegoCat" data-c="' + c + '">' + APP.CATS[c] + '</button>').join('') + '</div>' +
       '<div class="explain keep">1 No la conozco · 2 Teoría · 3 Aprendiendo · 4 Entrenando · 5 Contra resistencia</div><div class="list">' + APP.techsBy(ui.juegoCat).map(masteryRow).join('') + '</div></div>';
 
-    h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Árbol de decisión: toca una técnica para ver tus apuntes; usa + para añadir ramas.</div>' + APP.treeHTML() + '</div>';
+    h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Mapa de decisiones: toca una tarjeta para verla paso a paso.</div>' + APP.treeHTML() + '</div>';
     h += '<div class="tiles"><a class="tile" href="#/apuntes"><span class="ico">📝</span><b>Apuntes</b><span class="pill-n">' + S.notes.length + ' guardados</span></a><a class="tile" href="#/fisico"><span class="ico">🧍</span><b>Mi físico</b><span class="pill-n">' + (S.body ? 'Ver recomendaciones' : 'Técnicas para tu cuerpo') + '</span></a></div>';
     return h;
   };
