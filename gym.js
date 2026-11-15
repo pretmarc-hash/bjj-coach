@@ -172,13 +172,14 @@
   const targetText = (it) => it.sets + ' × ' + it.reps + (it.rest ? ' · descanso ' + (it.rest >= 60 ? Math.floor(it.rest / 60) + ' min' + (it.rest % 60 ? ' ' + (it.rest % 60) + ' s' : '') : it.rest + ' s') : '');
   function routinePage(r) {
     if (!r) return '<div class="card"><p>No se encuentra la rutina.</p><a href="#/gym/rutinas">Volver</a></div>';
+    ensureWd(r);
     const g = G();
     return '<div class="row between" style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/gym/rutinas">← Rutinas</a>' + (g.active === r.id ? '<span class="tag recomendacion">Rutina activa</span>' : '<button class="btn small" data-act="routineActive" data-id="' + r.id + '">Usar esta rutina</button>') + '</div>' +
       '<div class="card hero"><div class="row between"><h2>' + esc(r.name) + '</h2><button class="btn small secondary" data-act="routineRename" data-id="' + r.id + '">Renombrar</button></div><div class="muted">' + r.days.length + ' días' + (r.generated ? ' · creada con la encuesta' : ' · propia') + '</div></div>' +
       (r.notes && r.notes.length ? '<div class="explain"><b>Rutina orientativa.</b> ' + r.notes.map(esc).join(' ') + ' Si tienes una lesión o dudas con la técnica de un ejercicio, consulta a un profesional.</div>' : (r.generated ? '<div class="explain"><b>Rutina orientativa</b>, pensada como punto de partida. Edítala a tu gusto. Si tienes una lesión o dudas con la técnica de un ejercicio, consulta a un profesional.</div>' : '')) +
-      r.days.map((d, di) => '<div class="card"><div class="row between"><h3>' + esc(d.name) + '</h3><button class="btn small" data-act="workoutStart" data-r="' + r.id + '" data-d="' + d.id + '">▶ Empezar</button></div>' +
+      r.days.map((d, di) => '<div class="card"><div class="row between"><h3>' + esc(d.name) + (d.wd ? ' <span class="tag">' + WDN[d.wd - 1] + '</span>' : '') + '</h3><button class="btn small" data-act="workoutStart" data-r="' + r.id + '" data-d="' + d.id + '">▶ Empezar</button></div>' +
         (d.items.length ? '<div class="list">' + d.items.map((it, i) => { const e = exById(it.ex); return '<div class="item"><a href="#" data-act="itemEdit" data-r="' + r.id + '" data-d="' + d.id + '" data-i="' + i + '" style="text-decoration:none;color:inherit;flex:1"><div class="title">' + esc(e.name) + '</div><div class="pill-n">' + targetText(it) + (it.note ? ' · ' + esc(it.note) : '') + '</div></a><div class="row" style="gap:4px"><button class="icon-btn sm" data-act="itemMove" data-r="' + r.id + '" data-d="' + d.id + '" data-i="' + i + '" data-n="-1"' + (i ? '' : ' disabled') + ' aria-label="Subir">↑</button><button class="icon-btn sm" data-act="itemMove" data-r="' + r.id + '" data-d="' + d.id + '" data-i="' + i + '" data-n="1"' + (i < d.items.length - 1 ? '' : ' disabled') + ' aria-label="Bajar">↓</button></div></div>'; }).join('') + '</div>' : '<p class="muted small">Día vacío.</p>') +
-        '<div class="row wrap" style="margin-top:10px"><button class="btn small secondary" data-act="exPick" data-mode="routine" data-r="' + r.id + '" data-d="' + d.id + '">+ Ejercicio</button><button class="btn small ghost" data-act="dayRename" data-r="' + r.id + '" data-d="' + d.id + '">Renombrar día</button>' + (r.days.length > 1 ? '<button class="btn small ghost" data-act="dayDel" data-r="' + r.id + '" data-d="' + d.id + '">Quitar día</button>' : '') + '</div></div>').join('') +
+        '<div class="row wrap" style="margin-top:10px"><button class="btn small secondary" data-act="exPick" data-mode="routine" data-r="' + r.id + '" data-d="' + d.id + '">+ Ejercicio</button><button class="btn small ghost" data-act="dayRename" data-r="' + r.id + '" data-d="' + d.id + '">Nombre y día</button>' + (r.days.length > 1 ? '<button class="btn small ghost" data-act="dayDel" data-r="' + r.id + '" data-d="' + d.id + '">Quitar día</button>' : '') + '</div></div>').join('') +
       '<div class="stack"><button class="btn secondary block" data-act="dayAdd" data-r="' + r.id + '">+ Añadir día</button><button class="btn ghost block" data-act="routineDup" data-id="' + r.id + '">Duplicar rutina</button><button class="btn danger block" data-act="routineDel" data-id="' + r.id + '">Borrar rutina</button></div>';
   }
   function routinesPage() {
@@ -196,8 +197,8 @@
   const dayOf = (el) => { const r = routine(el.dataset.r); return { r, d: r && r.days.find((x) => x.id === el.dataset.d) }; };
   A.dayAdd = async (el) => { const r = routine(el.dataset.r); r.days.push({ id: uid(), name: 'Día ' + (r.days.length + 1), items: [] }); await saveGym(); rk(); };
   A.dayDel = async (el) => { const { r, d } = dayOf(el); if (!APP.confirm('¿Quitar «' + d.name + '»?')) return; r.days = r.days.filter((x) => x !== d); await saveGym(); rk(); };
-  A.dayRename = (el) => { const { d } = dayOf(el); APP.openSheet('Renombrar día', field('Nombre', '<input id="dy-name" value="' + esc(d.name) + '">') + '<button class="btn block" data-act="dayRenameSave" data-r="' + el.dataset.r + '" data-d="' + d.id + '">Guardar</button>'); };
-  A.dayRenameSave = async (el) => { const { d } = dayOf(el); d.name = val('dy-name').trim() || d.name; await saveGym(); APP.closeSheet(); rk(); };
+  A.dayRename = (el) => { const { r, d } = dayOf(el); ensureWd(r); APP.openSheet('Editar día', field('Nombre', '<input id="dy-name" value="' + esc(d.name) + '">') + group('¿Qué día de la semana lo haces?', chips('dy-wd', [{ v: '0', l: 'Sin día fijo' }].concat(WDN.map((n, i) => ({ v: String(i + 1), l: n }))), String(d.wd || 0), false, true)) + '<button class="btn block" data-act="dayRenameSave" data-r="' + el.dataset.r + '" data-d="' + d.id + '">Guardar</button>'); };
+  A.dayRenameSave = async (el) => { const { r, d } = dayOf(el); d.name = val('dy-name').trim() || d.name; const w = Number(sel('dy-wd')[0]) || 0; if (w) r.days.forEach((x) => { if (x !== d && x.wd === w) x.wd = d.wd || 0; }); d.wd = w; await saveGym(); APP.closeSheet(); rk(); };
   A.itemMove = async (el) => { const { d } = dayOf(el); const i = Number(el.dataset.i), j = i + Number(el.dataset.n); if (j < 0 || j >= d.items.length) return; const t = d.items[i]; d.items[i] = d.items[j]; d.items[j] = t; await saveGym(); rk(); };
   A.itemEdit = (el) => {
     const { d } = dayOf(el); const i = Number(el.dataset.i); const it = d.items[i]; const e = exById(it.ex); const ds = 'data-r="' + el.dataset.r + '" data-d="' + d.id + '" data-i="' + i + '"';
@@ -248,7 +249,7 @@
   function workoutPage() {
     const c = G().current; if (!c) return '<div class="card empty">No hay ningún entreno en curso.<br><a href="#/gym">Volver</a></div>';
     const total = c.entries.reduce((a, en) => a + en.sets.length, 0), done = c.entries.reduce((a, en) => a + en.sets.filter((s) => s.done).length, 0);
-    return '<div class="card hero"><div class="row between"><div><h2>' + esc(c.name) + '</h2><div class="muted">' + done + ' de ' + total + ' series</div></div>' + APP.ring(ST.pct(done, total || 1), ST.pct(done, total || 1) + '%', '', '#fff') + '</div></div><div id="rest-bar" class="rest-bar" hidden></div>' +
+    return '<div class="card hero wk"><div style="flex:1;min-width:0"><h2>' + esc(c.name) + '</h2><div class="muted">' + done + ' de ' + total + ' series</div><div class="track"><div style="width:' + ST.pct(done, total || 1) + '%"></div></div></div><b>' + ST.pct(done, total || 1) + '%</b></div><div id="rest-bar" class="rest-bar" hidden></div>' +
       c.entries.map((en, ei) => {
         const e = exById(en.ex); const last = lastEntry(en.ex, c.id);
         return '<div class="card"><div class="row between"><h3>' + esc(e.name) + '</h3><button class="icon-btn sm" data-act="wEntryMenu" data-e="' + ei + '" aria-label="Opciones">⋯</button></div><div class="pill-n">' + (en.target ? 'Objetivo: ' + esc(en.target) : GROUPS[e.group]) + (en.note ? ' · ' + esc(en.note) : '') + '</div>' +
@@ -320,7 +321,18 @@
   }
 
   // ---------- pantalla principal ----------
-  function nextDay() { const g = G(); const r = routine(g.active); if (!r || !r.days.length) return null; const last = g.logs.filter((l) => l.routineId === r.id).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)).pop(); const i = last ? (r.days.findIndex((d) => d.id === last.dayId) + 1) % r.days.length : 0; return { r, d: r.days[Math.max(0, i)] }; }
+  const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']; const WDS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const SPREAD = { 1: [1], 2: [1, 4], 3: [1, 3, 5], 4: [1, 2, 4, 5], 5: [1, 2, 3, 5, 6], 6: [1, 2, 3, 4, 5, 6], 7: [1, 2, 3, 4, 5, 6, 7] };
+  const wdOf = (date) => ((ST.parse(date).getDay() + 6) % 7) + 1;
+  // Reparte los días de la rutina por la semana la primera vez (después se cambia a mano en cada día).
+  function ensureWd(r) { if (!r || r.days.some((d) => d.wd !== undefined)) return false; const sp = SPREAD[Math.min(7, r.days.length)] || []; r.days.forEach((d, i) => { d.wd = sp[i] || 0; }); return true; }
+  function nextDayOld() { const g = G(); const r = routine(g.active); if (!r || !r.days.length) return null; const last = g.logs.filter((l) => l.routineId === r.id).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)).pop(); const i = last ? (r.days.findIndex((d) => d.id === last.dayId) + 1) % r.days.length : 0; return { r, d: r.days[Math.max(0, i)] }; }
+  // Lo que toca: el día de rutina asignado a hoy; si hoy no hay, el siguiente de la semana.
+  function nextDay() {
+    const g = G(); const r = routine(g.active); if (!r || !r.days.length) return null; ensureWd(r); const t = today(); const w = wdOf(t);
+    for (let i = 0; i < 7; i++) { const d = r.days.find((x) => x.wd === ((w - 1 + i) % 7) + 1); if (d && !(i === 0 && g.logs.some((l) => l.date === t && l.dayId === d.id))) return { r, d, today: i === 0, label: i === 0 ? 'Hoy: ' : i === 1 ? 'Mañana: ' : WDN[d.wd - 1] + ': ' }; }
+    const o = nextDayOld(); return o ? Object.assign(o, { today: false, label: 'Toca: ' }) : null;
+  }
   APP.gym.nextDay = nextDay;
   V.gym = (arg) => {
     const g = G();
@@ -331,9 +343,17 @@
     if (arg && arg.indexOf('r-') === 0) return routinePage(routine(arg.slice(2)));
     const wl = weekLogs(); const nd = nextDay(); const p = g.profile; const target = p ? p.days : 0;
     let h = '';
-    if (g.current) h += '<div class="card today-card"><h3>Entreno en curso: ' + esc(g.current.name) + '</h3><a class="btn block" style="text-decoration:none;text-align:center;margin-top:8px" href="#/gym/entreno">Continuar</a></div>';
-    else if (nd) h += '<div class="card hero"><div class="muted">' + esc(nd.r.name) + '</div><h2 style="margin:4px 0 10px">Hoy toca: ' + esc(nd.d.name) + '</h2><p class="muted" style="margin-bottom:12px">' + nd.d.items.slice(0, 4).map((it) => esc(exById(it.ex).name)).join(' · ') + (nd.d.items.length > 4 ? ' y ' + (nd.d.items.length - 4) + ' más' : '') + '</p><div class="row"><button class="btn secondary block" data-act="workoutStart" data-r="' + nd.r.id + '" data-d="' + nd.d.id + '">▶ Empezar entreno</button><button class="btn secondary" data-act="dayChoose">Otro día</button></div></div>';
-    else h += '<div class="card hero"><h2>Preparación física</h2><p class="muted">Crea tu rutina respondiendo a una encuesta rápida, o móntala tú mismo: en casa, calistenia o gimnasio.</p><div class="row"><button class="btn secondary block" data-act="gymSurvey">✨ Crear con encuesta</button><button class="btn secondary block" data-act="routineNew">Rutina propia</button></div></div>';
+    if (g.current) h += '<a class="card slim today-card" href="#/gym/entreno"><span class="ico-b">⏱</span><span><b>Entreno en curso</b><br><span class="pill-n">' + esc(g.current.name) + '</span></span><span class="btn small">Continuar</span></a>';
+    const ar = routine(g.active);
+    if (ar) {
+      if (ensureWd(ar)) saveGym(); const t = today(); const ws = ST.weekStart(t); if (!ui.gymDay) ui.gymDay = wdOf(t); const sd = ui.gymDay; const day = ar.days.find((x) => x.wd === sd); const date = ST.addDays(ws, sd - 1); const doneLog = g.logs.find((l) => l.date === date);
+      h += '<div class="card"><div class="row between"><h3>' + esc(ar.name) + '</h3><a href="#/gym/r-' + ar.id + '">Editar</a></div><div class="wstrip">' + WDS.map((l, k) => { const dd = ar.days.find((x) => x.wd === k + 1); const dt = ST.addDays(ws, k); const done = g.logs.some((x) => x.date === dt); return '<button class="wd ' + (done ? 'done' : dd ? (dt < t ? 'miss' : 'plan') : '') + (dt === t ? ' today' : '') + (sd === k + 1 ? ' sel' : '') + '" data-act="gymDay" data-w="' + (k + 1) + '" aria-label="' + WDN[k] + '"><span>' + l + '</span><i>' + (done ? '✓' : dd ? '🏋️' : '·') + '</i></button>'; }).join('') + '</div>' +
+        '<div class="gday"><div class="glabel">' + WDN[sd - 1] + (date === t ? ' · hoy' : '') + '</div>' + (day ? '<h3 style="margin:0 0 6px">' + esc(day.name) + '</h3>' + (day.items.length ? '<div class="exl">' + day.items.map((it) => '<div><span>' + esc(exById(it.ex).name) + '</span><b>' + it.sets + ' × ' + esc(it.reps) + '</b></div>').join('') + '</div>' : '<p class="muted small">Este día aún no tiene ejercicios.</p>') +
+          (doneLog && date <= t ? '<p class="small muted" style="margin:10px 0 0">✓ Ya registraste «' + esc(doneLog.name) + '» este día.</p>' : '') + (g.current ? '' : '<button class="btn block" style="margin-top:12px" data-act="workoutStart" data-r="' + ar.id + '" data-d="' + day.id + '">▶ Empezar entreno del ' + WDN[sd - 1].toLowerCase() + '</button>')
+          : '<p class="muted" style="margin:0">Descanso.</p>' + (g.current ? '' : '<button class="btn secondary block" style="margin-top:12px" data-act="workoutStart">Entreno libre</button>')) + '</div>' +
+        (ar.days.some((x) => !x.wd) ? '<p class="small muted" style="margin:10px 0 0">Sin día fijo: ' + ar.days.filter((x) => !x.wd).map((x) => '<a href="#" data-act="workoutStart" data-r="' + ar.id + '" data-d="' + x.id + '">' + esc(x.name) + '</a>').join(' · ') + '</p>' : '') + '</div>';
+    }
+    else if (!g.current) h += '<div class="card hero"><h2>Preparación física</h2><p class="muted">Crea tu rutina respondiendo a una encuesta rápida, o móntala tú mismo: en casa, calistenia o gimnasio.</p><div class="row"><button class="btn secondary block" data-act="gymSurvey">✨ Crear con encuesta</button><button class="btn secondary block" data-act="routineNew">Rutina propia</button></div></div>';
     h += '<div class="card"><h3>Esta semana</h3><div class="kpis">' + APP.ring(target ? ST.pct(Math.min(wl.length, target), target) : (wl.length ? 100 : 0), wl.length + (target ? '/' + target : ''), 'entrenos') + '<div class="kpi"><div class="big">' + wl.reduce((a, l) => a + (l.duration || 0), 0) + '</div><div class="label">minutos</div></div><div class="kpi"><div class="big">' + Math.round(wl.reduce((a, l) => a + volume(l), 0)).toLocaleString('es-ES') + '</div><div class="label">kg levantados</div></div></div></div>';
     const byGroup = {}; wl.forEach((l) => l.entries.forEach((en) => { const e = exById(en.ex); const n = doneSets(en).length; if (n) byGroup[e.group] = (byGroup[e.group] || 0) + n; }));
     const groups = Object.keys(byGroup).map((k) => ({ key: GROUPS[k], n: byGroup[k] })).sort((a, b) => b.n - a.n);
@@ -345,6 +365,7 @@
     return h;
   };
   const back = () => '<div style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/gym">← Preparación física</a></div>';
+  A.gymDay = (el) => { ui.gymDay = Number(el.dataset.w); rk(); };
   A.dayChoose = () => { const r = routine(G().active); APP.openSheet('¿Qué día haces hoy?', '<div class="stack">' + r.days.map((d) => '<button class="btn secondary block" data-act="workoutStart" data-r="' + r.id + '" data-d="' + d.id + '">' + esc(d.name) + '</button>').join('') + '<button class="btn ghost block" data-act="workoutStart">Entreno libre</button></div>'); };
   A.gymFab = () => { const g = G(); const nd = nextDay(); APP.openSheet('Preparación física', '<div class="stack">' + (g.current ? '<a class="btn block" style="text-decoration:none;text-align:center" href="#/gym/entreno" data-close>Continuar entreno</a>' : (nd ? '<button class="btn block" data-act="workoutStart" data-r="' + nd.r.id + '" data-d="' + nd.d.id + '">▶ Empezar: ' + esc(nd.d.name) + '</button>' : '') + '<button class="btn secondary block" data-act="workoutStart">Entreno libre</button>') + '<button class="btn secondary block" data-act="weightForm">Registrar peso corporal</button></div>'); };
 })();

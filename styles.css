@@ -342,3 +342,21 @@ details.acc > summary h3 { line-height: 1.2; }
 
 .rings4 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 8px; margin-bottom: 14px; justify-items: center; }
 .wr.on { background: transparent; color: var(--green); box-shadow: inset 0 0 0 2px var(--green-2); }
+
+/* ---- Botón flotante compacto y rutina por días ---- */
+.fab { width: 56px; height: 56px; padding: 0; border-radius: 50%; font-size: 0; display: grid; place-items: center; }
+.fab::before { content: '+'; font-size: 30px; font-weight: 600; line-height: 1; }
+#view { padding-bottom: 96px; }
+.wd.sel i { box-shadow: 0 0 0 3px var(--green-2); }
+.wd.sel span { color: var(--ink); }
+.gday { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.gday .glabel { margin-top: 0; }
+.exl > div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+.exl > div:last-child { border-bottom: 0; }
+.exl b { white-space: nowrap; color: var(--green); }
+.card.slim .btn { flex: none; }
+.card.hero.wk { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+.card.hero.wk h2 { font-size: 20px; margin: 0 0 2px; overflow-wrap: anywhere; }
+.card.hero.wk > b { font-size: 22px; flex: none; }
+.card.hero.wk .track { height: 6px; background: rgba(255,255,255,.25); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+.card.hero.wk .track div { height: 100%; background: #fff; border-radius: 999px; }

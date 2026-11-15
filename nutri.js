@@ -329,7 +329,7 @@
   // ---------- integración con Inicio y Más ----------
   APP.homeExtra = () => {
     const g = S.gym; const nd = APP.gym && APP.gym.nextDay(); const t = targets(today()); const tot = sum(dayLog(today())); const w = APP.gym && APP.gym.latestWeight();
-    return '<div class="tiles"><a class="tile" href="#/gym"><span class="ico">🏋️</span><b>Preparación física</b><span class="pill-n">' + (g && g.current ? 'Entreno en curso' : nd ? 'Toca: ' + esc(nd.d.name) : 'Crea tu rutina') + (w ? ' · ' + w + ' kg' : '') + '</span></a><a class="tile" href="#/nutri"><span class="ico">🍎</span><b>Nutrición</b><span class="pill-n">' + (t ? r0(tot.k) + ' de ' + t.kcal + ' kcal hoy' : 'Calcula tu objetivo') + '</span></a></div>';
+    return '<div class="tiles"><a class="tile" href="#/gym"><span class="ico">🏋️</span><b>Preparación física</b><span class="pill-n">' + (g && g.current ? 'Entreno en curso' : nd ? nd.label + esc(nd.d.name) : 'Crea tu rutina') + (w ? ' · ' + w + ' kg' : '') + '</span></a><a class="tile" href="#/nutri"><span class="ico">🍎</span><b>Nutrición</b><span class="pill-n">' + (t ? r0(tot.k) + ' de ' + t.kcal + ' kcal hoy' : 'Calcula tu objetivo') + '</span></a></div>';
   };
   APP.masExtra = (sec) => sec('Físico y nutrición', [['#/gym', '🏋️', 'Preparación física', 'Rutinas, pesos y progreso'], ['#/gym/peso', '⚖️', 'Peso corporal', 'Historial y tendencia'], ['#/nutri', '🍎', 'Nutrición', 'Diario, objetivo y macros'], ['#/nutri/menu', '🗓️', 'Menú semanal', 'Dieta y lista de la compra'], ['#/nutri/recetas', '👩‍🍳', 'Recetas', DB.recipes.length + ' recetas con sus macros']]);
 })();
