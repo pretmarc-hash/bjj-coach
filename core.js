@@ -184,7 +184,9 @@
   let toastTimer = null;
   APP.toast = (msg) => { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2400); };
 
-  APP.openSheet = (title, html) => { $('#sheet-title').textContent = title; $('#sheet-body').innerHTML = html; $('#sheet').hidden = false; $('#sheet-body').scrollTop = 0; document.body.style.overflow = 'hidden'; };
+  // Menos ruido: las explicaciones secundarias se pliegan tras un «ⓘ»; los avisos importantes (⚠ o con negrita) siguen a la vista.
+  APP.tidy = (root) => { $$('.explain', root).forEach((el) => { if (el.classList.contains('keep') || /⚠|<b>/.test(el.innerHTML) || el.closest('details.info')) return; const d = document.createElement('details'); d.className = 'info'; d.innerHTML = '<summary>ⓘ <span>Cómo leer esto</span></summary>'; el.parentNode.insertBefore(d, el); d.appendChild(el); }); };
+  APP.openSheet = (title, html) => { $('#sheet-title').textContent = title; $('#sheet-body').innerHTML = html; APP.tidy($('#sheet-body')); $('#sheet').hidden = false; $('#sheet-body').scrollTop = 0; document.body.style.overflow = 'hidden'; };
   APP.closeSheet = () => { $('#sheet').hidden = true; $('#sheet-body').innerHTML = ''; document.body.style.overflow = ''; };
   APP.sheetOpen = () => !$('#sheet').hidden;
   APP.confirm = (msg) => window.confirm(msg);
@@ -267,9 +269,10 @@
     const name = APP.views[parts[0]] ? parts[0] : 'inicio';
     const view = $('#view');
     const tab = APP.TABMAP[name] || 'mas';
-    const subnav = tab === 'bjj' ? '<nav class="subnav">' + [['entrenos', 'Entrenos'], ['juego', 'Mi juego'], ['apuntes', 'Apuntes'], ['stats', 'Estadísticas'], ['plan', 'Plan'], ['biblio', 'Técnicas']].map((x) => '<a href="#/' + x[0] + '"' + ((name === x[0] || (x[0] === 'entrenos' && name === 'entreno') || (x[0] === 'juego' && (name === 'arbol' || name === 'fisico'))) ? ' class="on"' : '') + '>' + x[1] + '</a>').join('') + '</nav>' : '';
+    // Sin submenús: las pantallas de BJJ cuelgan de un único panel y solo llevan un enlace para volver.
+    const subnav = (tab === 'bjj' && name !== 'entrenos') ? '<a class="backlink" href="#/' + (name === 'arbol' || name === 'fisico' ? 'juego' : 'entrenos') + '">‹ ' + (name === 'arbol' || name === 'fisico' ? 'Mi juego' : 'BJJ') + '</a>' : '';
     APP.route = { name, arg: parts[1], tab };
-    try { view.innerHTML = subnav + APP.views[name](parts[1]); } catch (e) { console.error(e); view.innerHTML = '<div class="card"><h3>Algo ha fallado</h3><p class="muted">' + esc(e.message) + '</p></div>'; }
+    try { view.innerHTML = subnav + APP.views[name](parts[1]); APP.tidy(view); } catch (e) { console.error(e); view.innerHTML = '<div class="card"><h3>Algo ha fallado</h3><p class="muted">' + esc(e.message) + '</p></div>'; }
     $('#screen-title').textContent = (APP.titles[name] || 'BJJ Coach');
     $$('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.tab === tab));
     const fab = $('#fab'); if (fab) fab.hidden = (name === 'gym' && parts[1] === 'entreno');
@@ -292,6 +295,7 @@
   });
   document.addEventListener('input', (e) => { const el = e.target.closest('[data-input]'); if (el && el.type !== 'file' && APP.actions[el.dataset.input]) APP.actions[el.dataset.input](el, e); });
   document.addEventListener('change', (e) => { const el = e.target.closest('input[type=file][data-input]'); if (el && APP.actions[el.dataset.input]) APP.actions[el.dataset.input](el, e); });
+  document.addEventListener('toggle', (e) => { const d = e.target; if (d && d.dataset && d.dataset.acc) { APP.ui.acc = APP.ui.acc || {}; APP.ui.acc[d.dataset.acc] = d.open; } }, true);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.dataset && e.target.dataset.taginput) { e.preventDefault(); APP.actions.tagadd({ dataset: { g: e.target.dataset.taginput } }); }
     if (e.key === 'Escape' && APP.sheetOpen()) APP.closeSheet();

@@ -174,7 +174,7 @@
     const n = nodes().find((x) => x.id === el.dataset.id); if (!n) return; const t = APP.findTech(n.label); const list = APP.notesFor(n.label);
     const sib = kids(n.parent); const i = sib.indexOf(n); const ban = new Set(descendants(n.id).concat(n.id));
     const targets = nodes().filter((x) => !ban.has(x.id) && x.id !== n.parent);
-    APP.openSheet(APP.tn(n.label), (n.cond ? '<div class="explain">' + esc(n.cond) + '</div>' : '') +
+    APP.openSheet(APP.tn(n.label), (n.cond ? '<div class="explain keep">' + esc(n.cond) + '</div>' : '') +
       '<h3 style="margin-bottom:6px">Mis apuntes</h3>' + (list.length ? list.map((x) => noteCard(x, list.length === 1)).join('') : '<p class="muted small">Todavía no tienes apuntes de esta técnica.</p>') +
       '<div class="stack" style="margin-top:12px"><button class="btn block" data-act="noteNew" data-title="' + esc(n.label) + '"' + (t && /posicion|guardia/.test(t.cat) ? ' data-topic="' + esc(n.label) + '"' : '') + '>+ Crear apunte</button>' +
       (t ? '<button class="btn secondary block" data-act="tech" data-id="' + t.id + '">Ver ficha de la técnica</button>' : '') +
@@ -209,7 +209,7 @@
   const INJ = [['rodillas', 'Rodillas'], ['cuello', 'Cuello'], ['hombros', 'Hombros'], ['lumbar', 'Zona lumbar'], ['dedos', 'Dedos / manos']];
   A.bodyForm = () => {
     const b = S.body || {};
-    APP.openSheet('Mi físico', '<div class="explain">Con estas respuestas te sugiero técnicas que suelen encajar con tu cuerpo. Es solo una orientación: no sustituye a tu profesor ni decide tu juego.</div>' +
+    APP.openSheet('Mi físico', '<div class="explain keep">Con estas respuestas te sugiero técnicas que suelen encajar con tu cuerpo. Es solo una orientación: no sustituye a tu profesor ni decide tu juego.</div>' +
       '<div class="grid2">' + field('Altura (cm)', '<input type="number" id="bd-h" inputmode="numeric" min="120" max="230" value="' + esc(b.height || '') + '">') + field('Peso (kg)', '<input type="number" id="bd-w" inputmode="decimal" min="30" max="250" step="0.1" value="' + esc(b.weight || '') + '">') + '</div>' +
       field('Edad', '<input type="number" id="bd-age" inputmode="numeric" min="10" max="90" value="' + esc(b.age || '') + '">') +
       Q.map((q) => group(q[1], chips('bd-' + q[0], q[2].map((o) => ({ v: o[0], l: o[1] })), b[q[0]] || null, false, true))).join('') +

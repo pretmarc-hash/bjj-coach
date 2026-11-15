@@ -65,6 +65,7 @@
     else {
       const chipsOf = (l, arr) => arr && arr.length ? '<p class="small muted" style="margin:10px 0 4px">' + l + '</p><div class="chips">' + arr.map((x) => '<span class="tag">' + esc(APP.tn(x)) + '</span>').join('') + '</div>' : '';
       h += '<div class="card"><div class="row between"><h3>Mi perfil técnico</h3><button class="btn small secondary" data-act="interview">Editar</button></div>' +
+        (APP.profileLine(p) ? '<p style="margin:0 0 4px"><b>' + esc(APP.profileLine(p)) + '</b></p>' : '') + (p.mainGoal ? '<p class="small" style="margin:0 0 6px"><span class="muted">Objetivo principal:</span> ' + esc(p.mainGoal) + '</p>' : '') +
         '<p class="muted small">' + ({ arriba: 'Prefiero luchar arriba', abajo: 'Prefiero luchar abajo', ambos: 'Lucho arriba y abajo' }[p.pref] || '') + '</p>' + chipsOf('Guardias preferidas', p.guards) + chipsOf('Pases preferidos', p.passes) + chipsOf('Finalizaciones preferidas', p.subsPref) + chipsOf('Posiciones problemáticas', p.posProblem) +
         (p.techGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos técnicos</p><p>' + esc(p.techGoals) + '</p>' : '') + (p.compGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos competitivos</p><p>' + esc(p.compGoals) + '</p>' : '') + '</div>';
     }
@@ -79,7 +80,7 @@
       }).join('') + '</div>';
 
     h += '<div class="card"><h3>Mis técnicas</h3><div class="seg">' + Object.keys(APP.CATS).map((c) => '<button class="' + (ui.juegoCat === c ? 'on' : '') + '" data-act="juegoCat" data-c="' + c + '">' + APP.CATS[c] + '</button>').join('') + '</div>' +
-      '<div class="explain">1 No la conozco · 2 Teoría · 3 Aprendiendo · 4 Entrenando · 5 Contra resistencia</div><div class="list">' + APP.techsBy(ui.juegoCat).map(masteryRow).join('') + '</div></div>';
+      '<div class="explain keep">1 No la conozco · 2 Teoría · 3 Aprendiendo · 4 Entrenando · 5 Contra resistencia</div><div class="list">' + APP.techsBy(ui.juegoCat).map(masteryRow).join('') + '</div></div>';
 
     h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Árbol de decisión: toca una técnica para ver tus apuntes; usa + para añadir ramas.</div>' + APP.treeHTML() + '</div>';
     h += '<div class="tiles"><a class="tile" href="#/apuntes"><span class="ico">📝</span><b>Apuntes</b><span class="pill-n">' + S.notes.length + ' guardados</span></a><a class="tile" href="#/fisico"><span class="ico">🧍</span><b>Mi físico</b><span class="pill-n">' + (S.body ? 'Ver recomendaciones' : 'Técnicas para tu cuerpo') + '</span></a></div>';
@@ -96,7 +97,7 @@
 
   // ================= ESTADÍSTICAS =================
   ui.stats = { mode: 'all', ctx: 'all', period: 'all', tab: 'subs' };
-  const TABS = [['subs', 'Mis finalizaciones'], ['recv', 'Recibidas'], ['pases', 'Pases'], ['guardias', 'Guardias'], ['escapes', 'Escapes'], ['derribos', 'Derribos'], ['general', 'General']];
+  const TABS = [['general', 'General'], ['subs', 'Mis finalizaciones'], ['recv', 'Finalizaciones recibidas'], ['pases', 'Pases'], ['guardias', 'Guardias'], ['escapes', 'Escapes'], ['derribos', 'Derribos']];
   const PERIODS = [['all', 'Todo'], ['30', '30 días'], ['90', '90 días'], ['365', 'Año']];
   function statsFilters() {
     const f = { mode: ui.stats.mode, context: ui.stats.ctx };
@@ -110,47 +111,57 @@
   const effTable = (rows, label) => rows.length ? rows.map((r) => eff(r, r[label])).join('') : '<div class="empty">Sin datos todavía.</div>';
 
   V.stats = () => {
-    const f = statsFilters(); const r = ST.report(S.rounds, f); const u = ui.stats; let b = '';
-    if (!S.rounds.length) return '<div class="card empty"><h3>Aún no hay estadísticas</h3><p>Las estadísticas se calculan solo con tus rounds registrados.<br>Registra tu primer round para empezar.</p><button class="btn" data-act="newRound">Registrar round</button></div>';
-    if (u.tab === 'subs') {
-      const s = r.subs;
-      b = '<div class="explain">Finalizaciones que has conseguido, repartidas por técnica. Entre paréntesis ves siempre sobre cuántas observaciones se calcula el porcentaje.</div>' + lowN(s.made.total) + '<h3>Total: ' + s.made.total + '</h3>' + bars(s.made.rows, s.made.total) +
-        '<h3 style="margin-top:16px">Intentos frente a éxitos</h3>' + eff(s.efficacy, 'Eficacia global') + effTable(s.byTech, 'tech') +
-        '<h3 style="margin-top:16px">Desde qué posición</h3>' + bars(s.madeByPosition.rows, s.madeByPosition.total) + '<h3 style="margin-top:16px">Por modalidad</h3>' + bars(s.madeByMode.rows.map((x) => Object.assign({}, x, { key: ({ gi: 'GI', nogi: 'NO-GI' }[x.key] || x.key) })), s.madeByMode.total) +
-        '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(s.evolutionMade);
-    } else if (u.tab === 'recv') {
-      const s = r.subs;
-      b = '<div class="explain">Finalizaciones que te han hecho a ti. Sirve para ver qué defensas necesitas.</div>' + lowN(s.received.total) + '<h3>Total recibidas: ' + s.received.total + '</h3>' + bars(s.received.rows, s.received.total, 'red') +
-        '<h3 style="margin-top:16px">Desde qué posición te finalizan</h3>' + bars(s.receivedByPosition.rows, s.receivedByPosition.total, 'red') + '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(s.evolutionRecv);
-    } else if (u.tab === 'pases') {
-      const s = r.passes;
-      b = '<div class="explain">Eficacia = pases conseguidos entre todos tus intentos de pase (conseguidos + fallidos).</div>' + lowN(s.efficacy.total) + eff(s.efficacy, 'Pases realizados') + effTable(s.byTech, 'tech') +
-        '<h3 style="margin-top:16px">Posiciones de partida</h3>' + bars(s.byStartPosition.rows, s.byStartPosition.total) + '<h3 style="margin-top:16px">Pases recibidos</h3>' + bars(s.received.rows, s.received.total, 'red');
-    } else if (u.tab === 'guardias') {
-      const g = r.guards;
-      b = '<div class="explain">Resultados de tus acciones desde cada posición de origen registrada.</div><h3>Raspados conseguidos por guardia</h3>' + bars(g.sweepsByGuard.rows, g.sweepsByGuard.total) + eff(g.sweepEfficacy, 'Eficacia de raspados') +
-        '<h3 style="margin-top:16px">Finalizaciones desde guardia</h3>' + bars(g.subsByGuard.rows, g.subsByGuard.total) + '<h3 style="margin-top:16px">Pases recibidos, por guardia de origen</h3>' + bars(g.passesReceivedByGuard.rows, g.passesReceivedByGuard.total, 'red') +
-        '<h3 style="margin-top:16px">Recuperaciones de guardia</h3>' + (g.recoveries.total ? eff(g.recoveries, 'Retención / recuperación') : '<div class="empty">Sin datos todavía.</div>');
-    } else if (u.tab === 'escapes') {
-      const e = r.escapes;
-      b = '<div class="explain">Porcentaje de escapes conseguidos sobre los intentados, por posición. Las posiciones con menor porcentaje son las que más te cuesta salir.</div>' + lowN(e.efficacy.total) + eff(e.efficacy, 'Escapes (global)') + '<h3 style="margin-top:16px">Por posición</h3>' + (e.byPosition.length ? e.byPosition.map((x) => eff(x, x.pos)).join('') : '<div class="empty">Sin datos todavía.</div>') +
-        '<h3 style="margin-top:16px">Técnicas de finalización que más recibo</h3>' + bars(r.subs.received.rows.slice(0, 5), r.subs.received.total, 'red');
-    } else if (u.tab === 'derribos') {
-      const t = r.takedowns;
-      b = '<div class="explain">Derribos conseguidos y recibidos. Los intentos fallidos cuentan para la eficacia.</div>' + lowN(t.efficacy.total) + eff(t.efficacy, 'Derribos realizados') + effTable(t.byTech, 'tech') + '<h3 style="margin-top:16px">Derribos recibidos</h3>' + bars(t.received.rows, t.received.total, 'red') + '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(t.evolution);
-    } else {
-      const ses = ST.sessionsInRange(S.sessions, f.from, f.to).filter((s) => !u.mode || u.mode === 'all' || s.mode === u.mode);
-      const cmp = ST.compare(S.rounds, { from: ST.addDays(today(), -29), to: today() }, { from: ST.addDays(today(), -59), to: ST.addDays(today(), -30) }, { mode: u.mode, context: u.ctx });
-      const row = (l, a, b2) => '<div class="item"><div>' + l + '</div><div><b>' + a + '</b> <span class="pill-n">vs ' + b2 + '</span></div></div>';
-      const effS = (e) => e.total ? e.pct + '% (' + e.success + '/' + e.total + ')' : '—';
-      b = '<div class="grid2"><div class="card kpi"><div class="big">' + ses.length + '</div><div class="label">entrenamientos</div></div><div class="card kpi"><div class="big">' + r.rounds + '</div><div class="label">rounds' + (r.roundMinutes ? ' · ' + r.roundMinutes + ' min de sparring' : '') + '</div></div></div>' + (r.rounds && r.roundsTimed < r.rounds ? '<p class="small muted">Tiempo contabilizado en ' + r.roundsTimed + ' de ' + r.rounds + ' rounds (los demás no tienen duración).</p>' : '') +
-        '<h3>Resultados de los rounds</h3>' + bars(r.results, r.rounds) + '<h3 style="margin-top:16px">Rounds+acciones por semana</h3>' + APP.miniBars(r.general.byWeek) +
-        '<h3 style="margin-top:16px">Comparar: últimos 30 días frente a los 30 anteriores</h3><div class="list">' + row('Rounds', cmp.a.rounds, cmp.b.rounds) + row('Finalizaciones hechas', cmp.a.subsMade, cmp.b.subsMade) + row('Finalizaciones recibidas', cmp.a.subsRecv, cmp.b.subsRecv) + row('Eficacia de finalizaciones', effS(cmp.a.subEff), effS(cmp.b.subEff)) + row('Eficacia de pases', effS(cmp.a.passEff), effS(cmp.b.passEff)) + row('Eficacia de escapes', effS(cmp.a.escapeEff), effS(cmp.b.escapeEff)) + '</div>' +
-        '<div class="explain">Compara siempre el número entre paréntesis: con pocos intentos, una diferencia de porcentaje no significa nada.</div>';
-    }
-    return '<div class="card" style="padding:12px">' + seg('mode', [['all', 'GI + NO-GI'], ['gi', 'GI'], ['nogi', 'NO-GI']], u.mode) + seg('ctx', [['all', 'Todo'], ['entreno', 'Entrenamiento'], ['competicion', 'Competición']], u.ctx) + seg('period', PERIODS, u.period) + '</div>' +
-      '<div class="seg" style="margin-bottom:10px">' + TABS.map((t) => '<button class="' + (u.tab === t[0] ? 'on' : '') + '" data-act="statf" data-k="tab" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div><div class="card">' + b + '</div>';
+    const f = statsFilters(); const r = ST.report(S.rounds, f); const u = ui.stats;
+    if (!S.rounds.length) return '<div class="card empty"><h3>Aún no hay estadísticas</h3><p>Se calculan solo con tus rounds registrados.</p><button class="btn" data-act="newRound">Registrar round</button></div>';
+    const section = (tab) => {
+      let b = '';
+    if (tab === 'subs') {
+        const s = r.subs;
+        b = '<div class="explain">Finalizaciones que has conseguido, repartidas por técnica. Entre paréntesis ves siempre sobre cuántas observaciones se calcula el porcentaje.</div>' + lowN(s.made.total) + '<h3>Total: ' + s.made.total + '</h3>' + bars(s.made.rows, s.made.total) +
+          '<h3 style="margin-top:16px">Intentos frente a éxitos</h3>' + eff(s.efficacy, 'Eficacia global') + effTable(s.byTech, 'tech') +
+          '<h3 style="margin-top:16px">Desde qué posición</h3>' + bars(s.madeByPosition.rows, s.madeByPosition.total) + '<h3 style="margin-top:16px">Por modalidad</h3>' + bars(s.madeByMode.rows.map((x) => Object.assign({}, x, { key: ({ gi: 'GI', nogi: 'NO-GI' }[x.key] || x.key) })), s.madeByMode.total) +
+          '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(s.evolutionMade);
+      } else if (tab === 'recv') {
+        const s = r.subs;
+        b = '<div class="explain">Finalizaciones que te han hecho a ti. Sirve para ver qué defensas necesitas.</div>' + lowN(s.received.total) + '<h3>Total recibidas: ' + s.received.total + '</h3>' + bars(s.received.rows, s.received.total, 'red') +
+          '<h3 style="margin-top:16px">Desde qué posición te finalizan</h3>' + bars(s.receivedByPosition.rows, s.receivedByPosition.total, 'red') + '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(s.evolutionRecv);
+      } else if (tab === 'pases') {
+        const s = r.passes;
+        b = '<div class="explain">Eficacia = pases conseguidos entre todos tus intentos de pase (conseguidos + fallidos).</div>' + lowN(s.efficacy.total) + eff(s.efficacy, 'Pases realizados') + effTable(s.byTech, 'tech') +
+          '<h3 style="margin-top:16px">Posiciones de partida</h3>' + bars(s.byStartPosition.rows, s.byStartPosition.total) + '<h3 style="margin-top:16px">Pases recibidos</h3>' + bars(s.received.rows, s.received.total, 'red');
+      } else if (tab === 'guardias') {
+        const g = r.guards;
+        b = '<div class="explain">Resultados de tus acciones desde cada posición de origen registrada.</div><h3>Raspados conseguidos por guardia</h3>' + bars(g.sweepsByGuard.rows, g.sweepsByGuard.total) + eff(g.sweepEfficacy, 'Eficacia de raspados') +
+          '<h3 style="margin-top:16px">Finalizaciones desde guardia</h3>' + bars(g.subsByGuard.rows, g.subsByGuard.total) + '<h3 style="margin-top:16px">Pases recibidos, por guardia de origen</h3>' + bars(g.passesReceivedByGuard.rows, g.passesReceivedByGuard.total, 'red') +
+          '<h3 style="margin-top:16px">Recuperaciones de guardia</h3>' + (g.recoveries.total ? eff(g.recoveries, 'Retención / recuperación') : '<div class="empty">Sin datos todavía.</div>');
+      } else if (tab === 'escapes') {
+        const e = r.escapes;
+        b = '<div class="explain">Porcentaje de escapes conseguidos sobre los intentados, por posición. Las posiciones con menor porcentaje son las que más te cuesta salir.</div>' + lowN(e.efficacy.total) + eff(e.efficacy, 'Escapes (global)') + '<h3 style="margin-top:16px">Por posición</h3>' + (e.byPosition.length ? e.byPosition.map((x) => eff(x, x.pos)).join('') : '<div class="empty">Sin datos todavía.</div>') +
+          '<h3 style="margin-top:16px">Técnicas de finalización que más recibo</h3>' + bars(r.subs.received.rows.slice(0, 5), r.subs.received.total, 'red');
+      } else if (tab === 'derribos') {
+        const t = r.takedowns;
+        b = '<div class="explain">Derribos conseguidos y recibidos. Los intentos fallidos cuentan para la eficacia.</div>' + lowN(t.efficacy.total) + eff(t.efficacy, 'Derribos realizados') + effTable(t.byTech, 'tech') + '<h3 style="margin-top:16px">Derribos recibidos</h3>' + bars(t.received.rows, t.received.total, 'red') + '<h3 style="margin-top:16px">Evolución mensual</h3>' + APP.miniBars(t.evolution);
+      } else {
+        const ses = ST.sessionsInRange(S.sessions, f.from, f.to).filter((s) => !u.mode || u.mode === 'all' || s.mode === u.mode);
+        const cmp = ST.compare(S.rounds, { from: ST.addDays(today(), -29), to: today() }, { from: ST.addDays(today(), -59), to: ST.addDays(today(), -30) }, { mode: u.mode, context: u.ctx });
+        const row = (l, a, b2) => '<div class="item"><div>' + l + '</div><div><b>' + a + '</b> <span class="pill-n">vs ' + b2 + '</span></div></div>';
+        const effS = (e) => e.total ? e.pct + '% (' + e.success + '/' + e.total + ')' : '—';
+        b = '<div class="grid2"><div class="card kpi"><div class="big">' + ses.length + '</div><div class="label">entrenamientos</div></div><div class="card kpi"><div class="big">' + r.rounds + '</div><div class="label">rounds' + (r.roundMinutes ? ' · ' + r.roundMinutes + ' min de sparring' : '') + '</div></div></div>' + (r.rounds && r.roundsTimed < r.rounds ? '<p class="small muted">Tiempo contabilizado en ' + r.roundsTimed + ' de ' + r.rounds + ' rounds (los demás no tienen duración).</p>' : '') +
+          '<h3>Resultados de los rounds</h3>' + bars(r.results, r.rounds) + '<h3 style="margin-top:16px">Rounds+acciones por semana</h3>' + APP.miniBars(r.general.byWeek) +
+          '<h3 style="margin-top:16px">Comparar: últimos 30 días frente a los 30 anteriores</h3><div class="list">' + row('Rounds', cmp.a.rounds, cmp.b.rounds) + row('Finalizaciones hechas', cmp.a.subsMade, cmp.b.subsMade) + row('Finalizaciones recibidas', cmp.a.subsRecv, cmp.b.subsRecv) + row('Eficacia de finalizaciones', effS(cmp.a.subEff), effS(cmp.b.subEff)) + row('Eficacia de pases', effS(cmp.a.passEff), effS(cmp.b.passEff)) + row('Eficacia de escapes', effS(cmp.a.escapeEff), effS(cmp.b.escapeEff)) + '</div>' +
+          '<div class="explain keep">Compara siempre el número entre paréntesis: con pocos intentos, una diferencia de porcentaje no significa nada.</div>';
+      }
+      return b;
+    };
+    const e = (x) => (x.total ? x.pct + '% · ' + x.success + '/' + x.total : 'sin datos');
+    const head = { general: r.rounds + ' rounds', subs: r.subs.made.total + ' hechas · ' + e(r.subs.efficacy), recv: r.subs.received.total + ' recibidas', pases: e(r.passes.efficacy), guardias: r.guards.sweepsByGuard.total + ' raspados', escapes: e(r.escapes.efficacy), derribos: e(r.takedowns.efficacy) };
+    const ico = { general: '📈', subs: '🎯', recv: '🛡️', pases: '➡️', guardias: '🦵', escapes: '🔓', derribos: '🤼' };
+    const open = Object.assign({ 'st-general': true }, APP.ui.acc || {});
+    const pick = (k, opts, cur) => '<select data-input="statSel" data-k="' + k + '" aria-label="Filtro">' + opts.map((o) => '<option value="' + o[0] + '"' + (cur === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select>';
+    return '<div class="filters">' + pick('mode', [['all', 'GI + NO-GI'], ['gi', 'GI'], ['nogi', 'NO-GI']], u.mode) + pick('ctx', [['all', 'Todo'], ['entreno', 'Entrenamiento'], ['competicion', 'Competición']], u.ctx) + pick('period', PERIODS, u.period) + '</div>' +
+      TABS.map((t) => '<details class="card acc" data-acc="st-' + t[0] + '"' + (open['st-' + t[0]] ? ' open' : '') + '><summary><span class="ico-b">' + ico[t[0]] + '</span><h3>' + t[1] + '</h3><span class="pill-n">' + head[t[0]] + '</span></summary><div class="accb">' + section(t[0]) + '</div></details>').join('');
   };
+  A.statSel = (el) => { ui.stats[el.dataset.k] = el.value; rk(); };
 
   // ================= ENTRENADOR =================
   function answer(q) {
@@ -248,7 +259,7 @@
     const nNotes = APP.notesFor(t.name).length;
     APP.openSheet(APP.tn(t.name), '<p class="muted">' + esc(APP.tnAlt(t)) + '</p>' + (t.alias && t.alias.length ? '<p class="small">También conocida como: ' + esc(t.alias.join(', ')) + '</p>' : '') +
       '<div class="chips"><span class="tag">' + APP.CATS[t.cat] + '</span>' + (t.sub ? '<span class="tag">' + esc(t.sub) + '</span>' : '') + '<span class="tag">' + ({ gi: 'GI', nogi: 'NO-GI', both: 'GI y NO-GI' }[t.gi] || '') + '</span><span class="tag">' + (ST_LABEL[t.st] || 'Borrador') + '</span></div>' + diff +
-      (t.nota ? '<div class="explain">' + esc(t.nota) + '</div>' : '') + (t.desc ? '<p>' + esc(t.desc) + '</p>' : '<p class="muted small">Esta técnica aún no tiene ficha descriptiva.</p>') +
+      (t.nota ? '<div class="explain keep">' + esc(t.nota) + '</div>' : '') + (t.desc ? '<p>' + esc(t.desc) + '</p>' : '<p class="muted small">Esta técnica aún no tiene ficha descriptiva.</p>') +
       (t.from || t.to ? '<p class="small"><b>Posición inicial:</b> ' + esc(t.from ? APP.tn(t.from) : '—') + ' &nbsp; <b>Final:</b> ' + esc(t.to ? APP.tn(t.to) : '—') + '</p>' : '') +
       listBlock('Variantes', t.variants) + listBlock('Entradas', t.entries) + (t.next && t.next.length ? '<h3 style="margin:16px 0 6px">Continuaciones</h3>' + techChips(t.next) : '') + listBlock('Defensas', t.defenses) + listBlock('Errores habituales', t.mistakes) +
       (t.related && t.related.length ? '<h3 style="margin:16px 0 6px">Técnicas relacionadas</h3>' + techChips(t.related) : '') +
