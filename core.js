@@ -240,6 +240,10 @@
       if (!s.dashed && pts.length <= 40) g += pts.map((p) => '<circle cx="' + px(p.x).toFixed(1) + '" cy="' + py(p.y).toFixed(1) + '" r="3" fill="' + c + '"><title>' + lab(p.x) + ': ' + fmt(p.y) + (opts.unit || '') + '</title></circle>').join(''); });
     return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="' + esc(opts.label || 'Evolución') + '">' + g + '</svg>';
   };
+  // Anillo pequeño sin texto (para cabeceras y tiras).
+  APP.mini = (pct, color, txt) => { const p = Math.max(0, Math.min(100, pct || 0)); const c = 2 * Math.PI * 15; return '<svg class="mini" viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="15" fill="none" stroke="var(--surface-2)" stroke-width="5"/><circle cx="20" cy="20" r="15" fill="none" stroke="' + (color || 'var(--green-2)') + '" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - p / 100)).toFixed(1) + '" transform="rotate(-90 20 20)"/>' + (txt !== undefined ? '<text x="20" y="24" text-anchor="middle" font-size="11" font-weight="800" fill="currentColor">' + esc(txt) + '</text>' : '') + '</svg>'; };
+  // Mapa de constancia: una columna por semana (lunes arriba), más oscuro cuanto más entrenaste ese día.
+  APP.heat = (counts, weeks) => { const t = APP.today(); const start = ST.addDays(ST.weekStart(t), -(weeks - 1) * 7); let h = '<div class="heat" style="grid-template-columns:repeat(' + weeks + ',1fr)">'; for (let w = 0; w < weeks; w++) { h += '<div class="hc">'; for (let d = 0; d < 7; d++) { const day = ST.addDays(start, w * 7 + d); const n = counts[day] || 0; h += '<i class="' + (day > t ? 'fut' : n >= 2 ? 'l2' : n === 1 ? 'l1' : '') + '" title="' + day + '"></i>'; } h += '</div>'; } return h + '</div>'; };
   APP.lowN = (n) => n < 5 ? '<div class="explain">⚠ Pocos datos (n = ' + n + '). Tómalo como una pista, no como una conclusión.</div>' : '';
   APP.miniBars = (rows) => {
     rows = rows.slice(-12); if (!rows.length) return '<div class="empty">Sin datos todavía.</div>';

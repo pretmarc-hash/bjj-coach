@@ -314,3 +314,31 @@ details.acc .accb, details.acc > .list { margin-top: 12px; }
 .filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
 .filters select { min-height: 40px; padding: 6px 8px; font-size: 13px; }
 .ring .label { line-height: 1.25; }
+
+/* ---- Ideas tomadas de otras apps: constancia, anillos pequeños, cinturones ---- */
+svg.mini { flex: none; color: var(--ink); }
+.heat { display: grid; gap: 3px; }
+.heat .hc { display: grid; grid-template-rows: repeat(7, 1fr); gap: 3px; }
+.heat i { display: block; aspect-ratio: 1; border-radius: 4px; background: var(--surface-2); }
+.heat i.l1 { background: var(--green-2); } .heat i.l2 { background: var(--green); } .heat i.fut { background: transparent; }
+.duo { height: 8px; border-radius: 999px; background: var(--red); overflow: hidden; margin-top: 6px; }
+.duo i { display: block; height: 100%; background: var(--green); }
+.belts { display: flex; flex-direction: column; gap: 10px; }
+.bl { display: flex; align-items: center; gap: 12px; }
+.bl > div { flex: 1; }
+.bbar { width: 64px; height: 18px; border-radius: 4px; border: 1px solid var(--line); position: relative; flex: none; }
+.bbar i { position: absolute; right: 8px; top: -1px; bottom: -1px; width: 14px; background: #1d1d1d; }
+.set .sn { width: 26px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
+.set.warm .sn { background: var(--gold); color: #231a05; }
+.set.warm input { opacity: .75; }
+.kpis.macros { margin: 14px 0 4px; }
+.kpis.macros .ring svg { width: 74px; height: 74px; }
+.wrings { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.wr { border: 0; background: transparent; padding: 4px 0; border-radius: 12px; font: inherit; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+.wr span { font-size: 11px; font-weight: 700; }
+.wr.on { background: var(--surface-2); color: var(--ink); }
+.wr svg.mini { width: 34px; height: 34px; }
+details.acc > summary h3 { line-height: 1.2; }
+
+.rings4 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 8px; margin-bottom: 14px; justify-items: center; }
+.wr.on { background: transparent; color: var(--green); box-shadow: inset 0 0 0 2px var(--green-2); }

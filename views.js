@@ -59,6 +59,16 @@
     return '<div class="item" style="flex-direction:column;align-items:stretch"><div class="row between"><div class="title">' + esc(c.name) + '</div><button class="icon-btn" style="width:34px;height:34px" data-act="delChain" data-id="' + c.id + '" aria-label="Borrar cadena">✕</button></div><div class="chain" style="margin-top:8px">' +
       c.steps.map((s, i) => { const t = APP.findTech(s); const lv = t ? S.mastery[t.id] : 0; return (i ? '<span class="arrow">→</span>' : '') + '<span class="node">' + esc(s) + (lv ? ' <span class="pill-n">· ' + lv + '/5</span>' : '') + '</span>'; }).join('') + '</div></div>';
   }
+  const BELT_COL = { blanco: '#f4f1ea', azul: '#2f6fb7', morado: '#7a4fa3', marron: '#7a4a2b', negro: '#1d1d1d' };
+  const beltLabel = (b) => (BELTS.find((x) => (x.v || x) === b) || {}).l || b;
+  const span = (a, b2) => { const m = Math.max(0, Math.round(ST.diffDays(b2, a) / 30.44)); return m >= 12 ? Math.floor(m / 12) + (Math.floor(m / 12) === 1 ? ' año' : ' años') + (m % 12 ? ' y ' + (m % 12) + (m % 12 === 1 ? ' mes' : ' meses') : '') : m + (m === 1 ? ' mes' : ' meses'); };
+  function beltCard() {
+    const p = S.profile || {}; const list = (p.belts || []).slice().sort((a, b2) => a.date.localeCompare(b2.date)); const t = APP.today();
+    return '<div class="card"><div class="row between"><h3>Mis cinturones</h3><button class="btn small ghost" data-act="beltAdd">+ Graduación</button></div>' + (list.length ? '<div class="belts">' + list.map((x, i) => '<div class="bl"><span class="bbar" style="background:' + (BELT_COL[x.belt] || '#888') + '"><i></i></span><div><b>' + esc(beltLabel(x.belt)) + '</b><div class="pill-n">' + APP.fmtDate(x.date) + ' · ' + span(x.date, list[i + 1] ? list[i + 1].date : t) + (list[i + 1] ? '' : ' hasta hoy') + '</div></div><button class="icon-btn sm" data-act="beltDel" data-i="' + i + '" aria-label="Quitar">✕</button></div>').join('') + '</div>' : '<p class="muted small" style="margin:0">Añade las fechas de tus graduaciones para ver cuánto llevas en cada cinturón.</p>') + '</div>';
+  }
+  A.beltAdd = () => APP.openSheet('Nueva graduación', group('Cinturón', chips('nb-belt', BELTS, (S.profile && S.profile.belt) || null, false, true)) + field('Fecha', '<input type="date" id="nb-date" value="' + APP.today() + '">') + '<button class="btn block" data-act="beltSave">Guardar</button>');
+  A.beltSave = async () => { const belt = sel('nb-belt')[0]; const date = val('nb-date'); if (!belt || !date) return APP.toast('Elige cinturón y fecha'); const p = Object.assign({}, S.profile); p.belts = (p.belts || []).filter((x) => x.belt !== belt).concat({ belt, date }).sort((a, b2) => a.date.localeCompare(b2.date)); p.belt = p.belts[p.belts.length - 1].belt; await APP.saveMeta('profile', p); APP.closeSheet(); rk(); };
+  A.beltDel = async (el) => { const p = Object.assign({}, S.profile); const list = (p.belts || []).slice().sort((a, b2) => a.date.localeCompare(b2.date)); list.splice(Number(el.dataset.i), 1); p.belts = list; await APP.saveMeta('profile', p); rk(); };
   V.juego = () => {
     const p = S.profile; let h = '';
     if (!p || !p.done) h += '<div class="card hero"><h2>Construye tu juego</h2><p class="muted">Empieza con una entrevista técnica (4 pantallas cortas). Después podrás marcar tu nivel en cada técnica y crear cadenas de ataque.</p><button class="btn secondary" data-act="interview">Empezar entrevista</button></div>';
@@ -69,6 +79,7 @@
         '<p class="muted small">' + ({ arriba: 'Prefiero luchar arriba', abajo: 'Prefiero luchar abajo', ambos: 'Lucho arriba y abajo' }[p.pref] || '') + '</p>' + chipsOf('Guardias preferidas', p.guards) + chipsOf('Pases preferidos', p.passes) + chipsOf('Finalizaciones preferidas', p.subsPref) + chipsOf('Posiciones problemáticas', p.posProblem) +
         (p.techGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos técnicos</p><p>' + esc(p.techGoals) + '</p>' : '') + (p.compGoals ? '<p class="small muted" style="margin:10px 0 2px">Objetivos competitivos</p><p>' + esc(p.compGoals) + '</p>' : '') + '</div>';
     }
+    h += beltCard();
     // Mapa: nivel de dominio por categoría (solo lo que has marcado)
     h += '<div class="card"><h3>Mapa de mi juego</h3><div class="explain">Cada barra muestra, por categoría, cuántas técnicas has marcado con cada nivel de dominio (del 2 al 5). Las que no marcas cuentan como «no la conozco».</div>' +
       Object.keys(APP.CATS).map((cat) => {
@@ -147,7 +158,7 @@
         const row = (l, a, b2) => '<div class="item"><div>' + l + '</div><div><b>' + a + '</b> <span class="pill-n">vs ' + b2 + '</span></div></div>';
         const effS = (e) => e.total ? e.pct + '% (' + e.success + '/' + e.total + ')' : '—';
         b = '<div class="grid2"><div class="card kpi"><div class="big">' + ses.length + '</div><div class="label">entrenamientos</div></div><div class="card kpi"><div class="big">' + r.rounds + '</div><div class="label">rounds' + (r.roundMinutes ? ' · ' + r.roundMinutes + ' min de sparring' : '') + '</div></div></div>' + (r.rounds && r.roundsTimed < r.rounds ? '<p class="small muted">Tiempo contabilizado en ' + r.roundsTimed + ' de ' + r.rounds + ' rounds (los demás no tienen duración).</p>' : '') +
-          '<h3>Resultados de los rounds</h3>' + bars(r.results, r.rounds) + '<h3 style="margin-top:16px">Rounds+acciones por semana</h3>' + APP.miniBars(r.general.byWeek) +
+          '<h3>Resultados de los rounds</h3>' + bars(r.results.map((x) => Object.assign({}, x, { key: x.label })), r.rounds) + '<h3 style="margin-top:16px">Actividad por semana</h3>' + APP.miniBars(r.general.byWeek) +
           '<h3 style="margin-top:16px">Comparar: últimos 30 días frente a los 30 anteriores</h3><div class="list">' + row('Rounds', cmp.a.rounds, cmp.b.rounds) + row('Finalizaciones hechas', cmp.a.subsMade, cmp.b.subsMade) + row('Finalizaciones recibidas', cmp.a.subsRecv, cmp.b.subsRecv) + row('Eficacia de finalizaciones', effS(cmp.a.subEff), effS(cmp.b.subEff)) + row('Eficacia de pases', effS(cmp.a.passEff), effS(cmp.b.passEff)) + row('Eficacia de escapes', effS(cmp.a.escapeEff), effS(cmp.b.escapeEff)) + '</div>' +
           '<div class="explain keep">Compara siempre el número entre paréntesis: con pocos intentos, una diferencia de porcentaje no significa nada.</div>';
       }
@@ -155,11 +166,19 @@
     };
     const e = (x) => (x.total ? x.pct + '% · ' + x.success + '/' + x.total : 'sin datos');
     const head = { general: r.rounds + ' rounds', subs: r.subs.made.total + ' hechas · ' + e(r.subs.efficacy), recv: r.subs.received.total + ' recibidas', pases: e(r.passes.efficacy), guardias: r.guards.sweepsByGuard.total + ' raspados', escapes: e(r.escapes.efficacy), derribos: e(r.takedowns.efficacy) };
-    const ico = { general: '📈', subs: '🎯', recv: '🛡️', pases: '➡️', guardias: '🦵', escapes: '🔓', derribos: '🤼' };
+    const ico = { general: '📈', subs: '🎯', recv: '🛡️', pases: '➡️', guardias: '🦵', escapes: '🔓', derribos: '🤼', rivales: '🤝' };
+    const effOf = { subs: [r.subs.efficacy, 'var(--red)'], pases: [r.passes.efficacy, 'var(--blue)'], escapes: [r.escapes.efficacy, 'var(--gold)'], derribos: [r.takedowns.efficacy, '#8a5fb0'] };
+    const side = (k) => (effOf[k] && effOf[k][0].total ? APP.mini(effOf[k][0].pct, effOf[k][1], effOf[k][0].pct) : '<span class="pill-n">' + head[k] + '</span>');
+    // Compañeros: finalizaciones hechas y recibidas con cada uno (solo rounds con nombre)
+    const partners = {}; ST.filterRounds(S.rounds, f).forEach((x) => { const n = (x.partner || '').trim(); if (!n) return; const p = partners[n] = partners[n] || { n: 0, made: 0, recv: 0 }; p.n++; (x.events || []).forEach((ev) => { if (ev.kind === 'sub_made' && ev.outcome === 'exito') p.made++; if (ev.kind === 'sub_recv') p.recv++; }); });
+    const plist = Object.keys(partners).map((k) => Object.assign({ name: k }, partners[k])).sort((a, b) => b.n - a.n);
+    head.rivales = plist.length + (plist.length === 1 ? ' compañero' : ' compañeros');
+    const ringGrid = '<div class="rings4">' + [['Finalizaciones', 'subs'], ['Pases', 'pases'], ['Escapes', 'escapes'], ['Derribos', 'derribos']].map((x) => { const e2 = effOf[x[1]][0]; return APP.ring(e2.total ? e2.pct : 0, e2.total ? e2.pct + '%' : '–', x[0] + '<br><span class="pill-n">' + (e2.total ? e2.success + ' de ' + e2.total : 'sin intentos') + '</span>', effOf[x[1]][1]); }).join('') + '</div>';
+    const partnerHTML = plist.length ? '<div class="list">' + plist.slice(0, 12).map((p) => { const tot = p.made + p.recv; return '<div class="item"><div style="flex:1"><div class="title">' + esc(p.name) + '</div><div class="pill-n">' + p.n + (p.n === 1 ? ' round' : ' rounds') + ' · finalizo ' + p.made + ' · me finaliza ' + p.recv + '</div>' + (tot ? '<div class="duo"><i style="width:' + ST.pct(p.made, tot) + '%"></i></div>' : '') + '</div></div>'; }).join('') + '</div><p class="small muted" style="margin-top:8px">Barra: verde, las que haces tú; rojo, las que recibes.</p>' : '';
     const open = Object.assign({ 'st-general': true }, APP.ui.acc || {});
     const pick = (k, opts, cur) => '<select data-input="statSel" data-k="' + k + '" aria-label="Filtro">' + opts.map((o) => '<option value="' + o[0] + '"' + (cur === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select>';
     return '<div class="filters">' + pick('mode', [['all', 'GI + NO-GI'], ['gi', 'GI'], ['nogi', 'NO-GI']], u.mode) + pick('ctx', [['all', 'Todo'], ['entreno', 'Entrenamiento'], ['competicion', 'Competición']], u.ctx) + pick('period', PERIODS, u.period) + '</div>' +
-      TABS.map((t) => '<details class="card acc" data-acc="st-' + t[0] + '"' + (open['st-' + t[0]] ? ' open' : '') + '><summary><span class="ico-b">' + ico[t[0]] + '</span><h3>' + t[1] + '</h3><span class="pill-n">' + head[t[0]] + '</span></summary><div class="accb">' + section(t[0]) + '</div></details>').join('');
+      TABS.concat(plist.length ? [['rivales', 'Compañeros']] : []).map((t) => '<details class="card acc" data-acc="st-' + t[0] + '"' + (open['st-' + t[0]] ? ' open' : '') + '><summary><span class="ico-b">' + ico[t[0]] + '</span><h3>' + t[1] + (effOf[t[0]] && effOf[t[0]][0].total ? '<br><span class="pill-n" style="font-weight:400">' + effOf[t[0]][0].success + ' de ' + effOf[t[0]][0].total + ' intentos</span>' : '') + '</h3>' + side(t[0]) + '</summary><div class="accb">' + (t[0] === 'general' ? ringGrid : '') + (t[0] === 'rivales' ? partnerHTML : section(t[0])) + '</div></details>').join('');
   };
   A.statSel = (el) => { ui.stats[el.dataset.k] = el.value; rk(); };
 

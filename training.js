@@ -117,6 +117,13 @@
       (d <= today() ? '<button class="btn block" style="margin-top:14px" data-act="newSessionOn" data-d="' + d + '">Registrar entreno de BJJ este día</button>' : ''));
   };
   A.newSessionOn = (el) => sessionForm({ date: el.dataset.d });
+  // Registro rápido en un toque: usa lo planificado para hoy o los datos de tu último entreno. Se puede completar después.
+  A.quickLog = async () => {
+    const t = today(); const occ = APP.plan ? APP.plan.occurrences(t).find((o) => !o.done) : null; const last = S.sessions[0] || {}; const pre = occ ? APP.plan.prefill(occ) : {};
+    const s = { id: uid(), date: t, time: pre.time || new Date().toTimeString().slice(0, 5), duration: Number(pre.duration) || Number(last.duration) || 90, type: last.type || 'Clase', mode: last.mode || (S.profile && S.profile.mode !== 'both' ? S.profile.mode : '') || '', objective: pre.objective || '', techniques: pre.techniques || [], positions: [], intensity: 3, quick: true };
+    await APP.saveSession(s); APP.render(); APP.toast('Entreno registrado (' + s.duration + ' min)');
+    if (S.goals.some((g) => !g.done)) goalCheckSheet(s.id, false);
+  };
 
   V.inicio = () => {
     const p = S.profile; const t = today(); const ws = ST.weekStart(t); const we = ST.addDays(ws, 6);
@@ -130,9 +137,17 @@
       APP.ring(target ? ST.pct(Math.min(weekS.length, target), target) : (weekS.length ? 100 : 0), weekS.length + (target ? '/' + target : ''), 'entrenos') +
       '<div class="kpi"><div class="big">' + minutes + '</div><div class="label">minutos</div></div>' +
       '<div class="kpi"><div class="big">' + weekR.length + '</div><div class="label">rounds' + (sparMin ? ' · ' + sparMin + ' min' : '') + '</div></div></div>' +
-      '<p class="small muted" style="margin:10px 0 0;text-align:center">Semana pasada: ' + prevS + (prevS === 1 ? ' entreno' : ' entrenos') + '</p></div>';
+      '<p class="small muted" style="margin:10px 0 0;text-align:center">Semana pasada: ' + prevS + (prevS === 1 ? ' entreno' : ' entrenos') + '</p>' + (S.sessions.some((x) => x.date === t) ? '' : '<button class="btn secondary block" style="margin-top:10px" data-act="quickLog">⚡ Hoy he entrenado</button>') + '</div>';
     // 2. Objetivos semanal y mensual con su avance
     h += goalsCard();
+    // Constancia: racha de semanas, horas de tatami y mapa de las últimas 16 semanas
+    if (S.sessions.length) {
+      const counts = {}; S.sessions.forEach((x) => { counts[x.date] = (counts[x.date] || 0) + 1; });
+      const need = target || 1; let streak = 0; let w = ws; const inWeek = (a) => S.sessions.filter((x) => x.date >= a && x.date <= ST.addDays(a, 6)).length;
+      if (inWeek(w) >= need) streak++; w = ST.addDays(w, -7); while (inWeek(w) >= need && streak < 520) { streak++; w = ST.addDays(w, -7); }
+      const hours = Math.round(S.sessions.reduce((a, x) => a + (Number(x.duration) || 0), 0) / 60);
+      h += '<div class="card"><div class="row between"><h3>Constancia</h3><span class="pill-n">16 semanas</span></div><div class="kpis" style="margin-bottom:12px"><div class="kpi"><div class="big">' + (streak ? '🔥 ' : '') + streak + '</div><div class="label">' + (streak === 1 ? 'semana' : 'semanas') + ' seguidas' + (target ? ' con ' + target + '+' : '') + '</div></div><div class="kpi"><div class="big">' + hours + '</div><div class="label">horas de tatami</div></div><div class="kpi"><div class="big">' + S.sessions.length + '</div><div class="label">entrenos</div></div></div>' + APP.heat(counts, 16) + '</div>';
+    }
     // 3. Lo que toca hoy (plan, registros pendientes)
     if (APP.plan) h += APP.plan.banner();
     if (!(p && p.done)) h += '<div class="card today-card"><h3>Personaliza la app</h3><p class="muted" style="margin:0 0 10px">4 pantallas cortas sobre tu jiu-jitsu.</p><button class="btn block" data-act="interview">Empezar</button></div>';
@@ -164,7 +179,7 @@
     // Tu juego en datos: solo con rounds registrados
     if (S.rounds.length) {
       const e = [['Finalizaciones', rep.subs.efficacy, 'var(--red)'], ['Pases', rep.passes.efficacy, 'var(--blue)'], ['Escapes', rep.escapes.efficacy, 'var(--gold)']];
-      h += '<div class="card"><div class="row between"><h3>Mi eficacia</h3><a href="#/stats">Detalle</a></div><div class="kpis">' + e.map((x) => APP.ring(x[1].total ? x[1].pct : 0, x[1].total ? x[1].pct + '%' : '–', x[0] + '<br><span class="pill-n">' + (x[1].total ? x[1].success + ' de ' + x[1].total : 'sin intentos') + '</span>', x[2])).join('') + '</div>' + (e.some((x) => x[1].total > 0 && x[1].total < 8) ? '<p class="small muted" style="margin:8px 0 0;text-align:center">Con menos de 8 intentos el porcentaje es solo orientativo.</p>' : '') + '</div>';
+      h += '<div class="card"><div class="row between"><h3>Mi eficacia</h3><a href="#/stats">Detalle</a></div><div class="kpis">' + e.map((x) => APP.ring(x[1].total ? x[1].pct : 0, x[1].total ? x[1].pct + '%' : '–', x[0] + '<br><span class="pill-n">' + (x[1].total ? x[1].success + ' de ' + x[1].total : 'sin intentos') + '</span>', x[2])).join('') + '</div>' + '<div class="kpis" style="margin-top:12px"><div class="kpi"><div class="big" style="font-size:24px">' + (Math.round((rep.subs.made.total / rep.rounds) * 10) / 10).toLocaleString('es-ES') + '</div><div class="label">finalizaciones por round</div></div><div class="kpi"><div class="big" style="font-size:24px">' + (Math.round((rep.subs.received.total / rep.rounds) * 10) / 10).toLocaleString('es-ES') + '</div><div class="label">veces finalizado por round</div></div></div>' + (e.some((x) => x[1].total > 0 && x[1].total < 8) ? '<p class="small muted" style="margin:8px 0 0;text-align:center">Con menos de 8 intentos el porcentaje es solo orientativo.</p>' : '') + '</div>';
       const p = S.profile; const insights = ST.coach({ sessions: S.sessions, rounds: S.rounds, goals: S.goals }, today());
       const strengths = rep.subs.made.rows.filter((r) => r.n >= 2).slice(0, 2).map((r) => APP.tn(r.key) + ' ×' + r.n).concat(rep.passes.byTech.filter((x) => x.total >= 3 && x.pct >= 50).slice(0, 1).map((x) => 'Pase ' + APP.tn(x.tech) + ' ' + x.success + '/' + x.total)).concat(p && p.strengths ? [p.strengths] : []);
       const weak = insights.filter((i) => i.type === 'patron' && /finalizado|Escapes desde|pasado la guardia|dificultad/.test(i.text)).slice(0, 3).map((i) => i.text).concat(p && p.weaknesses ? [p.weaknesses] : []);
