@@ -93,7 +93,7 @@
     h += '<div class="card"><h3>Mis técnicas</h3><div class="seg">' + Object.keys(APP.CATS).map((c) => '<button class="' + (ui.juegoCat === c ? 'on' : '') + '" data-act="juegoCat" data-c="' + c + '">' + APP.CATS[c] + '</button>').join('') + '</div>' +
       '<div class="explain keep">1 No la conozco · 2 Teoría · 3 Aprendiendo · 4 Entrenando · 5 Contra resistencia</div><div class="list">' + APP.techsBy(ui.juegoCat).map(masteryRow).join('') + '</div></div>';
 
-    h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Mapa de decisiones: toca una tarjeta para verla paso a paso.</div>' + APP.treeHTML() + '</div>';
+    h += '<div class="card"><div class="row between"><h3>Mi game plan</h3><a href="#/arbol">Pantalla completa</a></div><div class="explain">Cadenas de decisión: qué hacer según lo que pase en cada situación.</div>' + APP.treeHTML() + '</div>';
     h += '<div class="tiles"><a class="tile" href="#/apuntes"><span class="ico">📝</span><b>Apuntes</b><span class="pill-n">' + S.notes.length + ' guardados</span></a><a class="tile" href="#/fisico"><span class="ico">🧍</span><b>Mi físico</b><span class="pill-n">' + (S.body ? 'Ver recomendaciones' : 'Técnicas para tu cuerpo') + '</span></a></div>';
     return h;
   };
@@ -324,7 +324,7 @@
       sec('Informes y ajustes', [['#/informe', '🗓', 'Informe semanal', 'Resumen de tu semana'], ['#/mensual', '📈', 'Informe mensual', 'Evolución y plan del mes'], ['#/ajustes', '⚙', 'Ajustes y datos', 'Tema, nombres, exportar e importar']]);
   };
 
-  V.ajustes = () => '<div class="card"><h3>Apariencia</h3>' + '<div class="seg">' + [['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']].map((t) => '<button class="' + (S.settings.theme === t[0] ? 'on' : '') + '" data-act="theme" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
+  V.ajustes = () => '<div class="card"><h3>Apariencia</h3>' + '<div class="seg">' + [['dark', 'Oscuro'], ['light', 'Claro']].map((t) => '<button class="' + ((S.settings.theme === t[0] || (t[0] === 'dark' && S.settings.theme !== 'light')) ? 'on' : '') + '" data-act="theme" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div>' +
     '<h3 style="margin-top:8px">Nombres de las técnicas</h3><div class="seg">' + [['es', 'En español'], ['int', 'Internacional']].map((t) => '<button class="' + ((S.settings.names || 'es') === t[0] ? 'on' : '') + '" data-act="namesSet" data-v="' + t[0] + '">' + t[1] + '</button>').join('') + '</div><p class="small muted">Puedes escribir en cualquiera de los dos: la app reconoce ambos nombres y los alias.</p></div>' +
     '<div class="card"><h3>Tus datos</h3><p class="muted small">Todo se guarda en este dispositivo. No hay cuentas ni servidores. Haz copias de seguridad de vez en cuando.</p><div class="stack"><button class="btn block" data-act="export">Exportar copia (JSON)</button><label class="btn secondary block" style="display:block;text-align:center">Importar copia<input type="file" accept="application/json,.json" data-input="importfile" hidden></label><button class="btn danger block" data-act="wipe">Borrar todos los datos</button></div></div>' +
     '<div class="card"><h3>Resumen</h3><p class="small muted">' + S.sessions.length + ' entrenamientos · ' + S.rounds.length + ' rounds · ' + S.goals.length + ' objetivos · ' + S.chains.length + ' cadenas</p></div>';

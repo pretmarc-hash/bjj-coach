@@ -260,9 +260,9 @@
   // ---------- tema ----------
   APP.applyTheme = () => {
     const t = APP.S.settings.theme;
-    const dark = t === 'dark' || (t === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    const dark = t !== 'light';
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = dark ? '#141a18' : '#2f5d50';
+    const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = dark ? '#070d0d' : '#eef5f3';
   };
 
   // ---------- enrutador ----------

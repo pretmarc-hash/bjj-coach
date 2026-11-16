@@ -25,7 +25,7 @@
       (n.body ? '<p class="small muted" style="margin:10px 0 4px">Explicación</p><p style="white-space:pre-wrap">' + esc(n.body) + '</p>' : '') +
       (n.mistakes ? '<p class="small muted" style="margin:10px 0 4px">Errores a evitar</p><p style="white-space:pre-wrap">' + esc(n.mistakes) + '</p>' : '') +
       (n.link && /^https?:\/\//.test(n.link) ? '<p class="small"><a href="' + esc(n.link) + '" target="_blank" rel="noopener">Ver vídeo o enlace</a></p>' : '') +
-      '<div class="row between" style="margin-top:8px"><span class="pill-n">Actualizado ' + fmtDate(n.updated || n.created) + '</span><div class="row"><button class="btn small secondary" data-act="noteEdit" data-id="' + n.id + '">Editar</button><button class="btn small ghost" data-act="noteDel" data-id="' + n.id + '">Borrar</button></div></div></details>';
+      (n.fromDate ? '<p class="notefrom">📝 Del entreno del ' + fmtDate(n.fromDate) + ' · ' + (({ hard: '😓 Me costó', ok: '😐 Regular', good: '💪 Salió bien' })[n.rating] || '') + '</p>' + (APP.techHistory ? APP.techHistory(n.title).map((h) => '<p class="small muted" style="margin:2px 0">' + fmtDate(h.date) + ' · ' + (({ hard: 'Me costó', ok: 'Regular', good: 'Salió bien' })[h.rating] || '–') + '</p>').join('') : '') : '') + '<div class="row between" style="margin-top:8px"><span class="pill-n">Actualizado ' + fmtDate(n.updated || n.created) + '</span><div class="row"><button class="btn small secondary" data-act="noteEdit" data-id="' + n.id + '">Editar</button><button class="btn small ghost" data-act="noteDel" data-id="' + n.id + '">Borrar</button></div></div></details>';
   }
 
   ui.notes = { q: '' };

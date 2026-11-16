@@ -343,7 +343,7 @@
     }
     return { days, created: today(), kcal: t.kcal };
   }
-  APP.nutri.genMenu = genMenu; APP.nutri.dayMac = dayMac;
+  APP.nutri.waterTarget = waterTarget; APP.nutri.glassMl = glassMl; APP.nutri.waterCount = (d) => (N().water || {})[d] || 0; APP.nutri.genMenu = genMenu; APP.nutri.dayMac = dayMac;
   A.nMenuGen = async () => { const t = targets(today()); if (!t) return A.nProfile(); if (N().menu && !APP.confirm('¿Sustituir el menú actual por uno nuevo?')) return; const m = genMenu(t, N().profile); if (!m) return APP.toast('No hay recetas suficientes con tus filtros'); N().menu = m; N().shop = {}; await saveFood(); rk(); APP.toast('Menú creado'); };
   A.nMenuEmpty = async () => { const days = {}; for (let d = 1; d <= 7; d++) { days[d] = {}; SLOTS.forEach((s) => { days[d][s[0]] = []; }); } N().menu = { days, created: today() }; await saveFood(); rk(); };
   ui.menuDay = APP.plan ? APP.plan.wd(today()) : 1;
