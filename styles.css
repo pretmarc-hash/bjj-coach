@@ -405,3 +405,30 @@ details.acc > summary h3 { line-height: 1.2; }
 .sopt .ssub{grid-column:1;font-size:12px;color:var(--muted)}
 .sopt .chev{grid-column:2;grid-row:1/4;font-size:24px;color:var(--muted)}
 .sadd{width:100%;padding:13px;border:2px dashed var(--line);background:transparent;color:var(--muted);border-radius:16px;font:inherit;font-weight:700;cursor:pointer}
+
+/* ===== Game plan: cadenas ===== */
+.grp{margin-bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.gt{display:flex;align-items:center;gap:6px;background:var(--green);color:#fff;padding:4px 6px 4px 12px}
+.gname{flex:1;text-align:left;border:0;background:transparent;color:#fff;font:inherit;font-weight:800;font-size:15px;padding:6px 0;cursor:pointer}
+.gname .gn{font-size:11px;opacity:.8;font-weight:600;margin-left:4px}
+.gbtn{border:0;border-radius:10px;background:rgba(255,255,255,.18);color:#fff;font:inherit;font-weight:800;min-width:34px;height:30px;cursor:pointer}
+.gbtn.wide{font-size:12px;padding:0 9px}
+.ln{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:7px 10px;border-top:1px solid var(--line)}
+.ln .ar{color:var(--muted);font-weight:800}
+.lcond{background:#f4e6c8;color:#7a5410;border-radius:7px;padding:3px 7px;font-size:11px;font-weight:800;white-space:nowrap}
+:root[data-theme="dark"] .lcond{background:var(--surface-2);color:var(--gold)}
+.lcond.sm{background:transparent;padding:3px 2px;font-weight:700;font-style:italic}
+.lchip{border:0;border-radius:8px;padding:5px 9px;background:var(--cc,#6b665a);color:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.lchip.c-sweep{color:#2a2210}
+.empty-ln{font-size:12px;color:var(--muted)}
+
+/* ===== Agua y suplementos ===== */
+.glasses{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.wg{width:28px;height:36px;border:2px solid var(--blue);border-radius:4px 4px 9px 9px;background:transparent;cursor:pointer;padding:0;position:relative;overflow:hidden}
+.wg.on{background:var(--blue)}
+.wg.extra{border-style:dashed}
+.item.supp{align-items:center;gap:8px}
+.item.supp.done .title{color:var(--green)}
+.item.supp .tk{min-width:34px;text-align:center;font-size:14px}
+.icon-btn.sm.ok{background:var(--green);color:#fff;border-color:var(--green)}
+.lastmax b{color:var(--ink)}

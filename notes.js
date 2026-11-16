@@ -139,45 +139,30 @@
   const kids = (id) => nodes().filter((n) => (n.parent || null) === (id || null));
   const saveTree = () => APP.saveMeta('tree', S.tree);
   const descendants = (id) => { const out = []; const walk = (p) => kids(p).forEach((k) => { out.push(k.id); walk(k.id); }); walk(id); return out; };
-  // ---- Vista general: diagrama de arriba abajo (cada tarjeta lleva su color por tipo y la reacción del rival sobre la flecha)
+  // ---- Game plan en cadenas: una línea por jugada («si posturea › Raspado › Montada › Espalda»), agrupadas por situación
   const catOf = (n) => { const t = APP.findTech(n.label); return t ? t.cat : ''; };
-  function cardInfo(n) { const t = APP.findTech(n.label); const nn = APP.notesFor(n.label).length; const lv = t ? S.mastery[t.id] : 0; return { t, nn, lv }; }
-  function mapNode(n) {
-    const ch = kids(n.id); const { nn } = cardInfo(n); const c = catOf(n);
-    return '<li>' + (n.cond ? '<span class="ocond">' + esc(n.cond) + '</span>' : '') +
-      '<button class="ocard' + (c ? ' c-' + c : '') + '" data-act="tfocus" data-id="' + n.id + '"><b>' + esc(APP.tn(n.label)) + '</b>' + (nn ? '<small>📝 ' + nn + '</small>' : '') + '</button>' +
-      (ch.length ? '<button class="otog" data-act="nodeToggle" data-id="' + n.id + '" aria-label="Plegar o desplegar">' + (n.collapsed ? '+' + descendants(n.id).length : '▾') + '</button>' : '') +
-      (ch.length && !n.collapsed ? '<ul>' + ch.map(mapNode).join('') + '</ul>' : '') + '</li>';
+  const pathsFrom = (n) => { const ch = kids(n.id); if (!ch.length) return [[n]]; const out = []; ch.forEach((c) => pathsFrom(c).forEach((p) => out.push([n].concat(p)))); return out; };
+  function chainLine(p) {
+    return '<div class="ln">' + p.map((n, i) => (n.cond ? (i === 0 ? '<span class="lcond">' + esc(n.cond) + '</span>' : '<span class="lcond sm">' + esc(n.cond) + '</span>') : '') + (i ? '<span class="ar">›</span>' : '') + '<button class="lchip' + (catOf(n) ? ' c-' + catOf(n) : '') + '" data-act="node" data-id="' + n.id + '">' + esc(APP.tn(n.label)) + '</button>').join('') + '</div>';
   }
   function legend() {
     const used = [...new Set(nodes().map(catOf).filter(Boolean))];
     return used.length ? '<div class="olegend">' + used.map((c) => '<span class="c-' + c + '"><i></i>' + esc(APP.CATS[c] || c) + '</span>').join('') + '</div>' : '';
   }
-  // ---- Vista concreta: paso a paso, una situación por pantalla
-  function stepView(n) {
-    const t = APP.findTech(n.label); const { nn, lv } = cardInfo(n); const c = catOf(n); const ch = kids(n.id);
-    const path = []; for (let p = n; p; p = nodes().find((x) => x.id === p.parent)) path.unshift(p);
-    const crumbs = '<div class="crumbs"><button class="cr" data-act="tfocus" data-id="">🗺 Mapa</button>' + path.map((p, i) => '<span class="sep">›</span>' + (i === path.length - 1 ? '<span class="cr now">' + esc(APP.tn(p.label)) + '</span>' : '<button class="cr" data-act="tfocus" data-id="' + p.id + '">' + esc(APP.tn(p.label)) + '</button>')).join('') + '</div>';
-    const here = '<div class="sfocus' + (c ? ' c-' + c : '') + '"><div class="eyebrow">ESTÁS EN</div><h2>' + esc(APP.tn(n.label)) + '</h2>' +
-      '<div class="spills"><span>' + (t ? esc(APP.CATS[t.cat]) : 'Propio') + '</span>' + (lv ? '<span>Nivel ' + lv + '/5</span>' : '') + '<span>📝 ' + nn + ' apunte' + (nn === 1 ? '' : 's') + '</span></div>' +
-      '<div class="sbtns"><button data-act="notesOf" data-name="' + esc(n.label) + '">Mis apuntes</button>' + (t ? '<button data-act="tech" data-id="' + t.id + '">Ficha</button>' : '') + '<button data-act="node" data-id="' + n.id + '">Editar · mover</button></div></div>';
-    const opts = ch.length ? ch.map((k) => {
-      const kc = catOf(k); const kk = kids(k.id); const kt = APP.findTech(k.label);
-      return '<button class="sopt' + (kc ? ' c-' + kc : '') + '" data-act="tfocus" data-id="' + k.id + '">' + (k.cond ? '<span class="scond">' + esc(k.cond) + '</span>' : '') + '<b>' + esc(APP.tn(k.label)) + '</b><span class="ssub">' + (kt ? esc(APP.CATS[kt.cat]) : 'Propio') + (kk.length ? ' · sigue: ' + kk.slice(0, 2).map((x) => esc(APP.tn(x.label))).join(' / ') : '') + '</span><span class="chev">›</span></button>';
-    }).join('') : '<div class="empty">Aquí termina la jugada. Añade qué haces después o cómo reacciona el rival.</div>';
-    return crumbs + here + '<div class="eyebrow dark" style="margin:16px 0 8px">¿QUÉ HACE EL RIVAL?</div>' + opts +
-      '<button class="sadd" data-act="nodeAdd" data-parent="' + n.id + '">+ Añadir otra reacción</button>' +
-      '<div class="row" style="margin-top:14px"><button class="btn secondary block" data-act="tfocus" data-id="' + (n.parent || '') + '">‹ Atrás</button><button class="btn secondary block" data-act="tfocus" data-id="">🗺 Ver mapa</button></div>';
+  function situation(r) {
+    const ch = kids(r.id); const lines = []; ch.forEach((c) => pathsFrom(c).forEach((p) => lines.push(p)));
+    const nn = APP.notesFor(r.label).length;
+    return '<div class="grp"><div class="gt"><button class="gname" data-act="node" data-id="' + r.id + '">' + esc(APP.tn(r.label)) + (nn ? ' <span class="gn">📝 ' + nn + '</span>' : '') + '</button>' +
+      '<button class="gbtn" data-act="nodeAdd" data-parent="' + r.id + '" aria-label="Añadir jugada">+</button>' +
+      (lines.length ? '<button class="gbtn wide" data-act="nodeToggle" data-id="' + r.id + '">' + lines.length + (lines.length === 1 ? ' plan ' : ' planes ') + (r.collapsed ? '▸' : '▾') + '</button>' : '') + '</div>' +
+      (r.collapsed ? '' : lines.length ? lines.map(chainLine).join('') : '<div class="ln empty-ln">Sin jugadas todavía. Toca + y añade qué haces según cómo reaccione el rival.</div>') + '</div>';
   }
   APP.treeHTML = () => {
-    const f = ui.tf && nodes().find((x) => x.id === ui.tf); if (!f) ui.tf = '';
-    if (f) return stepView(f);
     const roots = kids(null);
-    return (roots.length ? '<div class="tmap"><ul class="otree top">' + roots.map(mapNode).join('') + '</ul></div>' + legend() + '<div class="muted small" style="margin-top:6px">Toca una tarjeta para verla paso a paso. Desliza si el mapa es ancho.</div>' : '<div class="empty">Tu game plan está vacío.<br>Empieza por una situación de partida (por ejemplo «De pie» o «Guardia cerrada») y ve añadiendo ramas: «si el rival hace esto → hago esto».</div>') +
-      '<div class="row wrap" style="margin-top:12px"><button class="btn small" data-act="nodeAdd" data-parent="">+ Punto de partida</button>' + (S.chains.length && !S.tree.imported ? '<button class="btn small secondary" data-act="treeImport">Importar mis cadenas (' + S.chains.length + ')</button>' : '') + '</div>';
+    return (roots.length ? roots.map(situation).join('') + legend() + '<div class="muted small" style="margin-top:6px">Toca una técnica para ver tus apuntes, añadir lo que viene después, editarla o moverla.</div>' : '<div class="empty">Tu game plan está vacío.<br>Empieza por una situación de partida (por ejemplo «De pie» o «Guardia cerrada») y ve añadiendo jugadas: «si el rival hace esto → hago esto».</div>') +
+      '<div class="row wrap" style="margin-top:12px"><button class="btn small" data-act="nodeAdd" data-parent="">+ Nueva situación</button>' + (S.chains.length && !S.tree.imported ? '<button class="btn small secondary" data-act="treeImport">Importar mis cadenas (' + S.chains.length + ')</button>' : '') + '</div>';
   };
   V.arbol = () => '<div class="card">' + APP.treeHTML() + '</div>';
-  A.tfocus = (el) => { ui.tf = el.dataset.id || ''; rk(); };
 
   A.nodeToggle = async (el) => { const n = nodes().find((x) => x.id === el.dataset.id); if (n) { n.collapsed = !n.collapsed; await saveTree(); rk(); } };
   function nodeForm(n, parent) {

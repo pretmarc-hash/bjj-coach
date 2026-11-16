@@ -1,5 +1,5 @@
-const CACHE = 'bjj-coach-v13';
-const FILES = ['./', './index.html', './styles.css?v=13', './stats.js?v=13', './core.js?v=13', './training.js?v=13', './plan.js?v=13', './notes.js?v=13', './gym.js?v=13', './nutri-data.js?v=13', './nutri.js?v=13', './views.js?v=13', './app.js?v=13', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'bjj-coach-v14';
+const FILES = ['./', './index.html', './styles.css?v=14', './stats.js?v=14', './core.js?v=14', './training.js?v=14', './plan.js?v=14', './notes.js?v=14', './gym.js?v=14', './nutri-data.js?v=14', './nutri.js?v=14', './views.js?v=14', './app.js?v=14', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

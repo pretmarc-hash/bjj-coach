@@ -84,6 +84,7 @@
       (t ? '<div class="kpi"><div class="big" style="font-size:26px;color:' + (left < 0 ? 'var(--red)' : 'var(--ink)') + '">' + Math.abs(r0(left)) + '</div><div class="label">kcal ' + (left < 0 ? 'de más' : 'restantes') + '</div></div><div class="kpi"><div class="big" style="font-size:26px">' + t.ex + '</div><div class="label">kcal de entreno' + (N().mode === 'day' ? ' este día' : ' (media)') + '</div></div>' : '<div class="kpi"><div class="label">Sin objetivo todavía</div></div>') + '</div>' +
       (t ? '<div class="kpis macros">' + [['Proteína', tot.p, t.p, 'var(--red)'], ['Hidratos', tot.h, t.h, 'var(--gold)'], ['Grasas', tot.f, t.f, 'var(--blue)']].map((x) => APP.ring(ST.pct(Math.min(x[1], x[2]), x[2] || 1), r0(x[1]) + ' g', x[0] + '<br><span class="pill-n">de ' + x[2] + ' g</span>', x[3])).join('') + '</div>' + weekRings(d) : '<p class="small muted">' + macLine(tot) + '</p>') + '</div>';
     h += '<div class="tiles t4"><a class="tile" href="#/nutri/objetivo"><span class="ico">🎯</span><b>Objetivo</b></a><a class="tile" href="#/nutri/recetas"><span class="ico">👩‍🍳</span><b>Recetas</b></a><a class="tile" href="#/nutri/menu"><span class="ico">🗓️</span><b>Menú</b></a><a class="tile" href="#/nutri/compra"><span class="ico">🛒</span><b>Compra</b></a></div>';
+    h += hydroCard(d) + suppCard(d);
     MEALS.forEach((m) => {
       const es = log.filter((e) => e.meal === m[0]); const mt = sum(es);
       h += '<div class="card"><div class="row between"><h3>' + m[2] + ' ' + m[1] + (es.length ? ' <span class="pill-n">' + r0(mt.k) + ' kcal</span>' : '') + '</h3><button class="btn small" data-act="nAdd" data-meal="' + m[0] + '">+ Añadir</button></div>' +
@@ -103,6 +104,69 @@
     } else if (needK < -t.kcal * 0.1) h = '<div class="card"><span class="tag dato">Dato</span> <span class="pill-n">Hoy llevas ' + r0(-needK) + ' kcal por encima del objetivo.</span><p class="small muted" style="margin-top:6px">Un día suelto no cambia el resultado: lo que cuenta es la media de la semana.</p></div>';
     return h;
   }
+  // ---------- agua ----------
+  const glassMl = () => N().glassMl || 250;
+  const fmtL = (ml) => (Math.round(ml / 10) / 100).toString().replace('.', ',');
+  // Objetivo orientativo: 35 ml por kg de peso + 500 ml por cada hora de entreno (sudor). Redondeado a 50 ml.
+  function waterTarget(d) {
+    const kg = weightNow(); const base = kg ? 35 * kg : 2000; const min = kg ? exerciseOn(d, kg).reduce((a, x) => a + x.min, 0) : 0; const extra = (min / 60) * 500;
+    return { ml: Math.round((base + extra) / 50) * 50, base: r0(base), extra: r0(extra), kg, min };
+  }
+  function hydroCard(d) {
+    const w = waterTarget(d); const g = glassMl(); const n = Math.max(1, Math.min(20, Math.ceil(w.ml / g))); const c = (N().water || {})[d] || 0; const ml = c * g;
+    const glasses = Array.from({ length: Math.max(n, c > n ? Math.min(c, 24) : n) }, (_, i) => '<button class="wg' + (i < c ? ' on' : '') + (i >= n ? ' extra' : '') + '" data-act="nWater" data-i="' + i + '" aria-label="Vaso ' + (i + 1) + '"></button>').join('');
+    return '<div class="card"><div class="row between"><h3>💧 Agua <span class="pill-n">' + c + ' / ' + n + ' vasos · ' + fmtL(ml) + ' / ' + fmtL(n * g) + ' L</span></h3><div class="row" style="gap:6px"><button class="icon-btn sm" data-act="nWaterAdd" data-n="-1" aria-label="Quitar un vaso">−</button><button class="btn small" data-act="nWaterAdd" data-n="1">+ Vaso</button></div></div>' +
+      '<div class="glasses">' + glasses + '</div>' +
+      '<div class="explain keep"><span class="tag dato">Dato</span> Objetivo: ' + fmtL(w.base) + ' L (35 ml por kg' + (w.kg ? '' : ', sin tu peso se usa 2 L') + ')' + (w.extra ? ' + ' + fmtL(w.extra) + ' L por ' + w.min + ' min de entreno' : '') + '. Orientativo: si tu orina es amarillo claro, vas bien. <a href="#" data-act="nGlass">Vaso de ' + g + ' ml ✎</a></div></div>';
+  }
+  A.nWater = async (el) => { const n = N(); n.water = n.water || {}; const d = ui.nutri.date; const c = n.water[d] || 0; const i = Number(el.dataset.i); n.water[d] = i === c - 1 ? c - 1 : i + 1; await saveFood(); rk(); };
+  A.nWaterAdd = async (el) => { const n = N(); n.water = n.water || {}; const d = ui.nutri.date; n.water[d] = Math.max(0, (n.water[d] || 0) + Number(el.dataset.n)); await saveFood(); rk(); };
+  A.nGlass = () => APP.openSheet('Tamaño de tu vaso', group('Mililitros por vaso', chips('gl-ml', [200, 250, 330, 500].map((v) => ({ v: String(v), l: v + ' ml' })), String(glassMl()), false, true)) + '<p class="small muted">Cambia cuántos vasos necesitas al día; el objetivo en litros no cambia.</p><button class="btn block" data-act="nGlassSave">Guardar</button>');
+  A.nGlassSave = async () => { N().glassMl = Number(sel('gl-ml')[0]) || 250; await saveFood(); APP.closeSheet(); rk(); };
+
+  // ---------- suplementos ----------
+  const supps = () => N().supps || (N().supps = []);
+  const suppN = (d, id) => ((N().suppLog || {})[d] || {})[id] || 0;
+  function suppCard(d) {
+    const l = supps();
+    return '<div class="card"><div class="row between"><h3 style="white-space:nowrap">💊 Suplementos</h3><button class="btn small" data-act="suppAdd">+ Añadir</button></div>' +
+      (l.length ? '<div class="list">' + l.map((x) => { const n = suppN(d, x.id); const done = n >= x.per; return '<div class="item supp' + (done ? ' done' : '') + '"><a href="#" data-act="suppEdit" data-id="' + x.id + '" style="flex:1;min-width:0;text-decoration:none;color:inherit"><div class="title">' + esc(x.name) + '</div><div class="pill-n">' + (x.dose ? esc(x.dose) + ' · ' : '') + x.per + (x.per === 1 ? ' toma al día' : ' tomas al día') + '</div></a>' +
+        '<div class="row" style="gap:6px;flex:none"><button class="icon-btn sm" data-act="suppTake" data-id="' + x.id + '" data-n="-1" aria-label="Quitar toma">−</button><b class="tk">' + n + '/' + x.per + '</b><button class="icon-btn sm ok" data-act="suppTake" data-id="' + x.id + '" data-n="1" aria-label="Apuntar toma">' + (done ? '✓' : '+') + '</button></div></div>'; }).join('') + '</div>' : '<p class="small muted" style="margin:8px 0 0">Aún no has añadido ninguno. Mira las recomendaciones o añade los que ya tomas.</p>') + '<button class="btn small ghost" style="margin-top:8px" data-act="suppRecs">💡 Ver recomendaciones</button></div>';
+  }
+  A.suppTake = async (el) => { const n = N(); n.suppLog = n.suppLog || {}; const d = ui.nutri.date; const day = (n.suppLog[d] = n.suppLog[d] || {}); day[el.dataset.id] = Math.max(0, (day[el.dataset.id] || 0) + Number(el.dataset.n)); await saveFood(); rk(); };
+  const COMMON = ['Creatina monohidrato', 'Proteína de suero (whey)', 'Cafeína', 'Vitamina D', 'Omega-3', 'Magnesio', 'Multivitamínico', 'Electrolitos'];
+  function suppForm(x) {
+    x = x || {}; APP.openSheet(x.id ? 'Editar suplemento' : 'Añadir suplemento', field('Nombre', '<input id="sp-name" list="dl-supp" autocomplete="off" placeholder="Ej.: Creatina" value="' + esc(x.name || '') + '"><datalist id="dl-supp">' + COMMON.map((c) => '<option value="' + c + '">').join('') + '</datalist>') + field('Dosis (opcional)', '<input id="sp-dose" placeholder="Ej.: 5 g" value="' + esc(x.dose || '') + '">') + group('Veces al día', chips('sp-per', [1, 2, 3, 4].map((v) => ({ v: String(v), l: String(v) })), String(x.per || 1), false, true)) + '<button class="btn block" data-act="suppSave" data-id="' + (x.id || '') + '">Guardar</button>' + (x.id ? '<button class="btn danger block" style="margin-top:8px" data-act="suppDel" data-id="' + x.id + '">Quitar de mi lista</button>' : ''));
+  }
+  A.suppAdd = () => suppForm(null);
+  A.suppEdit = (el) => suppForm(supps().find((x) => x.id === el.dataset.id));
+  A.suppSave = async (el) => {
+    const name = val('sp-name').trim(); if (!name) return APP.toast('Escribe el nombre'); const o = { name, dose: val('sp-dose').trim(), per: Number(sel('sp-per')[0]) || 1 };
+    const old = supps().find((x) => x.id === el.dataset.id); if (old) Object.assign(old, o); else supps().push(Object.assign({ id: uid() }, o));
+    await saveFood(); APP.closeSheet(); rk();
+  };
+  A.suppDel = async (el) => { if (!APP.confirm('¿Quitar este suplemento de tu lista?')) return; N().supps = supps().filter((x) => x.id !== el.dataset.id); await saveFood(); APP.closeSheet(); rk(); };
+  // Recomendaciones basadas en consensos de la ISSN y el AIS. Orientativas: no sustituyen a un médico o dietista.
+  function suppRecs() {
+    const p = N().profile || {}; const kg = weightNow(); const t = targets(today()); const minor = p.age && p.age < 18;
+    let sumP = 0, nd = 0; for (let i = 1; i <= 7; i++) { const lg = dayLog(ST.addDays(today(), -i)); if (lg.length) { sumP += sum(lg).p; nd++; } }
+    const avgP = nd >= 3 ? sumP / nd : null; const gap = t && avgP !== null ? t.p - avgP : null;
+    const caf = kg ? Math.min(300, Math.round((3 * kg) / 10) * 10) : 200;
+    const R = [
+      { name: 'Creatina monohidrato', dose: '3–5 g', per: 1, lvl: minor ? 'no' : 'si', ev: 'Evidencia alta', why: 'Es el suplemento más estudiado: mejora fuerza y potencia en esfuerzos cortos repetidos (gimnasio, sprints y escapes). Se toma a diario a cualquier hora, sin fase de carga; el efecto tarda 3–4 semanas.', warn: minor ? 'No se recomienda por debajo de 18 años.' : 'Bebe agua con ella. Si tienes problemas de riñón, consúltalo antes.' },
+      { name: 'Proteína de suero (whey)', dose: '1 cazo (25–30 g)', per: 1, lvl: minor ? 'no' : gap !== null && gap > 15 ? 'si' : 'op', ev: 'Evidencia alta (solo si te falta proteína)', why: gap !== null ? (gap > 15 ? 'En tus últimos ' + nd + ' días registrados te faltan de media ' + r0(gap) + ' g de proteína al día. Un cazo aporta unos 24 g.' : 'En tus últimos ' + nd + ' días llegas a tu objetivo de proteína con comida: no la necesitas, solo es cómoda.') : 'Registra al menos 3 días de comida y te digo si te hace falta. Solo es un atajo para llegar a tu proteína, no mejor que la comida.', warn: minor ? 'A tu edad mejor cubrir la proteína con comida.' : '' },
+      { name: 'Cafeína', dose: caf + ' mg', per: 1, lvl: minor ? 'no' : 'op', ev: 'Evidencia media-alta', why: 'Mejora rendimiento y percepción del esfuerzo. Unos 3 mg por kg' + (kg ? ' (≈ ' + caf + ' mg contigo)' : '') + ', 30–60 min antes de entrenar. Un café fuerte son unos 100 mg.', warn: minor ? 'No recomendada a menores de 18 años.' : 'Máximo 400 mg al día en total y no a partir de media tarde: dormir bien rinde más que cualquier suplemento.' },
+      { name: 'Vitamina D', dose: 'Según análisis', per: 1, lvl: 'cond', ev: 'Solo si hay déficit', why: 'Solo compensa si tienes el nivel bajo (poco sol en invierno, piel oscura, trabajo en interior). Hazte un análisis y que tu médico decida la dosis.', warn: 'No tomes dosis altas por tu cuenta.' },
+      { name: 'Omega-3 (EPA+DHA)', dose: '1–2 g', per: 1, lvl: 'cond', ev: 'Evidencia media', why: 'Útil si comes pescado azul menos de 2 veces por semana. Si lo comes con frecuencia, no te aporta extra.', warn: '' }
+    ];
+    const have = (n) => supps().some((x) => ST.norm(x.name).slice(0, 6) === ST.norm(n).slice(0, 6));
+    const tagOf = { si: '<span class="tag recomendacion">Recomendada para ti</span>', op: '<span class="tag dato">Opcional</span>', cond: '<span class="tag dato">Solo si lo necesitas</span>', no: '<span class="tag dato">No recomendada</span>' };
+    ui.recs = R;
+    APP.openSheet('Suplementos recomendados', '<p class="small muted" style="margin-top:0">Primero la base: comida suficiente, proteína, sueño y agua. Los suplementos suman poco sobre eso.</p>' + R.map((r, i) => '<div class="card" style="margin:8px 0"><div class="row between"><b>' + esc(r.name) + '</b>' + tagOf[r.lvl] + '</div><div class="pill-n">' + esc(r.dose) + ' · ' + esc(r.ev) + '</div><p class="small" style="margin:6px 0">' + esc(r.why) + '</p>' + (r.warn ? '<p class="small muted" style="margin:0 0 6px">⚠ ' + esc(r.warn) + '</p>' : '') + (r.lvl === 'no' ? '' : have(r.name) ? '<span class="pill-n">✓ Ya está en tu lista</span>' : '<button class="btn small secondary" data-act="suppFromRec" data-i="' + i + '">+ Añadir a mi lista</button>') + '</div>').join('') +
+      '<p class="small muted"><b>No compensan:</b> BCAA (si tomas proteína ya los tienes), quemagrasas, glutamina y «potenciadores de testosterona».</p><p class="small muted">Es orientación general basada en consensos de la ISSN y el AIS, no consejo médico. Consulta con un médico si tomas medicación, tienes una enfermedad o estás embarazada.</p>');
+  }
+  A.suppRecs = suppRecs;
+  A.suppFromRec = async (el) => { const r = ui.recs[Number(el.dataset.i)]; supps().push({ id: uid(), name: r.name, dose: r.dose === 'Según análisis' ? '' : r.dose, per: r.per }); await saveFood(); APP.closeSheet(); rk(); APP.toast(r.name + ' añadido'); };
   A.nDay = (el) => { ui.nutri.date = ST.addDays(ui.nutri.date, Number(el.dataset.n)); rk(); };
   const push = async (date, entries) => { const n = N(); n.log[date] = (n.log[date] || []).concat(entries); await saveFood(); };
   const entryOf = (meal, t, id, q) => {
