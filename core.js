@@ -87,6 +87,7 @@
     S.aliases = meta.aliases || {};
     S.notes = meta.notes || [];
     S.noteTopics = meta.noteTopics || {};
+    S.study = meta.study || [];
     S.tree = meta.tree || { nodes: [] };
     S.body = meta.body || null;
     S.gym = meta.gym || null;

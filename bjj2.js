@@ -196,6 +196,7 @@
       h += card(ct('Cumplimiento · últimas 5 semanas') + '<div style="display:flex;gap:8px;align-items:flex-end;height:60px">' + bars.map((b, i) => '<div style="flex:1;text-align:center"><div style="height:' + Math.max(3, b.v * 0.4) + 'px;border-radius:5px;background:' + (i === 4 ? 'var(--green)' : 'color-mix(in srgb,var(--green) 45%,var(--surface-2))') + '"></div><div style="font-size:9px;color:var(--muted);margin-top:3px">' + (b.ok ? b.v + '%' : '–') + '</div></div>').join('') + '</div>', 'padding:11px 14px'); }
     h += '<button class="btn block" style="margin-bottom:12px" data-act="newSession">+ Registrar entreno</button>';
     const tile = (href, ico, name) => '<a href="' + href + '"><span style="font-size:20px">' + ico + '</span><span class="tv" style="font-size:12px">' + name + '</span></a>';
+    h += '<a class="card" href="#/estudio" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;margin-bottom:8px"><span style="font-size:24px">🎓</span><span style="flex:1"><b>Estudio</b><br><span class="small muted">Técnicas con vídeo y apuntes · ' + (S.study || []).length + '</span></span><span class="muted">›</span></a>';
     h += '<div class="tl3">' + tile('#/juego', '🥋', 'Mi juego') + tile('#/arbol', '🌳', 'Game plan') + tile('#/apuntes', '📝', 'Apuntes (' + S.notes.length + ')') + tile('#/stats', '📊', 'Estadísticas') + tile('#/plan', '📅', 'Plan') + tile('#/biblio', '📚', 'Técnicas') + '</div>';
     if (APP.plan) { const pend = APP.plan.pending(); if (pend.length) h += APP.plan.banner(); }
     const all = ui.allSessions; const ls = all ? S.sessions : S.sessions.slice(0, 5);
@@ -524,4 +525,136 @@
     return '<div class="ttl"><h2>Estadísticas<small>Tu jiu-jitsu en datos</small></h2></div>' + tabs + (tab === 'cuerpo' ? '' : filters()) + body;
   };
   APP.titles.stats = 'Estadísticas BJJ';
+
+  // =====================================================================
+  // ESTUDIO · técnicas concretas con vídeo de YouTube + apuntes clasificados que van a Apuntes
+  // =====================================================================
+  const SECS = ['Entradas', 'Salidas y escapes', 'Raspados', 'Pases', 'Finalizaciones', 'Defensas', 'Retención', 'Transiciones', 'Conceptos'];
+  const NCLS = { key: ['🔑', 'Detalle clave'], step: ['👣', 'Paso a paso'], err: ['⚠️', 'Error a evitar'], doubt: ['❓', 'Duda'] };
+  const chipsH = (n, o, sl, m, oc) => APP.chips(n, o, sl, m, oc);
+  const study = () => (S.study = S.study || []);
+  const saveStudy = () => APP.saveMeta('study', study());
+  Object.assign(APP.titles, { estudio: 'Estudio' });
+  APP.TABMAP.estudio = 'bjj';
+  ui.st = ui.st || { q: '', sec: '', v: 0 };
+  const ytId = (u) => { u = String(u || '').trim(); let m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/|v\/))([\w-]{11})/); if (!m && /^[\w-]{11}$/.test(u)) m = [0, u]; return m ? m[1] : ''; };
+  const ytStart = (u) => { const m = String(u).match(/[?&#](?:t|start)=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?/); return m ? (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0) : 0; };
+  const tsF = (t) => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+  const tsP = (x) => { x = String(x || '').trim(); if (!x) return null; const p = x.split(':').map(Number); if (p.some(isNaN)) return null; return p.length === 1 ? p[0] * 60 : p.length === 2 ? p[0] * 60 + p[1] : p[0] * 3600 + p[1] * 60 + p[2]; };
+  const stItem = (id) => study().find((x) => x.id === id);
+
+  V.estudio = (arg) => {
+    if (arg) return stDetail(stItem(arg));
+    const q = ST.norm(ui.st.q), all = study();
+    let list = all.filter((x) => (!ui.st.sec || x.sec === ui.st.sec) && (!q || ST.norm(x.title + ' ' + x.pos).includes(q)));
+    list.sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+    const secs = uniq(all.map((x) => x.sec).filter(Boolean));
+    const nN = all.reduce((a, x) => a + x.notes.length, 0), nV = all.reduce((a, x) => a + x.videos.length, 0);
+    let h = '<div class="ttl"><h2>Estudio<small>Técnica a técnica, con vídeo y apuntes</small></h2></div>';
+    h += card('<div class="row"><div style="flex:1;text-align:center"><b style="font-size:22px">' + all.length + '</b><div class="small muted">técnicas</div></div><div style="flex:1;text-align:center"><b style="font-size:22px">' + nV + '</b><div class="small muted">vídeos</div></div><div style="flex:1;text-align:center"><b style="font-size:22px">' + nN + '</b><div class="small muted">apuntes</div></div></div>');
+    h += '<button class="btn block" style="margin-bottom:12px" data-act="stNew">+ Nueva técnica de estudio</button>';
+    if (all.length) {
+      h += '<input type="search" placeholder="Buscar técnica o posición…" value="' + esc(ui.st.q) + '" data-input="stSearch" style="margin-bottom:10px">';
+      if (secs.length > 1) h += '<div class="ptabs" style="overflow-x:auto;white-space:nowrap"><button class="' + (!ui.st.sec ? 'on' : '') + '" data-act="stSec" data-v="">Todas</button>' + secs.map((x) => '<button class="' + (ui.st.sec === x ? 'on' : '') + '" data-act="stSec" data-v="' + esc(x) + '">' + esc(x) + '</button>').join('') + '</div>';
+      h += '<div id="st-list">' + stList(list) + '</div>';
+    } else h += '<div class="card empty"><h3>Empieza tu estudio</h3><p>Crea una técnica concreta (por ejemplo «Raspado desde media guardia»), pega el enlace de un vídeo de YouTube y ve tomando apuntes mientras lo ves.</p></div>';
+    return h;
+  };
+  const stList = (list) => list.length ? list.map((x) => '<a class="card" href="#/estudio/' + x.id + '" style="display:block;text-decoration:none;color:inherit"><div class="row between"><b>' + esc(APP.tn(x.title)) + '</b><span class="muted">›</span></div><div class="row" style="gap:6px;flex-wrap:wrap;margin-top:6px">' + (x.pos ? pill(esc(APP.tn(x.pos))) : '') + (x.sec ? pill(esc(x.sec)) : '') + pill('🎬 ' + x.videos.length) + pill('📝 ' + x.notes.length) + '</div></a>').join('') : empty('Nada coincide.');
+  A.stSearch = (el) => { ui.st.q = el.value; const l = $('#st-list'); if (l) l.innerHTML = stList(study().filter((x) => (!ui.st.sec || x.sec === ui.st.sec) && (!ST.norm(el.value) || ST.norm(x.title + ' ' + x.pos).includes(ST.norm(el.value))))); };
+  A.stSec = (el) => { ui.st.sec = el.dataset.v; rk(); };
+
+  function stForm(x) {
+    x = x || {};
+    APP.openSheet(x.id ? 'Editar técnica' : 'Nueva técnica de estudio',
+      field('Técnica concreta', '<input id="st-title" list="dl-tech" autocomplete="off" placeholder="Ej.: Raspado desde media guardia" value="' + esc(x.title || '') + '">') +
+      field('Posición (será el tema en Apuntes)', '<input id="st-pos" list="dl-pos" autocomplete="off" placeholder="Ej.: Media guardia" value="' + esc(x.pos || '') + '">') +
+      group('Apartado en Apuntes', chipsH('stsec', SECS, x.sec || null, false, true)) +
+      (x.id ? '' : field('Enlace de YouTube (opcional)', '<input id="st-url" type="url" inputmode="url" placeholder="https://youtu.be/…">')) +
+      '<button class="btn block" data-act="stSave" data-id="' + (x.id || '') + '">' + (x.id ? 'Guardar cambios' : 'Crear y abrir') + '</button>');
+  }
+  A.stNew = () => stForm();
+  A.stEdit = (el) => stForm(stItem(el.dataset.id));
+  A.stSave = async (el) => {
+    const title = val('st-title').trim(); if (!title) return APP.toast('Escribe la técnica');
+    const old = stItem(el.dataset.id); const pos = val('st-pos').trim(); const sec = APP.sel('stsec')[0] || '';
+    const x = old || { id: uid(), videos: [], notes: [], created: today() };
+    Object.assign(x, { title, pos, sec, updated: today() });
+    const url = (APP.$('#st-url') ? val('st-url').trim() : '');
+    if (url) { const id = ytId(url); if (!id) return APP.toast('Ese enlace no parece de YouTube'); x.videos.push({ id: uid(), url, yt: id, start: ytStart(url) }); }
+    if (!old) study().push(x);
+    await saveStudy(); await stSync(x); APP.closeSheet(); ui.st.v = 0; APP.go('#/estudio/' + x.id); if (old) rk();
+  };
+  A.stDel = async (el) => {
+    const x = stItem(el.dataset.id); if (!x || !APP.confirm('¿Borrar «' + x.title + '»? El apunte ya guardado en Apuntes se mantiene.')) return;
+    S.study = study().filter((y) => y.id !== x.id); await saveStudy(); APP.go('#/estudio');
+  };
+
+  let ytP = null, ytReady = null;
+  const ytLoad = () => ytReady || (ytReady = new Promise((res, rej) => {
+    if (window.YT && window.YT.Player) return res();
+    const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = () => { if (prev) prev(); res(); };
+    const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.onerror = () => { ytReady = null; rej(); }; document.head.appendChild(sc);
+    setTimeout(() => { if (!(window.YT && window.YT.Player)) { ytReady = null; rej(); } }, 8000);
+  }));
+  const ytInit = (x) => { ytP = null; const fr = $('#st-frame'); if (!fr || !navigator.onLine) return; ytLoad().then(() => { if ($('#st-frame') === fr) ytP = new window.YT.Player('st-frame'); }).catch(() => {}); };
+
+  function stDetail(x) {
+    if (!x) return '<div class="card empty">Técnica no encontrada.</div>';
+    const vi = Math.min(ui.st.v || 0, x.videos.length - 1), v = x.videos[vi];
+    let h = '<a class="backlink" href="#/estudio">‹ Estudio</a>';
+    h += '<div class="row between" style="margin-bottom:10px"><div><h2 style="margin:0">' + esc(APP.tn(x.title)) + '</h2><div class="row" style="gap:6px;margin-top:6px;flex-wrap:wrap">' + (x.pos ? pill(esc(APP.tn(x.pos))) : '') + (x.sec ? pill(esc(x.sec)) : '') + '</div></div><button class="btn small ghost" data-act="stEdit" data-id="' + x.id + '">Editar</button></div>';
+    if (v) {
+      h += '<div class="card" style="padding:10px">' + (navigator.onLine ? '<div style="position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000"><iframe id="st-frame" style="position:absolute;inset:0;width:100%;height:100%;border:0" src="https://www.youtube-nocookie.com/embed/' + v.yt + '?enablejsapi=1&playsinline=1&rel=0' + (v.start ? '&start=' + v.start : '') + '" allow="accelerometer; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>' : '<div class="empty" style="padding:18px">Sin conexión: el vídeo necesita internet. Tus apuntes sí funcionan.</div>') +
+        '<div class="row between" style="margin-top:8px;gap:6px"><a class="small" style="color:var(--green)" target="_blank" rel="noopener" href="' + esc(v.url) + '">Abrir en YouTube ↗</a><button class="btn small ghost" data-act="stVidDel" data-id="' + x.id + '" data-i="' + vi + '">Quitar vídeo</button></div></div>';
+    }
+    h += '<div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:12px">' + x.videos.map((y, i) => '<button class="btn small ' + (i === vi ? '' : 'secondary') + '" data-act="stVid" data-i="' + i + '">Vídeo ' + (i + 1) + '</button>').join('') + '<button class="btn small secondary" data-act="stVidAdd" data-id="' + x.id + '">+ ' + (v ? 'Otro vídeo' : 'Añadir vídeo de YouTube') + '</button></div>';
+    h += card(ct('Mis apuntes mientras lo veo') +
+      '<textarea id="sn-text" rows="3" placeholder="Escribe lo que veas importante…"></textarea>' +
+      '<div class="small muted" style="margin:8px 0 4px">Tipo</div>' + chipsH('sncls', Object.keys(NCLS).map((k) => ({ v: k, l: NCLS[k][0] + ' ' + NCLS[k][1] })), 'key', false, false) +
+      '<div class="row" style="margin-top:10px;gap:8px"><input id="sn-ts" placeholder="m:ss" inputmode="numeric" style="width:84px;flex:none"><button class="btn small secondary" style="flex:1" data-act="snNow">⏱ Minuto actual</button></div><button class="btn block" style="margin-top:10px" data-act="snAdd" data-id="' + x.id + '">Añadir apunte</button>' +
+      '<p class="small muted" style="margin:8px 0 0">Se guarda solo y se actualiza en Apuntes › ' + esc(APP.tn(x.pos || x.title)) + '.</p>');
+    h += '<div id="st-notes">' + stNotes(x) + '</div>';
+    h += '<div class="stack"><button class="btn secondary block" data-act="stToApuntes" data-id="' + x.id + '">📝 Ver en Apuntes</button><button class="btn ghost block" data-act="stDel" data-id="' + x.id + '">Borrar técnica</button></div>';
+    setTimeout(() => ytInit(x), 0);
+    return h;
+  }
+  const stNotes = (x) => {
+    if (!x.notes.length) return '';
+    const vids = x.videos;
+    return Object.keys(NCLS).map((k) => { const ns = x.notes.filter((n) => n.cls === k); if (!ns.length) return ''; return card(ct(NCLS[k][0] + ' ' + NCLS[k][1] + ' (' + ns.length + ')') + ns.map((n) => '<div class="row between" style="align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid var(--line)"><div style="flex:1;white-space:pre-wrap">' + (n.t != null ? '<a href="#" data-act="snSeek" data-t="' + n.t + '" data-v="' + (n.v || 0) + '" style="color:var(--green);font-weight:700">' + tsF(n.t) + '</a> ' : '') + esc(n.text) + '</div><button class="btn small ghost" data-act="snDel" data-id="' + x.id + '" data-n="' + n.id + '">✕</button></div>').join('')); }).join('');
+  };
+  A.stVid = (el) => { ui.st.v = +el.dataset.i; rk(); };
+  A.stVidAdd = (el) => APP.openSheet('Añadir vídeo', field('Enlace de YouTube', '<input id="sv-url" type="url" inputmode="url" placeholder="https://youtu.be/…">') + '<button class="btn block" data-act="stVidSave" data-id="' + el.dataset.id + '">Añadir</button>');
+  A.stVidSave = async (el) => {
+    const x = stItem(el.dataset.id), url = val('sv-url').trim(), id = ytId(url); if (!id) return APP.toast('Ese enlace no parece de YouTube');
+    x.videos.push({ id: uid(), url, yt: id, start: ytStart(url) }); x.updated = today(); ui.st.v = x.videos.length - 1; await saveStudy(); await stSync(x); APP.closeSheet(); rk();
+  };
+  A.stVidDel = async (el) => { const x = stItem(el.dataset.id); if (!APP.confirm('¿Quitar este vídeo?')) return; x.videos.splice(+el.dataset.i, 1); ui.st.v = 0; await saveStudy(); await stSync(x); rk(); };
+  A.snNow = () => { try { if (ytP && ytP.getCurrentTime) { $('#sn-ts').value = tsF(ytP.getCurrentTime()); return; } } catch (e) { /* sigue */ } APP.toast('No puedo leer el minuto: escríbelo a mano (m:ss)'); };
+  A.snSeek = (el) => { try { if (ytP && ytP.seekTo) { ytP.seekTo(+el.dataset.t, true); ytP.playVideo(); window.scrollTo({ top: 0, behavior: 'smooth' }); } } catch (e) { /* sin API */ } };
+  A.snAdd = async (el) => {
+    const x = stItem(el.dataset.id), text = val('sn-text').trim(); if (!text) return APP.toast('Escribe el apunte');
+    const t = tsP(val('sn-ts')); const cls = APP.sel('sncls', $('#view'))[0] || 'key';
+    x.notes.push({ id: uid(), cls, text, t, v: Math.min(ui.st.v || 0, x.videos.length - 1), created: today() }); x.updated = today();
+    await saveStudy(); await stSync(x);
+    $('#sn-text').value = ''; $('#sn-ts').value = ''; $('#st-notes').innerHTML = stNotes(x); APP.toast('Apunte guardado en Apuntes');
+  };
+  A.snDel = async (el) => { const x = stItem(el.dataset.id); x.notes = x.notes.filter((n) => n.id !== el.dataset.n); await saveStudy(); await stSync(x); $('#st-notes').innerHTML = stNotes(x); };
+  A.stToApuntes = (el) => { const x = stItem(el.dataset.id); APP.go('#/apuntes/' + encodeURIComponent(APP.canon(x.pos || x.title).name || x.pos || x.title)); };
+
+  // Crea o actualiza el apunte de Apuntes ligado a esta técnica de estudio.
+  async function stSync(x) {
+    const topic = APP.canon(x.pos || x.title).name || x.pos || x.title; const section = x.sec || 'Conceptos';
+    const line = (n) => (n.t != null ? '[' + tsF(n.t) + '] ' : '') + n.text;
+    const by = (k) => x.notes.filter((n) => n.cls === k);
+    const body = by('step').map(line).join('\n') + (by('doubt').length ? (by('step').length ? '\n\n' : '') + 'Dudas:\n' + by('doubt').map(line).join('\n') : '');
+    let n = S.notes.find((y) => y.studyId === x.id);
+    const empty = !x.notes.length && !x.videos.length;
+    if (empty && !n) return;
+    const data = { topic, section, title: x.title, keys: by('key').map(line), body, mistakes: by('err').map(line).join('\n'), mode: 'both', link: x.videos[0] ? x.videos[0].url : '', updated: today(), studyId: x.id };
+    if (n) Object.assign(n, data); else S.notes.push(Object.assign({ id: uid(), created: today() }, data));
+    const cur = S.noteTopics[topic] || []; if (!cur.some((c) => ST.norm(c) === ST.norm(section))) { cur.push(section); S.noteTopics[topic] = cur; await APP.saveMeta('noteTopics', S.noteTopics); }
+    await APP.saveMeta('notes', S.notes);
+  }
 })();
