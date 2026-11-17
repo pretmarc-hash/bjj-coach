@@ -88,6 +88,11 @@
     S.notes = meta.notes || [];
     S.noteTopics = meta.noteTopics || {};
     S.study = meta.study || [];
+    S.injuries = meta.injuries || [];
+    S.srs = meta.srs || {};
+    S.ach = meta.ach || null;
+    S.challenge = meta.challenge || null;
+    S.backup = meta.backup || null;
     S.tree = meta.tree || { nodes: [] };
     S.body = meta.body || null;
     S.gym = meta.gym || null;

@@ -619,3 +619,11 @@ input:focus, select:focus, textarea:focus { outline-color: var(--green); }
 .notefrom { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 .pbar { display: block; margin-top: 4px; margin-left: auto; }
 .cnt > span.pill { flex: none; }
+
+/* v17 · logros, radar y análisis */
+.achg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+.ach { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 3px; opacity: .72; }
+.ach.on { opacity: 1; border-color: var(--gold); background: linear-gradient(160deg, rgba(255,200,80,.12), var(--surface)); }
+.ach .ai { font-size: 22px; filter: grayscale(1); } .ach.on .ai { filter: none; }
+.ach b { font-size: 13px; }
+.ach .pbar { display: block; height: 5px; border-radius: 5px; background: var(--line); overflow: hidden; margin: 4px 0 0; } .ach .pbar i { display: block; height: 100%; background: var(--green); }

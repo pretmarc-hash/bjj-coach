@@ -218,7 +218,7 @@
     src = src || {}; const last = S.sessions[0] || {}; const f = src.feel || {};
     const st = {
       id: src.id || '', date: src.date || today(), time: src.time || nowTime(), duration: Number(src.duration) || Number(last.duration) || 90,
-      type: src.type || last.type || TYPES[0], mode: src.mode || last.mode || defaultMode(), mood: f.mood || 0, cardio: f.cardio || 0, energy: f.energy || 0, flags: (f.flags || []).slice(),
+      type: src.type || last.type || TYPES[0], mode: src.mode || last.mode || defaultMode(), mood: f.mood || 0, effort: f.effort || 0, cardio: f.cardio || 0, energy: f.energy || 0, flags: (f.flags || []).slice(),
       goals: {}, counts: {}, prevChecks: src.goalChecks || {}, worked: [], hard: (src.review && src.review.hard) || '', good: (src.review && src.review.good) || '', notes: src.notes || '',
       step: 1, rounds: [], removed: [], legacy: [], tech: -1, objective: src.objective || '', src
     };
@@ -245,6 +245,7 @@
       '<div class="grid2">' + field('Fecha', '<input type="date" id="rg-date" value="' + st.date + '">') + field('Hora', '<input type="time" id="rg-time" value="' + st.time + '">') + '</div>' +
       '<div style="margin-bottom:12px">' + stepper('DURACIÓN', st.duration, 'min', 'rgDur" data-d="-15', 'rgDur" data-d="15', 'rg-dur').replace('data-act="rgDur" data-d="-15"', 'data-act="rgDur" data-d="-15"') + '</div>' +
       '<div class="sect" style="margin-top:4px">¿Cómo te sentiste?</div><div class="faces">' + FACES.map((f, i) => '<button class="' + (st.mood === i + 1 ? 'on' : '') + '" data-act="rgFace" data-v="' + (i + 1) + '">' + f + '</button>').join('') + '</div>' +
+      '<div class="sect">Intensidad del entreno (1 suave · 5 a tope)</div><div class="nums effort">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.effort === i ? 'on' : '') + '" data-act="rgNum" data-k="effort" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
       '<div class="sect">Cardio (1 flojo · 5 sobrado)</div><div class="nums cardio">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.cardio === i ? 'on' : '') + '" data-act="rgNum" data-k="cardio" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
       '<div class="sect">Energía / descanso</div><div class="nums energy">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.energy === i ? 'on' : '') + '" data-act="rgNum" data-k="energy" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
       '<div class="chips" data-group="rg-flags" data-multi="1" style="margin-top:12px">' + ['Lesión / dolor', 'Dormí poco', 'Mucho estrés'].map((x) => '<button type="button" class="chip sm' + (st.flags.includes(x) ? ' on' : '') + '" data-val="' + x + '">+ ' + x + '</button>').join('') + '</div>' +
@@ -330,7 +331,7 @@
     goalsForReg(st).forEach((g) => { if (g.kind === 'count') { const n = st.counts[g.id] || 0; if (n > 0 || st.prevChecks[g.id] !== undefined) { cn[g.id] = n; gc[g.id] = n > 0 ? 'si' : 'no'; } } else if (st.goals[g.id]) gc[g.id] = st.goals[g.id]; });
     const names = uniq(st.worked.map((w) => APP.canon(w.name).name || w.name));
     const dayG = goalsOn(st.date)[0];
-    const s = Object.assign({}, old, { id: old.id || uid(), date: st.date, time: st.time, duration: st.duration, type: st.type, mode: st.mode, techniques: names, positions: old.positions || [], objective: st.objective || (dayG ? dayG.text : old.objective || ''), notes: st.notes, goalChecks: gc, goalCounts: cn, feel: { mood: st.mood, cardio: st.cardio, energy: st.energy, flags: st.flags }, worked: st.worked.map((w) => Object.assign({}, w, { name: APP.canon(w.name).name || w.name })), created: old.created || Date.now(), quick: false });
+    const s = Object.assign({}, old, { id: old.id || uid(), date: st.date, time: st.time, duration: st.duration, type: st.type, mode: st.mode, techniques: names, positions: old.positions || [], objective: st.objective || (dayG ? dayG.text : old.objective || ''), notes: st.notes, goalChecks: gc, goalCounts: cn, feel: { mood: st.mood, effort: st.effort, cardio: st.cardio, energy: st.energy, flags: st.flags }, worked: st.worked.map((w) => Object.assign({}, w, { name: APP.canon(w.name).name || w.name })), created: old.created || Date.now(), quick: false });
     if (!s.intensity) s.intensity = 3;
     s.review = Object.assign({}, old.review, { mood: st.mood ? MOODS[st.mood] : (old.review && old.review.mood) || '', good: st.good, hard: st.hard, worked: names });
     await APP.saveSession(s);
@@ -657,4 +658,6 @@
     const cur = S.noteTopics[topic] || []; if (!cur.some((c) => ST.norm(c) === ST.norm(section))) { cur.push(section); S.noteTopics[topic] = cur; await APP.saveMeta('noteTopics', S.noteTopics); }
     await APP.saveMeta('notes', S.notes);
   }
+  APP.ui2 = { card, ct, pill, mring, spark, hbar, rows, insight, empty, mmss, hm, fmtN, gp, appliesOn, rk, wdIdx, activeGoals };
+  APP.yt = { ytId, ytStart, tsF, tsP, ytInit, player: () => ytP };
 })();

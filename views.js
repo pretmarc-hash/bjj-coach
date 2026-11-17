@@ -331,7 +331,7 @@
   A.namesSet = async (el) => { S.settings.names = el.dataset.v; await APP.saveMeta('settings', S.settings); APP.buildDatalists(); rk(); };
   A.theme = async (el) => { S.settings.theme = el.dataset.v; await APP.saveMeta('settings', S.settings); APP.applyTheme(); rk(); };
   A.export = () => {
-    const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan, notes: S.notes, noteTopics: S.noteTopics, tree: S.tree, body: S.body, gym: S.gym, food: S.food };
+    const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan, notes: S.notes, noteTopics: S.noteTopics, tree: S.tree, body: S.body, gym: S.gym, food: S.food, study: S.study, injuries: S.injuries, srs: S.srs, ach: S.ach, challenge: S.challenge };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bjj-coach-' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     APP.toast('Copia exportada');
@@ -351,7 +351,7 @@
       if (d.custom && d.custom.length) { const have = new Set((S.custom || []).map((c) => c.id)); await APP.saveMeta('custom', (S.custom || []).concat(d.custom.filter((c) => !have.has(c.id)))); }
       if (d.aliases) { const al = Object.assign({}, S.aliases || {}); Object.keys(d.aliases).forEach((k) => { al[k] = Array.from(new Set((al[k] || []).concat(d.aliases[k]))); }); await APP.saveMeta('aliases', al); }
       if (d.plan) await APP.saveMeta('plan', APP.normalizePlan(d.plan));
-      for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food']) if (d[k]) await APP.saveMeta(k, d[k]);
+      for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food', 'study', 'injuries', 'srs', 'ach', 'challenge']) if (d[k]) await APP.saveMeta(k, d[k]);
       await APP.loadLib();
       APP.toast('Copia importada'); APP.render();
     } catch (e) { APP.toast('No se pudo importar: ' + e.message); }
@@ -362,8 +362,8 @@
     if (!APP.confirm('Última confirmación: se borrarán entrenamientos, rounds, perfil y objetivos.')) return;
     for (const st of ['sessions', 'rounds', 'chains', 'goals', 'mastery']) await APP.db.clear(st);
     await APP.db.del('meta', 'profile'); await APP.db.del('meta', 'favs'); await APP.db.del('meta', 'custom'); await APP.db.del('meta', 'aliases'); await APP.db.del('meta', 'plan'); S.plan = APP.defaultPlan();
-    for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food']) await APP.db.del('meta', k);
-    S.notes = []; S.noteTopics = {}; S.tree = { nodes: [] }; S.body = null; S.gym = null; S.food = null;
+    for (const k of ['notes', 'noteTopics', 'tree', 'body', 'gym', 'food', 'study', 'injuries', 'srs', 'ach', 'challenge']) await APP.db.del('meta', k);
+    S.notes = []; S.noteTopics = {}; S.tree = { nodes: [] }; S.body = null; S.gym = null; S.food = null; S.study = []; S.injuries = []; S.srs = {}; S.ach = null; S.challenge = null;
     Object.assign(S, { sessions: [], rounds: [], mastery: {}, chains: [], goals: [], profile: null, favs: [], custom: [], aliases: {} }); await APP.loadLib();
     APP.toast('Datos borrados'); APP.go('#/inicio');
   };
