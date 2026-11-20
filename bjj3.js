@@ -43,7 +43,12 @@
   const activeInj = () => (S.injuries || []).filter((i) => !i.end);
 
   // ---------- Puntos débiles (desde tus rounds y entrenos) ----------
+  let wkMemo = null;
   function weak() {
+    if (wkMemo && Date.now() - wkMemo.t < 800 && wkMemo.k === S.rounds.length + '|' + S.sessions.length) return wkMemo.v;
+    const v = weak0(); wkMemo = { t: Date.now(), k: S.rounds.length + '|' + S.sessions.length, v }; return v;
+  }
+  function weak0() {
     const t = today(); const from = ST.addDays(t, -89);
     const rs = S.rounds.filter((r) => r.date >= from); const rep = ST.report(S.rounds, { from, to: t }); const out = [];
     const add = (o) => out.push(o);
@@ -342,6 +347,28 @@
   // =====================================================================
   // INTEGRACIÓN EN INICIO Y EN EL PANEL BJJ
   // =====================================================================
+
+  // ---------- Bloque rojo del panel BJJ: dónde me dominan · qué mejorar · qué me costó ----------
+  function redBlock() {
+    const t = today(), from = ST.addDays(t, -89); const rs = S.rounds.filter((r) => r.date >= from);
+    const rep = ST.report(S.rounds, { from, to: t }); const ev = ST.flatten(rs); const ok = (k) => k && k !== 'Sin especificar';
+    const tally = (arr) => { const m = {}; arr.forEach((k) => { if (k) m[k] = (m[k] || 0) + 1; }); return Object.keys(m).map((k) => ({ key: k, n: m[k] })).sort((a, b) => b.n - a.n); };
+    const lost = tally(ev.filter((e) => ['pos_lost', 'pass_recv', 'sweep_recv', 'takedown_recv'].includes(e.kind)).map((e) => e.to)).filter((r) => ok(r.key)).slice(0, 3);
+    const pg = rep.guards.passesReceivedByGuard.rows.filter((r) => ok(r.key))[0];
+    const sb = rep.subs.received.rows.filter((r) => ok(r.key))[0], sp = rep.subs.receivedByPosition.rows.filter((r) => ok(r.key))[0];
+    const dom = [];
+    if (lost.length) dom.push('<div class="rl"><span>Posiciones donde más me dominan</span><b>' + lost.map((r) => esc(APP.tn(r.key)) + ' (' + r.n + ')').join(' · ') + '</b></div>');
+    if (pg) dom.push('<div class="rl"><span>Guardia desde la que más me pasan</span><b>' + esc(APP.tn(pg.key)) + ' (' + pg.n + ')</b></div>');
+    if (sb) dom.push('<div class="rl"><span>Llave que más me hacen</span><b>' + esc(APP.tn(sb.key)) + ' (' + sb.n + ')' + (sp ? ' · desde ' + esc(APP.tn(sp.key)) : '') + '</b></div>');
+    const ws = weak().slice(0, 2);
+    const last = S.sessions[0]; const hardW = last ? (last.worked || []).filter((w) => w.rating === 'hard') : []; const rv = (last && last.review) || {};
+    let h = '<div class="redb"><div class="ct">⚠ PARA MEJORAR</div>';
+    h += '<div class="rh">Donde más me dominan</div>' + (dom.length ? dom.join('') : '<p class="small muted" style="margin:0">Registra «Me dominaron en…» y las llaves recibidas en tus rounds para verlo aquí.</p>');
+    h += '<div class="rh">Lo que tengo que mejorar</div>' + (ws.length ? ws.map((w) => '<div class="rl" data-act="wkStudy" data-id="' + esc(w.id) + '" style="cursor:pointer"><span>' + esc(w.why) + '</span><b>' + esc(w.title) + ' ›</b></div>').join('') : '<p class="small muted" style="margin:0">Aún no hay datos suficientes para detectarlo.</p>');
+    h += '<div class="rh">Lo que me costó el entreno anterior' + (last ? ' · ' + fmtDate(last.date) : '') + '</div>';
+    h += last ? ((hardW.length ? '<div class="rl"><span>Técnicas que me costaron</span><b>' + hardW.map((w) => esc(APP.tn(w.name))).join(', ') + '</b></div>' : '') + (rv.hard ? '<div class="rl"><span>Lo que más me costó</span><b>' + esc(rv.hard) + '</b></div>' : '') + (!hardW.length && !rv.hard ? '<p class="small muted" style="margin:0">No anotaste qué te costó. Hazlo al registrar (paso «Objetivos y técnicas»).</p>' : '')) : '<p class="small muted" style="margin:0">Aún no has registrado ningún entreno.</p>';
+    return h + '</div>';
+  }
   const oldInicio = V.inicio;
   V.inicio = () => {
     meta(); const h = oldInicio(); const rows = [];
@@ -361,7 +388,8 @@
     const due = APP.dueCount(); const ls = loadStatus();
     const blk = chCard(false) + '<a class="btn block secondary" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="#/briefing">▶ Antes de entrenar</a><div class="tl3">' + tile('#/progreso', '🏆', 'Progreso', (S.ach ? Object.keys(S.ach).length : 0) + ' logros') + tile('#/carga', '🩹', 'Carga', activeInj().length ? activeInj().length + ' molestia' + (activeInj().length > 1 ? 's' : '') : ls.r === null ? '' : nfix(ls.r, 1) + '×') + tile('#/repaso', '🧠', 'Repaso', due ? due + ' hoy' : 'al día') + '</div>';
     setTimeout(checkAch, 300);
-    return h.replace('<a class="card" href="#/estudio"', blk + '<a class="card" href="#/estudio"');
+    const k = h.indexOf('</h2></div>') + 11;
+    return (k > 11 ? h.slice(0, k) + redBlock() + h.slice(k) : redBlock() + h).replace('<a class="card" href="#/estudio"', blk + '<a class="card" href="#/estudio"');
   };
   const oldRender = APP.render;
   APP.render = function () { oldRender(); if (APP.route && ['estudio', 'entreno', 'entrenos', 'progreso'].includes(APP.route.name)) setTimeout(checkAch, 400); };

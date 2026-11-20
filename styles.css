@@ -582,6 +582,7 @@ input:focus, select:focus, textarea:focus { outline-color: var(--green); }
 .faces button, .nums button { border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 9px 0; font: inherit; font-weight: 800; cursor: pointer; }
 .faces button { font-size: 20px; padding: 7px 0; }
 .faces button.on { background: color-mix(in srgb, var(--green) 16%, var(--surface)); border: 1.5px solid var(--green); }
+.nums.effort button.on { background: var(--og, var(--orange)); color: #fff; border-color: var(--orange); }
 .nums.cardio button.on { background: var(--green); color: #04100e; border-color: var(--green); } .nums.energy button.on { background: var(--gold); color: #231a05; border-color: var(--gold); }
 .stp2 { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border-radius: 18px; padding: 8px 10px; flex: 1; }
 .stp2 .sl { font-size: 10px; letter-spacing: .14em; font-weight: 800; color: var(--muted); text-align: center; }
@@ -627,3 +628,19 @@ input:focus, select:focus, textarea:focus { outline-color: var(--green); }
 .ach .ai { font-size: 22px; filter: grayscale(1); } .ach.on .ai { filter: none; }
 .ach b { font-size: 13px; }
 .ach .pbar { display: block; height: 5px; border-radius: 5px; background: var(--line); overflow: hidden; margin: 4px 0 0; } .ach .pbar i { display: block; height: 100%; background: var(--green); }
+
+/* v18 · bloque rojo del panel BJJ */
+.redb { border: 1px solid rgba(255,90,80,.55); background: linear-gradient(170deg, rgba(255,80,70,.13), var(--surface) 70%); border-radius: 20px; padding: 14px 16px; margin-bottom: 12px; }
+.redb .ct { color: var(--red); margin-bottom: 2px; }
+.redb .rh { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--red); margin: 12px 0 4px; }
+.redb .rl { display: flex; flex-direction: column; gap: 1px; padding: 5px 0; border-top: 1px solid rgba(255,255,255,.06); }
+.redb .rl:first-of-type { border-top: 0; }
+.redb .rl span { font-size: 12px; color: var(--muted); }
+[data-act=chSkip] { white-space: nowrap; } .redb .rl b { font-size: 14px; }
+.brand::before { content: none; } .brand b { font-size: 14px; font-weight: 800; color: var(--green); line-height: 1; letter-spacing: 0; display: block; }
+.icon-btn { display: grid; place-items: center; padding: 0; line-height: 1; }
+
+/* v18 · zonas táctiles mínimas */
+.backlink { display: inline-block; padding: 10px 14px 10px 0; }
+.gstrip > a { padding: 10px 0 10px 8px; }
+.chip.sm { min-height: 36px; display: inline-flex; align-items: center; }
