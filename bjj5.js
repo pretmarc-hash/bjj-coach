@@ -55,7 +55,7 @@
   // ---------------- piezas ----------------
   const kids = (html) => { const d = document.createElement('div'); d.innerHTML = html; return Array.prototype.slice.call(d.children); };
   const has = (e, t) => e.textContent.indexOf(t) >= 0;
-  const sec = (n, title, icon, cls, els) => (els.length ? '<section class="g5s ' + cls + '"><div class="g5h">' + ic(icon, 17) + '<span>' + title + '</span></div>' + els.map((e) => (typeof e === 'string' ? e : e.outerHTML)).join('') + '</section>' : '');
+  const sec = (n, title, icon, cls, els, meta) => (els.length ? '<section class="g5s ' + cls + '"><div class="g5h">' + ic(icon, 17) + '<span>' + title + '</span>' + (meta ? '<i class="g5m">' + meta + '</i>' : '') + '</div>' + els.map((e) => (typeof e === 'string' ? e : e.outerHTML)).join('') + '</section>' : '');
   const row = (href, icon, cls, name, right) => '<a class="g5i" href="' + href + '"><span class="ico ' + cls + '">' + ic(icon, 18) + '</span><span class="tx">' + name + '</span><span class="rt">' + (right || '') + ic('chev', 16) + '</span></a>';
   const list = (label, rows) => '<div class="g5k">' + label + '</div><div class="g5list">' + rows.join('') + '</div>';
   const redInner = () => { const k = kids(APP.redBlock ? APP.redBlock() : ''); const r = k.find((e) => e.classList.contains('redb')); if (r) { const c = r.querySelector('.ct'); if (c) c.remove(); } return r; };
@@ -72,7 +72,7 @@
     const dots = w.map((v, i) => '<circle cx="' + X(i) + '" cy="' + Y(v).toFixed(1) + '" r="' + (i === 3 ? 4.5 : 3) + '" fill="' + (i === 3 ? 'var(--ink)' : 'var(--green)') + '"/>').join('');
     const svg = '<svg class="ldchart" viewBox="0 0 330 118"><rect x="0" y="' + lo.toFixed(1) + '" width="330" height="' + (hi - lo).toFixed(1) + '" fill="color-mix(in srgb,var(--green) 12%,transparent)"/><text x="4" y="' + (lo - 4).toFixed(1) + '" font-size="10" fill="var(--muted)">tu media ±20 %</text><path d="' + line + ' L' + X(3) + ',104 L' + X(0) + ',104z" fill="color-mix(in srgb,var(--green) 16%,transparent)"/><path d="' + line + '" fill="none" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' + dots + ['hace 3 sem', 'hace 2', 'hace 1', 'esta'].map((l, i) => '<text x="' + X(i) + '" y="116" font-size="10" text-anchor="' + (i === 0 ? 'start' : i === 3 ? 'end' : 'middle') + '" fill="var(--muted)">' + l + '</text>').join('') + '</svg>';
     const note = ratio > 1.3 ? 'Esta semana llevas bastante más carga que tu media. Reparte los días duros.' : ratio < 0.7 ? 'Llevas menos carga que tu media: buen momento para sumar una sesión.' : 'Dentro de tu rango habitual.';
-    return '<div class="pn"><h4>Carga de las últimas 4 semanas<small>minutos × esfuerzo</small></h4>' + svg + '<p class="muted small" style="margin:8px 0 0">' + note + '</p></div>';
+    return '<div class="pn"><h4>Carga de 4 semanas<small>minutos × esfuerzo</small></h4>' + svg + '<p class="muted small" style="margin:8px 0 0">' + note + '</p></div>';
   }
 
   const oldInicio = V.inicio;
@@ -96,7 +96,71 @@
     if (G.reto) G.semana.push(G.reto);
     return G;
   }
+  // ---------- bloques compactos (diseño del ejemplo) ----------
+  const DLB = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const weekData = () => {
+    const t = today(); const ws = ST.weekStart(t); const we = ST.addDays(ws, 6);
+    const weekS = S.sessions.filter((x) => x.date >= ws && x.date <= we); const minutes = weekS.reduce((a, x) => a + (Number(x.duration) || 0), 0);
+    const p = S.profile; const target = p && Number(p.weeklyTarget) ? Number(p.weeklyTarget) : (Object.keys(S.plan.days).filter((k) => S.plan.days[k].on).length || 0);
+    const gy = APP.gymInfo ? APP.gymInfo() : { n: 0 };
+    return { t, ws, weekS, minutes, target, gyN: gy.n, n: weekS.length + gy.n, nb: weekS.length };
+  };
+  const stripHtml = (w) => '<div class="n6wk">' + DLB.map((l, i) => {
+    const d = ST.addDays(w.ws, i); const done = S.sessions.some((x) => x.date === d) || ((S.gym && S.gym.logs) || []).some((x) => x.date === d);
+    let planned = false; try { const k = APP.plan && APP.plan.wd ? APP.plan.wd(d) : i; planned = !!(S.plan.days[k] && S.plan.days[k].on); } catch (e) { /* sin plan */ }
+    const cls = done ? 'd' : d === w.t ? 't' : planned ? 'p' : '';
+    return '<button data-act="dayPeek" data-d="' + d + '" aria-label="' + esc(fmtDate(d)) + '"><span>' + l + '</span><b class="' + cls + '">' + (done ? ic('check', 15, '#fff', 2.6) : '') + '</b></button>';
+  }).join('') + '</div>';
+  function hoyBlock() {
+    const t = today(); const a = APP.advice ? APP.advice() : null; const doneToday = S.sessions.filter((x) => x.date === t);
+    const nx = APP.plan ? APP.plan.next() : null; let title, sub, act, lab, key = '', dd = '';
+    if (nx && !(doneToday.length && nx.inDays === 0)) {
+      const when = nx.inDays === 0 ? 'Hoy' : nx.inDays === 1 ? 'Mañana' : fmtDate(nx.date);
+      title = nx.focus || 'Clase de BJJ'; sub = when + (nx.start ? ' · ' + nx.start : ''); act = nx.inDays === 0 ? 'regPlanned' : 'newSession'; lab = nx.inDays === 0 ? 'Registrar entreno' : 'Ver el plan'; key = nx.key; dd = nx.date;
+    } else if (doneToday.length) { title = 'Entreno registrado'; sub = (doneToday[0].type || 'Entrenamiento') + (doneToday[0].duration ? ' · ' + doneToday[0].duration + ' min' : ''); act = 'newSession'; lab = 'Registrar otro'; }
+    else { title = '¿Has entrenado hoy?'; sub = 'Registra tu entreno en un minuto'; act = 'newSession'; lab = 'Registrar entreno'; }
+    if (a && a.gym && a.gym.today) sub += ' · gym: ' + a.gym.today;
+    let h = '<div class="n6"><div class="t">' + esc(title) + '</div><div class="s">' + esc(sub) + '</div>';
+    if (a) { const m = String(a.b.rng).match(/(\d)(?:-(\d))?/); const lo = m ? +m[1] : 0, hi = m ? +(m[2] || m[1]) : 0;
+      h += '<div class="seg5" aria-label="Intensidad de 1 a 5">' + [1, 2, 3, 4, 5].map((n) => '<span><i class="' + (n >= lo && n <= hi ? 'on' : '') + '"></i>' + n + '</span>').join('') + '</div>';
+      h += '<div class="s" style="margin-top:8px">Intensidad recomendada ' + esc(String(a.b.rng).replace('-', '–')) + ' de 5 · ' + esc(a.b.name) + ' · en el gym, ' + a.gym.lo + '–' + a.gym.hi + ' repeticiones en reserva <a class="n6l" data-act="intWhy" role="button">Por qué</a></div>'; }
+    h += '<button class="n6go" data-act="' + act + '"' + (key ? ' data-key="' + key + '" data-d="' + dd + '"' : '') + '>' + ic('pen', 17, '#fff', 1.9) + lab + '</button></div>';
+    return h;
+  }
+  function weekBlock() {
+    const w = weekData(); const pct = w.target ? Math.min(100, Math.round((w.nb / w.target) * 100)) : (w.nb ? 100 : 0); const left = Math.max(0, w.target - w.nb);
+    let streak = 0; const need = w.target || 1; let ws = w.ws; const inW = (x) => S.sessions.filter((y) => y.date >= x && y.date <= ST.addDays(x, 6)).length;
+    if (inW(ws) >= need) streak++; ws = ST.addDays(ws, -7); while (inW(ws) >= need && streak < 520) { streak++; ws = ST.addDays(ws, -7); }
+    const txt = (w.minutes ? APP.hm(w.minutes) + ' esta semana · ' : '') + (w.target ? (left ? 'te faltan ' + left + (left === 1 ? ' entreno' : ' entrenos') + ' para tu objetivo' : 'objetivo de la semana cumplido') : 'define tu objetivo semanal en Objetivos') + (streak ? ' · ' + streak + (streak === 1 ? ' semana' : ' semanas') + ' seguidas' : '');
+    return { meta: w.nb + (w.target ? ' de ' + w.target : '') + ' entrenos', html: '<div class="n6">' + stripHtml(w) + '<div class="n6bar"><i style="width:' + Math.max(pct, w.nb ? 4 : 2) + '%"></i></div><div class="s" style="margin-top:8px">' + esc(txt) + '</div></div>' };
+  }
+  function videoBlock() {
+    const vi = vinfo(); const td = vi.today;
+    if (!td) return '<div class="n6"><div class="s" style="margin:0">' + (vi.total ? 'Hoy no tienes vídeo planificado.' : 'Añade vídeos y planifica uno por día.') + '</div><a class="n6go o" href="#/videos">' + ic('video', 17) + (vi.total ? 'Ver el plan' : 'Añadir vídeos') + '</a></div>';
+    return '<div class="n6"><a class="n6vt" href="#/video/' + td.id + '"><span class="th">' + (APP.vidThumb ? APP.vidThumb(td) : '') + '<i>' + ic('play', 18, '#fff', 1.8) + '</i></span><span class="tx"><b>' + esc(td.title) + '</b><span>' + esc([td.sub, td.cat].filter(Boolean)[0] || 'Vídeo') + '</span></span></a><a class="n6go" href="#/video/' + td.id + '">' + ic('play', 17, '#fff', 1.8) + 'Ver y apuntar</a><a class="n6l n6c" href="#/videos">Plan de vídeos · ' + vi.done + ' de ' + vi.total + ' vistos</a></div>';
+  }
+  function esencialBlock() {
+    const t = today(); let h = '';
+    if (APP.nutri) {
+      const tg = APP.nutri.targets(t); const tot = APP.nutri.dayTotal(t); const wt = APP.nutri.waterTarget(t); const ml = APP.nutri.waterCount(t) * APP.nutri.glassMl();
+      const wts = APP.gym && APP.gym.weights ? APP.gym.weights() : []; const lw = wts[wts.length - 1]; const tr = APP.gym && APP.gym.weightTrend ? APP.gym.weightTrend() : null; const f = (n) => Math.round(n).toLocaleString('es-ES');
+      h += '<div class="n6sm"><a href="#/nutri"><b>' + (tg ? f(tot.k) : '–') + '</b><span>' + (tg ? 'kcal de ' + f(tg.kcal) : 'calcula tu objetivo') + '</span></a><a href="#/nutri"><b>' + (Math.round(ml / 10) / 100).toLocaleString('es-ES') + ' L</b><span>agua de ' + (Math.round(wt.ml / 10) / 100).toLocaleString('es-ES') + '</span></a><a href="#/gym/peso"><b>' + (lw ? String(lw.kg).replace('.', ',') : '–') + '</b><span>' + (lw ? 'kg' + (tr ? ', ' + (tr.diff > 0 ? 'sube ' : 'baja ') + Math.abs(Math.round(tr.diff * 10) / 10).toString().replace('.', ',') : '') : 'añade tu peso') + '</span></a></div>';
+    }
+    const w = (APP.weak ? APP.weak() : [])[0];
+    h += '<div class="n6k">A mejorar ahora</div><div class="g5list"><a class="g5i" href="#/entrenos"><span class="ico c-red">' + ic('alert', 17) + '</span><span class="tx">' + (w ? esc(w.title) : 'Cosas a mejorar') + '</span><span class="rt">' + ic('chev', 15) + '</span></a></div>';
+    return h;
+  }
   V.inicio = () => {
+    const G = splitInicio(); const vi = vinfo(); const wb = weekBlock();
+    let h = '<div class="ttl"><h2>Inicio<small>' + esc(fmtDate(today())) + '</small></h2></div>';
+    h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', [hoyBlock()]);
+    h += sec('', 'Progreso de la semana', 'chart', 'c-teal', [wb.html], wb.meta);
+    h += sec('', 'Tu tarea de hoy: plan y vídeo', 'video', 'c-violet', [videoBlock()]);
+    h += sec('', 'Lo esencial', 'gauge', 'c-blue', [esencialBlock()].concat(G.onb));
+    h += list('Apartados', [row('#/entrenos', 'user', 'c-teal', 'BJJ'), row('#/videos', 'video', 'c-violet', 'Vídeos', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/gym', 'dumb', 'c-blue', 'Físico'), row('#/nutri', 'leaf', 'c-amber', 'Nutrición'), row('#/mas', 'more', 'c-pink', 'Más')]);
+    return h;
+  };
+  const _unusedInicio = () => {
     const G = splitInicio(); const vi = vinfo(); const t = today();
     let h = '<div class="ttl"><h2>Inicio<small>' + esc(fmtDate(t)) + '</small></h2></div>';
     h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', G.hoy);
@@ -123,10 +187,10 @@
     });
     const vi = vinfo(); const due = APP.dueCount ? APP.dueCount() : 0; const ls = APP.loadStatus ? APP.loadStatus() : null;
     let h = G.title;
-    const W = splitInicio();
+    const wb = weekBlock(); const W = splitInicio();
     h += sec('', 'Cosas a mejorar', 'alert', 'c-red', G.red ? [G.red] : []);
-    h += sec('', 'Hoy y esta semana', 'clock', 'c-amber', G.hoy.concat(W.semana, [loadPanel()]));
-    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-violet', G.video.concat([planCardHtml()]));
+    h += sec('', 'Hoy y esta semana', 'clock', 'c-amber', [hoyBlock(), wb.html, loadPanel()].concat(W.reto ? [W.reto] : []), wb.meta);
+    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-violet', [videoBlock()]);
     h += sec('', 'Objetivos', 'target', 'c-teal', G.plan);
     h += '<div class="g5h" style="margin-top:6px"><span>Todo lo demás</span></div>';
     h += list('Estudiar', [row('#/videos', 'video', 'c-violet', 'Vídeos y plan', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/estudio', 'cap', 'c-violet', 'Estudio', String((S.study || []).length)), row('#/repaso', 'repeat', 'c-violet', 'Repaso', due ? String(due) : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/biblio', 'lib', 'c-violet', 'Biblioteca de técnicas')]);

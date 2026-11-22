@@ -51,7 +51,7 @@
     const target = g.kind === 'count' ? Number(g.target) || 0 : g.period === 'day' ? 1 : Number(g.target) || 0;
     return { score, target, pct: target ? Math.min(100, Math.round((score / target) * 100)) : 0, asked: ss.length, marks, range: r, done: target > 0 && score >= target };
   }
-  APP.goalProgress2 = gp;
+  APP.goalProgress2 = gp; APP.hm = hm; APP.gymInfo = () => gymInfo(); APP.goalsOn = (d) => goalsOn(d); APP.goalsOfPeriod = (x) => goalsOfPeriod(x);
   const activeGoals = () => S.goals.filter((g) => !g.done);
   const goalsOn = (d) => activeGoals().filter((g) => appliesOn(g, d));
   const goalsOfPeriod = (p) => activeGoals().filter((g) => (g.period || 'week') === p);

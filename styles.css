@@ -807,3 +807,29 @@ input, select, textarea { border-radius: 12px; background: var(--surface); borde
 .seg5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 12px 0 2px; text-align: center; font-size: 11px; color: var(--muted); }
 .seg5 i { display: block; height: 8px; border-radius: 4px; background: var(--surface-2); margin-bottom: 4px; } .seg5 i.on { background: var(--green); }
 .ibox { border-width: 1.5px !important; } .ibox .il { font-size: 13px; }
+
+/* v20 · bloques compactos (idénticos al ejemplo aprobado) */
+.g5m { margin-left: auto; font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
+.n6 { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px; }
+.n6 .t { font-size: 24px; font-weight: 800; line-height: 1.1; letter-spacing: -.03em; }
+.n6 .s { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+.n6l { color: var(--green); font-weight: 700; text-decoration: none; cursor: pointer; margin-left: 4px; }
+.n6l.n6c { display: block; text-align: center; margin: 12px 0 0; font-size: 13px; }
+.n6go { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: var(--green); color: #fff; border: 0; border-radius: 12px; padding: 13px; margin-top: 14px; font: inherit; font-size: 14.5px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.n6go.o { background: transparent; color: var(--green); box-shadow: inset 0 0 0 1.5px var(--line); }
+.n6 .seg5 { margin-top: 14px; }
+.n6wk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; text-align: center; }
+.n6wk button { background: none; border: 0; padding: 0; display: grid; gap: 6px; justify-items: center; font: inherit; font-size: 11px; color: var(--muted); cursor: pointer; }
+.n6wk b { width: 30px; height: 30px; border-radius: 9px; background: var(--surface-2); display: grid; place-items: center; }
+.n6wk b.d { background: var(--green); } .n6wk b.t { box-shadow: inset 0 0 0 2px var(--ink); background: var(--surface); } .n6wk b.p { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line); }
+.n6bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; } .n6bar i { display: block; height: 100%; border-radius: 4px; background: var(--green); }
+.n6vt { display: flex; gap: 12px; align-items: center; color: var(--ink); text-decoration: none; }
+.n6vt .th { position: relative; width: 96px; aspect-ratio: 16/10; border-radius: 10px; background: #0f1a24; flex: none; overflow: hidden; display: block; }
+.n6vt .th img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .8; }
+.n6vt .th i { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; }
+.n6vt .tx { min-width: 0; } .n6vt .tx b { display: block; font-size: 16px; line-height: 1.2; letter-spacing: -.01em; } .n6vt .tx span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+.n6sm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.n6sm a { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); padding: 12px; color: var(--ink); text-decoration: none; min-width: 0; }
+.n6sm b { display: block; font-size: 21px; font-weight: 800; letter-spacing: -.03em; } .n6sm span { font-size: 11.5px; color: var(--muted); display: block; margin-top: 2px; }
+.n6k { font-size: 13px; font-weight: 700; color: var(--muted); margin: 16px 4px 6px; }
+.redb { padding: 6px 16px 10px; } .redb > div:first-child { margin-top: 0; }

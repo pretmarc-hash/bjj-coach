@@ -92,6 +92,7 @@
   }
   APP.advice = advice;
   APP.recLine = () => { const a = advice(); return '<div class="recl"><span>' + a.b.ico + '</span><span>Recomendado hoy: <b style="color:' + a.b.col + '">' + a.b.rng + '/5 · ' + a.b.name + '</b></span></div>'; };
+  APP.vidThumb = (x) => thumb(x);
   const refsOf = (rs) => rs.length ? '<span class="refs">' + rs.map((k) => { const m = REFS[k][0].match(/^([^,(]+).*?\((\d{4})\)/); return esc(m ? m[1].trim() + ' ' + m[2] : k); }).join(' · ') + '</span>' : '';
   const reasonList = (rs) => rs.map((x) => '<div class="rsn ' + x.kind + '"><span>' + esc(x.txt) + '</span><span class="gr">' + esc(GRADE[x.grade][0]) + (x.refs.length ? ' · ' : '') + refsOf(x.refs) + '</span></div>').join('');
   APP.intensityCard = function () {
