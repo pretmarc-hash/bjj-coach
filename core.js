@@ -267,9 +267,9 @@
   // ---------- tema ----------
   APP.applyTheme = () => {
     const t = APP.S.settings.theme;
-    const dark = t !== 'light';
+    const dark = t === 'dark' || (t === 'auto-os' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = dark ? '#070d0d' : '#eef5f3';
+    const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = dark ? '#0d141b' : '#f1f3f5';
   };
 
   // ---------- enrutador ----------
@@ -286,7 +286,7 @@
     try { view.innerHTML = subnav + APP.views[name](parts[1]); APP.tidy(view); } catch (e) { console.error(e); view.innerHTML = '<div class="card"><h3>Algo ha fallado</h3><p class="muted">' + esc(e.message) + '</p></div>'; }
     $('#screen-title').textContent = (APP.titles[name] || 'BJJ Coach');
     $$('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.tab === tab));
-    const fab = $('#fab'); if (fab) fab.hidden = (name === 'gym' && parts[1] === 'entreno');
+    const fab = $('#fab'); if (fab) fab.hidden = (name === 'gym' && parts[1] === 'entreno') || name === 'video';
     window.scrollTo(0, 0);
   };
 

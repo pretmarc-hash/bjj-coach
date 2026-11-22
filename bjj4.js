@@ -96,9 +96,10 @@
   const reasonList = (rs) => rs.map((x) => '<div class="rsn ' + x.kind + '"><span>' + esc(x.txt) + '</span><span class="gr">' + esc(GRADE[x.grade][0]) + (x.refs.length ? ' · ' : '') + refsOf(x.refs) + '</span></div>').join('');
   APP.intensityCard = function () {
     const a = advice(); const g = a.gym;
-    let h = '<div class="card inten"><div class="ct">⚡ INTENSIDAD RECOMENDADA HOY</div><div class="ipair">';
+    let h = '<div class="card inten"><div class="ct">⚡ Intensidad recomendada hoy</div><div class="ipair">';
     h += '<div class="ibox" style="--ic:' + a.b.col + '"><span class="il">🥋 BJJ</span><b class="iv">' + a.b.rng + (a.band ? '<small>/5</small>' : '') + '</b><span class="in">' + a.b.ico + ' ' + a.b.name + '</span></div>';
     h += '<div class="ibox" style="--ic:var(--violet,#a78bfa)"><span class="il">🏋 GYM</span><b class="iv">RIR ' + g.lo + '-' + g.hi + '</b><span class="in">' + esc(g.vol) + '</span></div></div>';
+    { const m = String(a.b.rng).match(/(\d)(?:-(\d))?/); if (m) { const lo = +m[1], hi = +(m[2] || m[1]); h += '<div class="seg5" aria-label="Escala de 1 a 5">' + [1, 2, 3, 4, 5].map((n) => '<span><i class="' + (n >= lo && n <= hi ? 'on' : '') + '"></i>' + n + '</span>').join('') + '</div>'; } }
     h += '<p class="small" style="margin:10px 0 4px">' + esc(a.b.how) + '</p>';
     h += '<p class="small muted" style="margin:0">' + (g.done ? 'Hoy ya has hecho gym.' : g.today ? 'Hoy toca gym: <b>' + esc(g.today) + '</b>.' : g.next ? 'Gym: ' + esc(g.next) + '.' : '') + '</p>';
     h += '<button class="btn small secondary" style="margin-top:10px" data-act="intWhy">Por qué · ver razones y fuentes</button></div>';
@@ -120,7 +121,7 @@
   const oldInicio = V.inicio;
   V.inicio = () => {
     const h = oldInicio(); const k = h.indexOf('Hoy en tu BJJ'); const i = k > 0 ? h.lastIndexOf('<div class="card"', k) : -1;
-    const stu = vidToday(); const blk = APP.intensityCard() + (stu ? card('<div class="cnt"><span>🎬 Hoy toca ver: <b>' + esc(stu.title) + '</b></span><a class="btn small secondary" style="text-decoration:none" href="#/video/' + stu.id + '">Ver</a></div>') : '');
+    const stu = vidToday(); const blk = APP.intensityCard() + (stu ? card('<div class="cnt" data-hoyver="1"><span>Hoy toca ver: <b>' + esc(stu.title) + '</b></span><a class="btn small secondary" style="text-decoration:none" href="#/video/' + stu.id + '">Ver</a></div>') : '');
     return i >= 0 ? h.slice(0, i) + blk + h.slice(i) : blk + h;
   };
   const oldBrief = V.briefing;
@@ -173,34 +174,50 @@
   // ---------- pantalla principal ----------
   ui.vd = ui.vd || { tab: 'camino', m: today().slice(0, 7) };
   const monthName = (m) => { const d = ST.parse(m + '-01'); const s = d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }); return s.charAt(0).toUpperCase() + s.slice(1); };
-  const hero = () => {
-    const xp = xpTotal(); const l = lvlOf(xp); const rk2 = rankOf(xp); const lo = xpFor(l), hi = xpFor(l + 1); const p = (xp - lo) / (hi - lo); const done = items().filter((x) => x.done).length;
-    const days = new Set(items().filter((x) => x.done).map((x) => x.done)); let streak = 0, d = today(); if (!days.has(d)) d = ST.addDays(d, -1); while (days.has(d)) { streak++; d = ST.addDays(d, -1); }
-    return '<div class="card vhero"><div class="row" style="gap:14px;align-items:center">' + mring(p, 'var(--gold)', 'N' + l, 78) + '<div style="flex:1"><div class="small muted">' + rk2.name.toUpperCase() + '</div><b style="font-size:20px">Nivel ' + l + '</b><div class="small muted">' + xp + ' XP' + (' · ' + (hi - xp) + ' para el nivel ' + (l + 1)) + '</div></div></div><div class="row" style="gap:8px;margin-top:12px">' + pill('🎬 ' + done + '/' + items().length + ' vistos') + pill('🔥 racha ' + streak + (streak === 1 ? ' día' : ' días')) + (rk2.next ? pill('🎖 ' + rk2.next[0] + ' XP → ' + rk2.next[1].replace('Cinturón ', '')) : pill('🥇 Rango máximo')) + '</div></div>';
-  };
+  const ic = (n, z) => APP.ic(n, z || 16);
+  const WDS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const words = (t) => norm(t).split(/[^a-z0-9ñ]+/).filter((w) => w.length > 3 && !['desde', 'retener', 'guardia', 'defensa'].includes(w));
+  function recVideo() {
+    const ws = APP.weak ? APP.weak() : []; if (!ws.length) return { w: null, v: null };
+    const un = items().filter((x) => !x.done);
+    for (const w of ws) { const ww = words(w.title + ' ' + (w.pos || '')); let best = null, bs = 0; un.forEach((x) => { const hay = norm(x.title + ' ' + x.sub); const sc = ww.filter((k) => hay.indexOf(k) >= 0).length; if (sc > bs) { bs = sc; best = x; } }); if (best) return { w, v: best }; }
+    return { w: ws[0], v: null };
+  }
+  const thumb = (x) => x.kind === 'yt' ? '<img class="vth" loading="lazy" alt="" src="https://i.ytimg.com/vi/' + x.yt + '/mqdefault.jpg" onerror="this.remove()">' : '';
+  A.vdTick = async (el) => { const x = vget(el.dataset.id); if (x) await markDone(x, false); };
   V.videos = (arg) => {
     if (arg && CATS.some((c) => c.id === arg)) return catPage(arg);
-    let h = '<div class="ttl"><h2>Vídeos<small>Tu camino de estudio, como un juego</small></h2></div>' + hero();
-    h += '<div class="ptabs"><button class="' + (ui.vd.tab === 'camino' ? 'on' : '') + '" data-act="vdTab" data-v="camino">Camino</button><button class="' + (ui.vd.tab === 'plan' ? 'on' : '') + '" data-act="vdTab" data-v="plan">Plan</button></div>';
-    h += ui.vd.tab === 'plan' ? planTab() : caminoTab();
+    const t = today(), ws = ST.weekStart(t); const done = items().filter((x) => x.done).length;
+    let h = '<div class="ttl"><h2>Vídeos<small>' + (items().length ? done + ' de ' + items().length + ' vistos' : 'Tu plan de estudio') + '</small></h2></div>';
+    // 01 · Para mejorar
+    const rc = recVideo();
+    h += '<div class="g5 c-red"><div class="g5h">' + ic('alert', 17) + 'Para mejorar</div>' +
+      (rc.v ? '<a class="g5r" href="#/video/' + rc.v.id + '"><span><b>' + esc(rc.v.title) + '</b><small>Por tu punto débil: ' + esc(rc.w.title) + '</small></span>' + ic('chev') + '</a>'
+        : rc.w ? '<div class="g5r"><span><b>' + esc(rc.w.title) + '</b><small>Es tu punto débil. Añade un vídeo sobre esto.</small></span><button class="g5b" data-act="vdAdd">' + ic('plus') + '</button></div>'
+          : '<p class="g5e">Cuando registres rounds, aquí aparecerán los vídeos que más te convienen.</p>') + '</div>';
+    // 02 · Hoy y semana
+    const td = vidToday() || nextOf(); const days = []; for (let i = 0; i < 7; i++) days.push(ST.addDays(ws, i));
+    h += '<div class="g5 c-amber"><div class="g5h">' + ic('clock', 17) + 'Hoy y esta semana</div>';
+    h += td ? '<a class="g5v" href="#/video/' + td.id + '"><span class="vbox">' + thumb(td) + '<i>' + ic('play', 26) + '</i></span><b>' + esc(td.title) + '</b><small>' + esc(catOf(td.cat).name) + ' · ' + esc(td.sub) + '</small></a><a class="g5p" href="#/video/' + td.id + '">Ver y tomar apuntes</a>' : '<p class="g5e">Añade tu primer vídeo y planifica uno por día.</p>';
+    h += '<div class="g5w">' + days.map((d, i) => { const ev = vid().plan.filter((e) => e.date === d && vget(e.vid)); const lab = '<span class="dl' + (d === t ? ' on' : '') + '">' + WDS[i] + '</span>';
+      if (!ev.length) return '<div class="wrw">' + lab + '<span class="wt mu">Sin vídeo</span><button class="g5b" data-act="vdPlanPick" data-d="' + d + '" aria-label="Añadir vídeo">' + ic('plus', 14) + '</button></div>';
+      return ev.map((e) => { const x = vget(e.vid); return '<div class="wrw' + (x.done ? ' dn' : '') + '">' + lab + '<a class="wt" href="#/video/' + x.id + '">' + esc(x.title) + '<small>' + esc(catOf(x.cat).name) + '</small></a><button class="ck' + (x.done ? ' on' : '') + '" data-act="vdTick" data-id="' + x.id + '" aria-label="Marcar visto">' + (x.done ? ic('check', 14) : '') + '</button></div>'; }).join(''); }).join('') + '</div>';
+    h += '<button class="g5p o" data-act="vdAuto2">' + ic('cal') + ' Planificar el mes</button></div>';
+    // 03 · Plan del mes
+    h += '<div class="g5 c-teal"><div class="g5h">' + ic('cal') + 'Plan del mes</div>' + planTab().replace('<div class="card">', '<div>').replace(/<button class="btn block" data-act="vdAuto2">[^<]*<\/button>/, '') + '</div>';
+    // categorías
+    h += '<div class="g5k">Categorías</div><div class="g5list">' + CATS.map((c) => { const it = items().filter((x) => x.cat === c.id), dn = it.filter((x) => x.done).length; return '<a class="g5i" href="#/videos/' + c.id + '"><span class="ico c-violet">' + ic(CATIC[c.id] || 'video', 18) + '</span><span class="tx">' + esc(c.name) + '</span><span class="rt">' + (it.length ? dn + ' / ' + it.length : '–') + ic('chev') + '</span></a>'; }).join('') + '</div>';
+    h += '<button class="btn block" style="margin-top:12px" data-act="vdAdd">' + ic('plus') + ' Añadir vídeo</button>';
     return h;
   };
-  A.vdTab = (el) => { ui.vd.tab = el.dataset.v; rk(); };
-  function caminoTab() {
-    let h = ''; const nx = nextOf();
-    if (nx) h += '<a class="card vnext" href="#/video/' + nx.id + '"><span class="small muted">CONTINÚA TU CAMINO</span><b>' + esc(nx.title) + '</b><span class="small muted">' + catOf(nx.cat).ico + ' ' + catOf(nx.cat).name + ' · ' + esc(nx.sub) + '</span><span class="btn small" style="align-self:flex-start;margin-top:6px">▶ Ver ahora</span></a>';
-    h += '<button class="btn block secondary" style="margin-bottom:12px" data-act="vdAdd">+ Añadir vídeo</button>';
-    h += '<div class="vcats">' + CATS.map((c) => { const it = items().filter((x) => x.cat === c.id); const dn = it.filter((x) => x.done).length; const nxt = nextOf(c.id); return '<a class="vcat" href="#/videos/' + c.id + '">' + mring(it.length ? dn / it.length : 0, 'var(--green)', it.length ? dn + '/' + it.length : '0', 52) + '<span class="vcn"><b>' + c.ico + ' ' + c.name + '</b><span class="small muted">' + (it.length ? 'Nivel ' + (dn + 1) + (nxt ? ' · sigue: ' + esc(nxt.title) : ' · ¡completada!') : 'Sin vídeos todavía') + '</span></span><span class="muted">›</span></a>'; }).join('') + '</div>';
-    if (!items().length) h += '<div class="card empty"><h3>Empieza tu camino</h3><p>La app trae las categorías y secciones ordenadas. Tú añades los vídeos (YouTube, Vimeo, un enlace directo o un archivo de tu móvil) y los ves sin salir de la app. Cada vídeo visto da XP y sube tu nivel.</p></div>';
-    return h;
-  }
+  const CATIC = { pasar: 'shield', guardia: 'web', raspados: 'repeat', llaves: 'target', escapes: 'door', control: 'flex', derribos: 'users', mente: 'bulb', combates: 'trophy', fisico: 'dumb' };
   function catPage(id) {
     const c = catOf(id); const it = ordered(id); const dn = it.filter((x) => x.done).length; const nx = nextOf(id);
-    let h = '<a class="backlink" href="#/videos">‹ Vídeos</a><div class="card vhero"><div class="row" style="gap:14px;align-items:center">' + mring(it.length ? dn / it.length : 0, 'var(--green)', it.length ? Math.round((dn / it.length) * 100) + '%' : '–', 70) + '<div style="flex:1"><b style="font-size:20px">' + c.ico + ' ' + c.name + '</b><div class="small muted">Nivel ' + (dn + 1) + ' · ' + dn + ' de ' + it.length + ' vídeos</div></div></div></div>';
+    let h = '<a class="backlink" href="#/videos">‹ Vídeos</a><div class="ttl"><h2>' + esc(c.name) + '<small>' + dn + ' de ' + it.length + ' vistos</small></h2></div>';
     h += '<button class="btn block" style="margin-bottom:12px" data-act="vdAdd" data-cat="' + id + '">+ Añadir vídeo a ' + esc(c.name) + '</button>';
     c.subs.forEach((s) => {
       const list = it.filter((x) => x.sub === s); h += '<div class="vsub"><div class="row between"><b>' + esc(s) + '</b><button class="btn small ghost" data-act="vdAdd" data-cat="' + id + '" data-sub="' + esc(s) + '">+</button></div>';
-      h += list.length ? '<div class="vpath">' + list.map((x, i) => { const isN = nx && nx.id === x.id; return '<a class="vnode ' + (x.done ? 'done' : isN ? 'next' : '') + '" href="#/video/' + x.id + '"><span class="vn">' + (x.done ? '✓' : isN ? '▶' : i + 1) + '</span><span class="vt"><b>' + esc(x.title) + '</b><span class="small muted">' + kindName[x.kind] + ((x.notes || []).length ? ' · 📝 ' + x.notes.length : '') + '</span></span><span class="vx">+' + (x.done ? xpOf(x) : 100) + ' XP</span></a>'; }).join('') + '</div>' : '<p class="small muted" style="margin:6px 0 0">Aún sin vídeos. Busca uno sobre «' + esc(s.toLowerCase()) + '» y pégalo con «+».</p>';
+      h += list.length ? '<div class="vpath">' + list.map((x, i) => { const isN = nx && nx.id === x.id; return '<a class="vnode ' + (x.done ? 'done' : isN ? 'next' : '') + '" href="#/video/' + x.id + '"><span class="vn">' + (x.done ? '✓' : isN ? '▶' : i + 1) + '</span><span class="vt"><b>' + esc(x.title) + '</b><span class="small muted">' + kindName[x.kind] + ((x.notes || []).length ? ' · 📝 ' + x.notes.length : '') + '</span></span></a>'; }).join('') + '</div>' : '<p class="small muted" style="margin:6px 0 0">Aún sin vídeos. Busca uno sobre «' + esc(s.toLowerCase()) + '» y pégalo con «+».</p>';
       h += '</div>';
     });
     return h;
@@ -232,7 +249,7 @@
   };
 
   // ---------- pantalla de un vídeo ----------
-  const NCLS = { key: ['🔑', 'Detalle clave'], step: ['👣', 'Paso a paso'], err: ['⚠️', 'Error a evitar'], doubt: ['❓', 'Duda'] };
+  const NCLS = { key: ['', 'Detalle clave'], step: ['', 'Paso a paso'], err: ['', 'Error a evitar'], doubt: ['', 'Duda'] };
   let ytVP = null; ui.vd.local = ui.vd.local || {};
   V.video = (id) => {
     const x = vget(id); if (!x) return '<div class="card empty">Vídeo no encontrado.</div>'; const c = catOf(x.cat);
@@ -240,7 +257,7 @@
     let h = '<a class="backlink" href="#/videos/' + x.cat + '">‹ ' + esc(c.name) + '</a>';
     h += '<div class="row between" style="margin-bottom:8px;align-items:flex-start"><div><h2 style="margin:0">' + esc(x.title) + '</h2><div class="small muted" style="margin-top:4px">' + c.ico + ' ' + esc(x.sub) + ' · ' + kindName[x.kind] + '</div></div><button class="btn small ghost" data-act="vdEdit" data-id="' + id + '">Editar</button></div>';
     h += card(playerHtml(x), 'padding:10px');
-    h += '<button class="btn block ' + (x.done ? 'secondary' : '') + '" style="margin-bottom:12px" data-act="vdDone" data-id="' + id + '">' + (x.done ? '✓ Visto el ' + fmtDate(x.done) + ' · quitar' : '✅ Marcar como visto · +100 XP') + '</button>';
+    h += '<button class="btn block ' + (x.done ? 'secondary' : '') + '" style="margin-bottom:12px" data-act="vdDone" data-id="' + id + '">' + (x.done ? 'Visto el ' + fmtDate(x.done) + ' · quitar' : 'Marcar como visto') + '</button>';
     h += card(ct('Mis apuntes mientras lo veo') + '<textarea id="vn-text" rows="3" placeholder="Escribe lo que veas importante…"></textarea><div class="small muted" style="margin:8px 0 4px">Tipo</div>' + chipsH('vncls', Object.keys(NCLS).map((k) => ({ v: k, l: NCLS[k][0] + ' ' + NCLS[k][1] })), 'key', false) +
       '<div class="row" style="margin-top:10px;gap:8px"><input id="vn-ts" placeholder="m:ss" inputmode="numeric" style="width:84px;flex:none"><button class="btn small secondary" style="flex:1" data-act="vnNow">⏱ Minuto actual</button></div><button class="btn block" style="margin-top:10px" data-act="vnAdd" data-id="' + id + '">Añadir apunte</button>' +
       '<div class="row between" style="margin-top:10px;gap:8px"><span class="small muted">Se guardan en Apuntes › <b>' + esc(APP.tn(tgtTopic)) + '</b> › ' + esc(tgtSec) + '</span><button class="btn small ghost" data-act="vdWhere" data-id="' + id + '">Cambiar</button></div>');
@@ -287,7 +304,7 @@
   async function markDone(x, auto) {
     const b = xpTotal(), lb = lvlOf(b), rb = rankOf(b).i; x.done = x.done ? '' : today(); await saveVid();
     const a = xpTotal(), la = lvlOf(a), ra = rankOf(a).i;
-    if (x.done) { APP.toast('🎉 ' + (auto ? 'Vídeo terminado' : 'Visto') + ' · +' + xpOf(x) + ' XP' + (ra > rb ? ' · ¡' + rankOf(a).name + '!' : la > lb ? ' · ¡Nivel ' + la + '!' : '')); const nx = nextOf(x.cat); if (auto && nx) setTimeout(() => APP.toast('Siguiente: ' + nx.title), 2800); }
+    if (x.done) { APP.toast(auto ? 'Vídeo terminado y marcado como visto' : 'Marcado como visto'); const nx = nextOf(x.cat); if (auto && nx) setTimeout(() => APP.toast('Siguiente: ' + nx.title), 2800); }
     if (location.hash.indexOf('#/video/') === 0 || location.hash.indexOf('#/videos') === 0) rk();
   }
   A.vdDone = (el) => markDone(vget(el.dataset.id), false);
@@ -336,10 +353,5 @@
   };
   A.vdClear = async () => { if (!APP.confirm('¿Quitar del plan los vídeos aún no vistos de este mes?')) return; const m = ui.vd.m; vid().plan = vid().plan.filter((e) => !(e.date.slice(0, 7) === m && vget(e.vid) && !vget(e.vid).done)); await saveVid(); rk(); };
 
-  // Enlace en el panel BJJ, al lado de Estudio
-  const oldEntrenos = V.entrenos;
-  V.entrenos = () => {
-    const h = oldEntrenos(); const i = h.indexOf('href="#/estudio"'); if (i < 0) return h; const j = h.indexOf('</a>', i) + 4; const xp = xpTotal(), n = items().filter((x) => x.done).length;
-    return h.slice(0, j) + '<a class="card" href="#/videos" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;margin-bottom:8px"><span style="font-size:24px">🎬</span><span style="flex:1"><b>Vídeos</b><br><span class="small muted">Camino por niveles y plan · nivel ' + lvlOf(xp) + ' · ' + n + ' vistos</span></span><span class="muted">›</span></a>' + h.slice(j);
-  };
+  APP.vidInfo = () => ({ done: items().filter((x) => x.done).length, total: items().length, today: vidToday() });
 })();

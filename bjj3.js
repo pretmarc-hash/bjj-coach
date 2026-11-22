@@ -391,7 +391,7 @@
     const k = h.indexOf('</h2></div>') + 11;
     return (k > 11 ? h.slice(0, k) + redBlock() + h.slice(k) : redBlock() + h).replace('<a class="card" href="#/estudio"', blk + '<a class="card" href="#/estudio"');
   };
-  APP.loadStatus = loadStatus; APP.activeInj = activeInj; APP.weak = weak; APP.LEVELS = LEVELS;
+  APP.redBlock = redBlock; APP.loadStatus = loadStatus; APP.activeInj = activeInj; APP.weak = weak; APP.LEVELS = LEVELS;
   const oldRender = APP.render;
   APP.render = function () { oldRender(); if (APP.route && ['estudio', 'entreno', 'entrenos', 'progreso'].includes(APP.route.name)) setTimeout(checkAch, 400); };
 })();
