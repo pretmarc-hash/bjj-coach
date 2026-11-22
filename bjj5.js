@@ -76,36 +76,45 @@
   }
 
   const oldInicio = V.inicio;
-  V.inicio = () => {
-    const els = kids(oldInicio()); const G = { hoy: [], semana: [], plan: [], mas: [], mejor: [] }; let mode = '';
+  const planCardHtml = () => { const vi = vinfo(); return '<a class="g5pl" href="#/videos"><span class="ico c-violet">' + ic('video', 18) + '</span><span class="tx"><b>Plan de vídeos</b><small>' + (vi.total ? vi.done + ' de ' + vi.total + ' vistos' + (vi.today ? ' · hoy: ' + esc(vi.today.title) : '') : 'Añade vídeos y planifica uno por día') + '</small></span>' + ic('chev', 16) + '</a>'; };
+  // reparte el Inicio antiguo en grupos (hoy, semana, vídeo, resto)
+  function splitInicio() {
+    const els = kids(oldInicio()); const G = { hoy: [], semana: [], video: [], mas: [], obj: [], onb: [], mejor: [] }; let mode = '';
     els.forEach((e) => {
       const c = e.classList;
-      if (c.contains('sect') && has(e, 'Esta semana')) { mode = 'semana'; return; }
-      if (mode === 'semana') { G.semana.push(e); if (c.contains('leg')) mode = ''; return; }
-      if (c.contains('today2') || c.contains('inten') || c.contains('today-card') || has(e, 'Hoy en tu BJJ') || has(e, 'Hoy toca ver') || has(e, '¿Cómo ha ido hoy')) G.hoy.push(e);
-      else if (has(e, 'Reto') || has(e, 'RETO')) G.semana.push(e);
-      else if (has(e, 'Mis objetivos')) G.plan.push(e);
+      if (c.contains('sect')) return;
+      if (c.contains('pair') || c.contains('wk2') || c.contains('leg')) G.semana.push(e);
+      else if (has(e, 'Hoy toca ver')) G.video.push(e);
+      else if (has(e, 'Hoy en tu BJJ')) G.avisos = e;
+      else if (c.contains('today2') || c.contains('inten') || has(e, '¿Cómo ha ido hoy')) G.hoy.push(e);
+      else if (c.contains('today-card')) G.onb.push(e);
+      else if (has(e, 'Reto') || has(e, 'RETO')) G.reto = e;
+      else if (has(e, 'Mis objetivos')) G.obj.push(e);
       else if (c.contains('insight')) G.mejor.push(e);
-      else G.mas.push(e);
+      else if (c.contains('tl3') || has(e, 'Constancia')) G.mas.push(e);
     });
-    const vi = vinfo(); const t = today();
+    if (G.reto) G.semana.push(G.reto);
+    return G;
+  }
+  V.inicio = () => {
+    const G = splitInicio(); const vi = vinfo(); const t = today();
     let h = '<div class="ttl"><h2>Inicio<small>' + esc(fmtDate(t)) + '</small></h2></div>';
-    const red = redInner(); h += sec('01', 'A mejorar', 'alert', 'c-red', (red ? [red] : []).concat(G.mejor));
-    h += sec('02', 'Hoy y esta semana', 'clock', 'c-amber', G.hoy.concat([loadPanel()], G.semana));
-    const planCard = '<a class="g5pl" href="#/videos"><span class="ico c-violet">' + ic('video', 18) + '</span><span class="tx"><b>Plan de vídeos</b><small>' + (vi.total ? vi.done + ' de ' + vi.total + ' vistos' + (vi.today ? ' · hoy: ' + esc(vi.today.title) : '') : 'Añade vídeos y planifica uno por día') + '</small></span>' + ic('chev', 16) + '</a>';
-    h += sec('03', 'Mi plan', 'cal', 'c-teal', G.plan.concat([planCard]));
-    h += sec('', 'Nutrición, constancia y técnicas', 'leaf', 'c-blue', G.mas);
-    h += list('Apartados', [row('#/entrenos', 'user', 'c-teal', 'BJJ'), row('#/videos', 'video', 'c-violet', 'Vídeos', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/estudio', 'cap', 'c-violet', 'Estudio'), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/gym', 'dumb', 'c-blue', 'Físico'), row('#/nutri', 'leaf', 'c-amber', 'Nutrición'), row('#/mas', 'more', 'c-pink', 'Más')]);
+    h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', G.hoy);
+    h += sec('', 'Progreso de la semana', 'chart', 'c-teal', G.semana);
+    h += sec('', 'Tu tarea de hoy: plan y vídeo', 'video', 'c-violet', G.video.concat([planCardHtml()]));
+    h += sec('', 'Lo esencial', 'gauge', 'c-blue', G.mas.concat(['<div class="g5list"><a class="g5i" href="#/entrenos"><span class="ico c-red">' + ic('alert', 17) + '</span><span class="tx">Cosas a mejorar</span><span class="rt">' + ic('chev', 15) + '</span></a></div>']).concat(G.avisos ? [G.avisos] : [], G.onb));
+    h += list('Apartados', [row('#/entrenos', 'user', 'c-teal', 'BJJ'), row('#/videos', 'video', 'c-violet', 'Vídeos', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/gym', 'dumb', 'c-blue', 'Físico'), row('#/nutri', 'leaf', 'c-amber', 'Nutrición'), row('#/mas', 'more', 'c-pink', 'Más')]);
     return h;
   };
 
   const oldEntrenos = V.entrenos;
   V.entrenos = () => {
-    const els = kids(oldEntrenos()); const G = { hoy: [], plan: [], rest: [], title: '', red: null }; let afterGoals = false;
+    const els = kids(oldEntrenos()); const G = { hoy: [], plan: [], rest: [], title: '', red: null, video: [] }; let afterGoals = false;
     els.forEach((e) => {
       const c = e.classList;
       if (c.contains('ttl')) G.title = e.outerHTML;
       else if (c.contains('redb')) { const q = e.querySelector('.ct'); if (q) q.remove(); G.red = e; }
+      else if (has(e, 'Hoy toca ver')) G.video.push(e);
       else if (c.contains('inten') || (e.matches && e.matches('[data-act=newSession]')) || (e.getAttribute && e.getAttribute('href') === '#/briefing') || has(e, 'Reto') || has(e, '¿Cómo ha ido hoy') || has(e, 'Hoy toca ver')) G.hoy.push(e);
       else if (c.contains('segt') || (c.contains('card') && (has(e, 'Cumplimiento') || has(e, 'pendientes') || has(e, 'Nuevo objetivo')))) G.plan.push(e);
       else if (c.contains('tl3') || (e.getAttribute && (e.getAttribute('href') === '#/estudio' || e.getAttribute('href') === '#/videos')) || (c.contains('card') && c.contains('gstrip'))) { /* se sustituye por las listas */ }
@@ -114,9 +123,12 @@
     });
     const vi = vinfo(); const due = APP.dueCount ? APP.dueCount() : 0; const ls = APP.loadStatus ? APP.loadStatus() : null;
     let h = G.title;
-    h += sec('01', 'A mejorar', 'alert', 'c-red', G.red ? [G.red] : []);
-    h += sec('02', 'Hoy', 'clock', 'c-amber', G.hoy);
-    h += sec('03', 'Mis objetivos', 'target', 'c-teal', G.plan);
+    const W = splitInicio();
+    h += sec('', 'Cosas a mejorar', 'alert', 'c-red', G.red ? [G.red] : []);
+    h += sec('', 'Hoy y esta semana', 'clock', 'c-amber', G.hoy.concat(W.semana, [loadPanel()]));
+    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-violet', G.video.concat([planCardHtml()]));
+    h += sec('', 'Objetivos', 'target', 'c-teal', G.plan);
+    h += '<div class="g5h" style="margin-top:6px"><span>Todo lo demás</span></div>';
     h += list('Estudiar', [row('#/videos', 'video', 'c-violet', 'Vídeos y plan', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/estudio', 'cap', 'c-violet', 'Estudio', String((S.study || []).length)), row('#/repaso', 'repeat', 'c-violet', 'Repaso', due ? String(due) : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/biblio', 'lib', 'c-violet', 'Biblioteca de técnicas')]);
     h += list('Entrenar', [row('#/plan', 'cal', 'c-blue', 'Plan semanal'), row('#/juego', 'user', 'c-blue', 'Mi juego'), row('#/arbol', 'tree', 'c-blue', 'Game plan'), row('#/analisis', 'users', 'c-blue', 'Análisis de rolas'), row('#/fisico', 'flex', 'c-blue', 'Preparación física')]);
     h += list('Control', [row('#/progreso', 'trophy', 'c-pink', 'Progreso y logros'), row('#/stats', 'chart', 'c-pink', 'Estadísticas'), row('#/carga', 'gauge', 'c-pink', 'Carga y lesiones'), row('#/coach', 'chat', 'c-pink', 'Entrenador'), row('#/informe', 'book', 'c-pink', 'Informe semanal'), row('#/ciencia', 'info', 'c-pink', 'Base científica')]);
