@@ -27,7 +27,7 @@
   const ratio = (a, b) => (a + b >= 3 ? a / (a + b) : null);
 
   // ---------- Carga de entreno: minutos × intensidad (1-5; si falta, 3) ----------
-  const load = (s) => (Number(s.duration) || 0) * ((s.feel && s.feel.effort) || 3);
+  const load = (s) => (Number(s.duration) || 0) * 2 * ((s.feel && s.feel.effort) || 3); // minutos × CR-10 (tu 1-5 ×2)
   function loadStatus() {
     const t = today(); const acute = sIn(ST.addDays(t, -6), t).reduce((a, s) => a + load(s), 0);
     const prev = sIn(ST.addDays(t, -34), ST.addDays(t, -7)); const chronic = prev.reduce((a, s) => a + load(s), 0) / 4;
@@ -121,7 +121,7 @@
   A.export = async () => { oldExport(); S.backup = { last: today() }; await sav('backup', S.backup); };
   A.exportShare = async () => {
     try {
-      const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan, notes: S.notes, noteTopics: S.noteTopics, tree: S.tree, body: S.body, gym: S.gym, food: S.food, study: S.study, injuries: S.injuries, srs: S.srs, ach: S.ach, challenge: S.challenge };
+      const data = { app: 'bjj-coach', version: 1, exported: new Date().toISOString(), profile: S.profile, sessions: S.sessions, rounds: S.rounds, chains: S.chains, goals: S.goals, mastery: S.mastery, favs: S.favs, settings: S.settings, custom: S.custom, aliases: S.aliases, plan: S.plan, notes: S.notes, noteTopics: S.noteTopics, tree: S.tree, body: S.body, gym: S.gym, food: S.food, study: S.study, injuries: S.injuries, srs: S.srs, ach: S.ach, challenge: S.challenge, vid: S.vid };
       const f = new File([JSON.stringify(data)], 'bjj-coach-' + today() + '.json', { type: 'application/json' });
       if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: 'Copia BJJ Coach' }); S.backup = { last: today() }; await sav('backup', S.backup); APP.toast('Copia enviada'); } else { A.export(); }
     } catch (e) { if (e && e.name !== 'AbortError') A.export(); }
@@ -146,7 +146,7 @@
     let h = '<div class="ttl"><h2>Carga y lesiones<small>Entrena fuerte sin romperte</small></h2></div>';
     h += card(ct('Carga de los últimos 7 días') + '<div class="row between" style="align-items:flex-end"><div><b style="font-size:26px;color:' + col + '">' + (ls.r === null ? '–' : nfix(ls.r, 1) + '×') + '</b><div class="small muted">frente a tu media de 4 semanas</div></div>' + pill(Math.round(ls.acute) + ' u.') + '</div><p style="margin:10px 0 0">' + esc(ls.msg) + '</p>' +
       '<div style="display:flex;gap:8px;align-items:flex-end;height:80px;margin-top:14px">' + bars.map((b, i) => '<div style="flex:1;text-align:center"><div style="height:' + Math.max(3, Math.round(b.v / mx * 60)) + 'px;border-radius:6px;background:' + (i === 5 ? 'var(--green)' : 'var(--line2,#2a3a38)') + '"></div><div class="small muted" style="font-size:10px;margin-top:4px">' + ST.parse(b.f).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) + '</div></div>').join('') + '</div>' +
-      '<p class="small muted" style="margin:10px 0 0">Carga = minutos × intensidad (1-5 que marcas al registrar). Es una guía orientativa: más de 1,5× tu media suele ser una subida demasiado rápida.</p>');
+      '<p class="small muted" style="margin:10px 0 0">Carga = minutos × intensidad (método session-RPE, Foster 2001; tu 1-5 equivale a 2-4-6-8-10 en la escala CR-10). Los tramos de aviso son una <b>regla práctica</b>: que la ratio carga aguda/crónica prediga lesiones está <b>discutido</b> (Impellizzeri 2020). Úsala como aviso, no como diagnóstico. <a href="#/ciencia" style="color:var(--green)">Ver base científica ›</a></p>');
     const act = activeInj();
     h += '<div class="row between" style="margin:14px 0 8px"><h3 style="margin:0">Molestias y lesiones</h3><button class="btn small" data-act="injNew">+ Anotar</button></div>';
     h += act.length ? act.map((i) => card('<div class="row between"><div><b>' + esc(i.zone) + '</b> ' + pill(LEVELS[i.level], i.level >= 3 ? 'bad' : i.level === 2 ? 'warn' : '') + '<div class="small muted" style="margin-top:2px">Desde ' + fmtDate(i.date) + ' · ' + dd(i.date, t) + ' días' + (i.note ? ' · ' + esc(i.note) : '') + '</div></div><button class="btn small secondary" data-act="injEnd" data-id="' + i.id + '">Recuperada</button></div>')).join('') : card('<p class="small muted" style="margin:0">Sin molestias activas. 👌</p>');
@@ -367,7 +367,7 @@
     h += '<div class="rh">Lo que tengo que mejorar</div>' + (ws.length ? ws.map((w) => '<div class="rl" data-act="wkStudy" data-id="' + esc(w.id) + '" style="cursor:pointer"><span>' + esc(w.why) + '</span><b>' + esc(w.title) + ' ›</b></div>').join('') : '<p class="small muted" style="margin:0">Aún no hay datos suficientes para detectarlo.</p>');
     h += '<div class="rh">Lo que me costó el entreno anterior' + (last ? ' · ' + fmtDate(last.date) : '') + '</div>';
     h += last ? ((hardW.length ? '<div class="rl"><span>Técnicas que me costaron</span><b>' + hardW.map((w) => esc(APP.tn(w.name))).join(', ') + '</b></div>' : '') + (rv.hard ? '<div class="rl"><span>Lo que más me costó</span><b>' + esc(rv.hard) + '</b></div>' : '') + (!hardW.length && !rv.hard ? '<p class="small muted" style="margin:0">No anotaste qué te costó. Hazlo al registrar (paso «Objetivos y técnicas»).</p>' : '')) : '<p class="small muted" style="margin:0">Aún no has registrado ningún entreno.</p>';
-    return h + '</div>';
+    return h + '</div>' + (APP.intensityCard ? APP.intensityCard() : '');
   }
   const oldInicio = V.inicio;
   V.inicio = () => {
@@ -391,6 +391,7 @@
     const k = h.indexOf('</h2></div>') + 11;
     return (k > 11 ? h.slice(0, k) + redBlock() + h.slice(k) : redBlock() + h).replace('<a class="card" href="#/estudio"', blk + '<a class="card" href="#/estudio"');
   };
+  APP.loadStatus = loadStatus; APP.activeInj = activeInj; APP.weak = weak; APP.LEVELS = LEVELS;
   const oldRender = APP.render;
   APP.render = function () { oldRender(); if (APP.route && ['estudio', 'entreno', 'entrenos', 'progreso'].includes(APP.route.name)) setTimeout(checkAch, 400); };
 })();

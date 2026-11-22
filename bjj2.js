@@ -246,7 +246,7 @@
       '<div style="margin-bottom:12px">' + stepper('DURACIÓN', st.duration, 'min', 'rgDur" data-d="-15', 'rgDur" data-d="15', 'rg-dur').replace('data-act="rgDur" data-d="-15"', 'data-act="rgDur" data-d="-15"') + '</div>' +
       '<div class="sect" style="margin-top:4px">¿Cómo te sentiste?</div><div class="faces">' + FACES.map((f, i) => '<button class="' + (st.mood === i + 1 ? 'on' : '') + '" data-act="rgFace" data-v="' + (i + 1) + '">' + f + '</button>').join('') + '</div>' +
       '<div class="sect">Intensidad del entreno (1 suave · 5 a tope)</div><div class="nums effort">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.effort === i ? 'on' : '') + '" data-act="rgNum" data-k="effort" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
-      '<div class="sect">Cardio (1 flojo · 5 sobrado)</div><div class="nums cardio">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.cardio === i ? 'on' : '') + '" data-act="rgNum" data-k="cardio" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
+      (APP.recLine ? APP.recLine() : '') + '<div class="sect">Cardio (1 flojo · 5 sobrado)</div><div class="nums cardio">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.cardio === i ? 'on' : '') + '" data-act="rgNum" data-k="cardio" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
       '<div class="sect">Energía / descanso</div><div class="nums energy">' + [1, 2, 3, 4, 5].map((i) => '<button class="' + (st.energy === i ? 'on' : '') + '" data-act="rgNum" data-k="energy" data-v="' + i + '">' + i + '</button>').join('') + '</div>' +
       '<div class="chips" data-group="rg-flags" data-multi="1" style="margin-top:12px">' + ['Lesión / dolor', 'Dormí poco', 'Mucho estrés'].map((x) => '<button type="button" class="chip sm' + (st.flags.includes(x) ? ' on' : '') + '" data-val="' + x + '">+ ' + x + '</button>').join('') + '</div>' +
       foot(null, 'Siguiente: objetivos y técnicas →', 'rgNext');
@@ -267,11 +267,24 @@
   A.rgCount = (el) => { const st = ui.reg; const id = el.dataset.id; st.counts[id] = Math.max(0, (st.counts[id] || 0) + Number(el.dataset.d)); const a = $('#gc-' + id), b = $('#gc-t-' + id); if (a) a.textContent = st.counts[id]; if (b) b.textContent = fmtN(Number(el.dataset.p) + st.counts[id]); };
   function step2(st) {
     const tl = st.worked.length ? st.worked.map((w, i) => { const r = RATES[w.rating]; return '<button class="tch" data-act="rgTech" data-i="' + i + '"><span class="tn"><b>' + esc(APP.tn(w.name)) + '</b><span>' + (w.explain ? '📝 Con nota → Apuntes' : 'Toca para valorarla y explicarla') + '</span></span>' + (r ? pill(r[0] + ' ' + r[1], r[2]) : '<span class="muted">›</span>') + '</button>'; }).join('') : '<p class="muted small" style="margin:0 0 4px">Añade las técnicas que trabajaste hoy.</p>';
-    return head(2, 'Objetivos y técnicas') + goalBlocks(st) +
+    return head(2, 'Objetivos y técnicas') + goalBlocks(st) + tdCard(st) +
       card('<div class="ct">Técnicas trabajadas</div>' + tl + '<div class="addrow"><input id="rg-tadd" list="dl-tech" autocomplete="off" placeholder="Ej.: Triángulo desde cerrada"><button class="btn small" data-act="rgTechAdd">Añadir</button></div>', 'padding:12px 14px') +
       field('Lo que más me costó hoy', '<textarea id="rg-hard" rows="2" placeholder="Opcional">' + esc(st.hard) + '</textarea>') + field('Lo que mejor me salió', '<textarea id="rg-good" rows="2" placeholder="Opcional">' + esc(st.good) + '</textarea>') +
       foot('rgBack', 'Siguiente: rounds →', 'rgNext');
   }
+  // Técnica del día: explicación visible directamente en el paso 2 (va a Apuntes)
+  function tdCard(st) {
+    const i = Math.max(0, Math.min(st.td || 0, st.worked.length - 1)); const w = st.worked[i];
+    if (!w) return card('<div class="ct" style="color:var(--gold)">🥋 TÉCNICA DEL DÍA</div><p class="muted small" style="margin:0 0 8px">¿Qué técnica trabajaste hoy? Explícala con tus palabras y se guarda en Apuntes.</p><div class="addrow"><input id="rg-tdadd" list="dl-tech" autocomplete="off" placeholder="Ej.: Pase torreando"><button class="btn small" data-act="rgTdAdd">Añadir</button></div>', 'padding:12px 14px;border-color:var(--gold)');
+    return card('<div class="ct" style="color:var(--gold)">🥋 TÉCNICA DEL DÍA</div>' +
+      (st.worked.length > 1 ? '<div class="chips" style="margin-bottom:8px">' + st.worked.map((x, k) => '<button type="button" class="chip sm' + (k === i ? ' on' : '') + '" data-act="rgTdPick" data-i="' + k + '">' + esc(APP.tn(x.name)) + '</button>').join('') + '</div>' : '<b>' + esc(APP.tn(w.name)) + '</b>') +
+      '<textarea id="rg-td-expl" rows="4" style="margin-top:8px" placeholder="Explica la técnica como se la explicarías a un compañero: posición de partida, pasos, detalles clave…">' + esc(w.explain) + '</textarea>' +
+      '<input id="rg-td-flaw" style="margin-top:8px" value="' + esc(w.flaw) + '" placeholder="Error o detalle que fallaste (opcional)">' +
+      '<div class="togrow" style="margin-top:8px"><div><b>Guardar en Apuntes</b><small>Se crea una nota con esta explicación</small></div><button class="tgl' + (w.toNotes ? ' on' : '') + '" data-act="rgTdTgl" aria-label="Guardar en apuntes"></button></div>', 'padding:12px 14px;border-color:var(--gold)');
+  }
+  A.rgTdAdd = () => { collect(ui.reg); const c = APP.canon(val('rg-tdadd')); if (!c.name) return; const st = ui.reg; let k = st.worked.findIndex((w) => ST.norm(w.name) === ST.norm(c.name)); if (k < 0) { st.worked.push({ name: c.name, rating: '', explain: '', flaw: '', toNotes: true }); k = st.worked.length - 1; } st.td = k; regRender(); };
+  A.rgTdPick = (el) => { collect(ui.reg); ui.reg.td = Number(el.dataset.i); regRender(); };
+  A.rgTdTgl = (el) => { const st = ui.reg; const w = st.worked[Math.min(st.td || 0, st.worked.length - 1)]; w.toNotes = !w.toNotes; el.classList.toggle('on', w.toNotes); };
   A.rgTechAdd = () => { collect(ui.reg); const i = $('#rg-tadd'); const c = APP.canon(i ? i.value : ''); if (!c.name) return; const st = ui.reg; if (!st.worked.some((w) => ST.norm(w.name) === ST.norm(c.name))) st.worked.push({ name: c.name, rating: '', explain: '', flaw: '', toNotes: true }); regRender(); };
   A.rgTech = (el) => { collect(ui.reg); ui.reg.tech = Number(el.dataset.i); ui.reg.step = 'tech'; regRender(); };
   function stepTech(st) {
@@ -320,6 +333,7 @@
     if (!st) return; const dateEl = $('#rg-date');
     if (st.step === 1 && dateEl) { st.date = dateEl.value || st.date; st.time = val('rg-time') || st.time; st.type = APP.sel('rg-type')[0] || st.type; st.mode = APP.sel('rg-mode')[0] || ''; st.flags = APP.sel('rg-flags'); }
     if (st.step === 2 && $('#rg-hard')) { st.hard = val('rg-hard').trim(); st.good = val('rg-good').trim(); }
+    if (st.step === 2 && $('#rg-td-expl')) { const w = st.worked[Math.min(st.td || 0, st.worked.length - 1)]; if (w) { w.explain = val('rg-td-expl').trim(); w.flaw = val('rg-td-flaw').trim(); } }
   }
   A.rgNext = () => { const st = ui.reg; collect(st); if (st.step < 4) st.step++; regRender(); };
   A.rgBack = () => { const st = ui.reg; collect(st); if (st.step > 1) st.step--; regRender(); };
@@ -659,5 +673,6 @@
     await APP.saveMeta('notes', S.notes);
   }
   APP.ui2 = { card, ct, pill, mring, spark, hbar, rows, insight, empty, mmss, hm, fmtN, gp, appliesOn, rk, wdIdx, activeGoals };
-  APP.yt = { ytId, ytStart, tsF, tsP, ytInit, player: () => ytP };
+  APP.yt = { ytId, ytStart, tsF, tsP, ytInit, ytLoad, player: () => ytP };
+  APP.SECS = SECS;
 })();

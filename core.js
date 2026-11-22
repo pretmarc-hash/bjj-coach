@@ -93,6 +93,7 @@
     S.ach = meta.ach || null;
     S.challenge = meta.challenge || null;
     S.backup = meta.backup || null;
+    S.vid = meta.vid || null;
     S.tree = meta.tree || { nodes: [] };
     S.body = meta.body || null;
     S.gym = meta.gym || null;
