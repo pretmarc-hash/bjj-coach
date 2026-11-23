@@ -158,7 +158,7 @@
     return h;
   }
   // «Cosas a mejorar» compacto, sacado del bloque rojo de siempre
-  function redCompact() {
+  function redCompact(max) {
     const r = redInner(); if (!r) return '';
     const secs = []; let cur = null;
     Array.prototype.slice.call(r.children).forEach((e) => { if (e.classList.contains('rh')) { cur = { label: e.textContent.replace(/\s*·\s*[^·]*$/, '').trim(), items: [], empty: '' }; secs.push(cur); } else if (cur) { if (e.classList.contains('rl')) cur.items.push(e); else if (e.tagName === 'P') cur.empty = e.textContent; } });
@@ -167,7 +167,7 @@
         v = '<span' + clk + '>' + esc((b ? b.textContent : it.textContent).replace(/\s*›\s*$/, '')) + '</span>'; }
       else v = '<span class="mu">' + esc(sc.empty || 'Sin datos todavía') + '</span>';
       return '<div><b>' + esc(sc.label) + '</b>' + v + '</div>'; };
-    return '<div class="red6">' + secs.map(row).join('') + '</div>';
+    return '<div class="red6">' + secs.slice(0, max || 9).map(row).join('') + '</div>';
   }
   const row2 = (href, icon, label, sub, right) => '<a class="g5i" href="' + href + '"><span class="ico">' + ic(icon, 17) + '</span><span class="tx">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</span><span class="rt">' + (right || '') + ic('chev', 15) + '</span></a>';
   // objetivos: barras compactas; el editor de siempre se abre debajo
@@ -177,17 +177,42 @@
     const t = today(); const gs = (APP.goalsOn ? APP.goalsOn(t) : []).concat(APP.goalsOfPeriod ? APP.goalsOfPeriod('week') : []).filter((g, i, ar) => ar.indexOf(g) === i).slice(0, 4);
     const fmt = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
     const bars = gs.length ? '<div class="n6">' + gs.map((g, i) => { const p = APP.goalProgress2(g, t); const right = p.target ? fmt(p.score) + ' de ' + p.target : (p.done ? 'Cumplido' : 'Pendiente');
-      return '<div class="gl"><div class="r">' + esc(g.text) + '<span>' + right + '</span></div><div class="n6bar"><i style="width:' + Math.max(p.pct || 0, 3) + '%;' + (i % 2 ? 'background:var(--blue)' : '') + '"></i></div></div>'; }).join('') + '<button class="n6go o" data-act="objOpen">' + (ui.objOpen ? 'Ocultar el editor' : 'Añadir o editar objetivos') + '</button></div>' : '';
-    return bars + (!gs.length || ui.objOpen ? oldPlan.map((e) => e.outerHTML).join('') : '');
+      return '<div class="gl"><div class="r">' + esc(g.text) + '<span>' + right + '</span></div><div class="n6bar"><i style="width:' + Math.max(p.pct || 0, 3) + '%;' + (i % 2 ? 'background:var(--blue)' : '') + '"></i></div></div>'; }).join('') + '</div>' : '';
+    return bars + oldPlan.map((e) => e.outerHTML).join('');
+  }
+  const nowM = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  const tmin2 = (t) => { const p = String(t || '').split(':').map(Number); return (p[0] || 0) * 60 + (p[1] || 0); };
+  // aviso: de 90 min antes a que empiece la clase de hoy, si hay apuntes por repasar
+  function repasoAviso() {
+    const due = APP.dueCount ? APP.dueCount() : 0; const nx = APP.plan ? APP.plan.next() : null;
+    if (!due || !nx || nx.inDays !== 0 || !nx.start) return '';
+    const left = tmin2(nx.start) - nowM(); if (left > 90 || left < -30) return '';
+    const when = left > 5 ? (left >= 60 ? 'BJJ en ' + Math.round(left / 60 * 2) / 2 + (Math.round(left / 60 * 2) / 2 === 1 ? ' hora' : ' horas').replace('.', ',') : 'BJJ en ' + left + ' min') : 'Toca BJJ ahora';
+    return '<div class="rem"><span class="bell">' + ic('clock', 20, '#fff', 1.8) + '</span><div><b>' + esc(when) + ' · repasa lo estudiado</b><small>' + due + (due === 1 ? ' apunte' : ' apuntes') + ' · unos ' + Math.max(2, Math.round(due * 0.8)) + ' min</small></div></div><a class="n6go o rem2" href="#/repaso">' + ic('repeat', 17) + 'Repasar ahora</a>';
+  }
+  function statsBlock() {
+    const t = today(); const from = ST.addDays(t, -29); const ss = S.sessions.filter((x) => x.date >= from && x.date <= t);
+    const gl = ((S.gym && S.gym.logs) || []).filter((x) => x.date >= from && x.date <= t); const rr = S.rounds.filter((x) => x.date >= from && x.date <= t);
+    const min = ss.reduce((a, x) => a + (Number(x.duration) || 0), 0) + gl.reduce((a, x) => a + (Number(x.duration) || 0), 0);
+    return '<div class="n6sm"><a href="#/stats"><b>' + (ss.length + gl.length) + '</b><span>entrenos en 30 días</span></a><a href="#/stats"><b>' + (min ? APP.hm(min) : '0 h') + '</b><span>tiempo total</span></a><a href="#/stats"><b>' + rr.length + '</b><span>rounds</span></a></div>';
+  }
+  const regBtns = (o) => '<div class="n6two"><button class="n6go" style="margin-top:' + (o ? '14' : '0') + 'px" data-act="' + (o && o.act || 'newSession') + '"' + (o && o.key ? ' data-key="' + o.key + '" data-d="' + o.dd + '"' : '') + '>' + ic('pen', 17, '#fff', 1.9) + (o ? 'Registrar BJJ' : 'BJJ') + '</button><button class="n6go o" style="margin-top:' + (o ? '14' : '0') + 'px" data-act="gymFab">' + ic('dumb', 17) + (o ? 'Registrar gym' : 'Gym') + '</button></div>';
+  function hoyBlock2() {
+    const o = todayInfo(); const a = o.a;
+    let h = '<div class="n6"><div class="t">' + esc(o.title) + '</div><div class="s">' + esc(o.sub) + '</div>';
+    if (a) h += '<div class="s" style="margin-top:8px">' + intLine(a, false) + '</div>';
+    return h + regBtns(o) + '</div>';
   }
   V.inicio = () => {
     const G = splitInicio(); const wb = weekBlock(false); const vm = vmeta();
     let h = '<div class="ttl"><h2>Inicio<small>' + esc(longDate()) + '</small></h2></div>';
-    h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', [hoyBlock()]);
-    h += sec('', 'Progreso de la semana', 'chart', 'c-ink', [wb.html], wb.meta);
+    h += repasoAviso();
+    h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', [hoyBlock2()]);
+    const w = weekData();
+    h += sec('', 'Mis entrenos de la semana', 'chart', 'c-ink', ['<div class="n6">' + stripHtml(w) + statsBlock() + '</div>'], wb.meta);
     h += sec('', 'Tu tarea de hoy: plan y vídeo', 'video', 'c-ink', [videoBlock()], vm);
-    h += sec('', 'Lo esencial', 'gauge', 'c-ink', [esencialBlock()].concat(G.onb));
-    return h;
+    h += sec('', 'Últimos fallos', 'alert', 'c-red', [redCompact(1)]);
+    return h + G.onb.map((e) => e.outerHTML).join('');
   };
   const _unusedInicio = () => {
     const G = splitInicio(); const vi = vinfo(); const t = today();
@@ -216,22 +241,22 @@
     });
     const vi = vinfo(); const due = APP.dueCount ? APP.dueCount() : 0; const ls = APP.loadStatus ? APP.loadStatus() : null;
     let h = G.title;
-    const wb = weekBlock(true); const W = splitInicio();
-    const hasRed = G.red; if (hasRed) G.red.remove;
+    const W = splitInicio(); const gs = (APP.goalsOn ? APP.goalsOn(today()) : []).concat(APP.goalsOfPeriod ? APP.goalsOfPeriod('week') : []).filter((g, i, ar) => ar.indexOf(g) === i);
+    h += sec('', 'Repasar', 'repeat', 'c-teal', ['<div class="n6"><div class="t" style="font-size:20px">' + (due ? due + (due === 1 ? ' apunte para repasar hoy' : ' apuntes para repasar hoy') : 'Estás al día con el repaso') + '</div><div class="s">' + (due ? 'Repasar tus notas en pocos minutos fija lo que has estudiado.' : 'Cuando apuntes algo en un vídeo, aquí te dirá cuándo repasarlo.') + '</div><a class="n6go" href="#/repaso">' + ic('repeat', 17, '#fff', 1.9) + (due ? 'Empezar repaso' : 'Ver mis apuntes') + '</a></div>'], due ? due + (due === 1 ? ' pendiente' : ' pendientes') : '');
+    h += sec('', 'Registrar y estadísticas', 'chart', 'c-ink', ['<div class="n6">' + regBtns(null) + statsBlock() + '</div>']);
     h += sec('', 'Cosas a mejorar', 'alert', 'c-red', [redCompact()]);
-    h += sec('', 'Hoy y esta semana', 'clock', 'c-ink', [wb.html], wb.meta);
-    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-ink', [videoBlock()], vmeta());
-    h += sec('', 'Objetivos', 'target', 'c-ink', [objBlock(G.plan)]);
-    h += '<div class="n6k">Todo lo demás</div><div class="g5list">' + [
+    h += sec('', 'Mi plan y vídeos', 'video', 'c-ink', [videoBlock()], vmeta());
+    if (ui.objOpen) h += sec('', 'Objetivos', 'target', 'c-ink', [objBlock(G.plan)]);
+    h += '<div class="n6k">Por orden de importancia</div><div class="g5list">' + [
       row2('#/apuntes', 'pen', 'Apuntes', S.notes.length + (S.notes.length === 1 ? ' nota de técnicas' : ' notas de técnicas')),
+      '<a class="g5i" data-act="objOpen" role="button"><span class="ico">' + ic('target', 17) + '</span><span class="tx">Objetivos<small>' + (gs.length ? gs.length + ' en marcha' : 'ponte uno') + '</small></span><span class="rt">' + ic('chev', 15) + '</span></a>',
       row2('#/biblio', 'lib', 'Biblioteca técnica', 'fichas de técnicas y posiciones'),
       row2('#/arbol', 'tree', 'Game plan', 'tu árbol de decisión'),
       row2('#/stats', 'chart', 'Estadísticas y carga', 'rounds, finalizaciones, semanas'),
-      row2('#/coach', 'flex', 'Entrenador y ciencia', 'análisis con tus datos'),
       row2('#/videos', 'video', 'Vídeos y plan', 'categorías, calendario y apuntes', vi.total ? vi.done + ' / ' + vi.total : ''),
       row2('#/estudio', 'cap', 'Estudio', 'técnicas que estás aprendiendo'),
-      row2('#/repaso', 'repeat', 'Repaso', 'apuntes que toca repasar', due ? String(due) : ''),
       row2('#/plan', 'cal', 'Plan semanal', 'tus días y horarios de clase'),
+      row2('#/coach', 'flex', 'Entrenador y ciencia', 'análisis con tus datos'),
       row2('#/juego', 'user', 'Mi juego', 'tus posiciones y finalizaciones'),
       row2('#/analisis', 'users', 'Análisis de rolas', 'qué pasó en cada round'),
       row2('#/fisico', 'dumb', 'Preparación física', 'técnicas según tu cuerpo'),

@@ -181,7 +181,7 @@
   A.sessionsAll = () => { ui.allSessions = !ui.allSessions; rk(); };
   V.entrenos = () => {
     const t = today(); const rep = ST.report(S.rounds, {}); const hours = Math.round(S.sessions.reduce((a, x) => a + (Number(x.duration) || 0), 0) / 60);
-    let h = '<div class="ttl"><h2>BJJ<small>Tus objetivos y tu progreso</small></h2></div>';
+    let h = '<div class="ttl"><h2>BJJ<small>' + esc((() => { try { return new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) { return ''; } })()) + '</small></h2></div>';
     h += card('<div class="gstrip"><div><b>' + S.sessions.length + '</b><span>entrenos</span></div><div><b>' + S.rounds.length + '</b><span>rounds</span></div><div><b>' + hours + ' h</b><span>tatami</span></div><div><b>' + (rep.subs.efficacy.total ? rep.subs.efficacy.pct + '%' : '–') + '</b><span>subm.</span></div><a href="#/stats" style="align-self:center;font-size:12px;font-weight:800;text-decoration:none">Más ›</a></div>', 'padding:11px 14px');
     const tab = ui.objTab || 'week';
     h += '<div class="segt">' + [['day', 'Hoy'], ['week', 'Semana'], ['month', 'Mes']].map((x) => '<button class="' + (tab === x[0] ? 'on' : '') + '" data-act="objTab" data-v="' + x[0] + '">' + x[1] + '</button>').join('') + '</div>';
