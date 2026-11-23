@@ -833,3 +833,16 @@ input, select, textarea { border-radius: 12px; background: var(--surface); borde
 .n6sm b { display: block; font-size: 21px; font-weight: 800; letter-spacing: -.03em; } .n6sm span { font-size: 11.5px; color: var(--muted); display: block; margin-top: 2px; }
 .n6k { font-size: 13px; font-weight: 700; color: var(--muted); margin: 16px 4px 6px; }
 .redb { padding: 6px 16px 10px; } .redb > div:first-child { margin-top: 0; }
+
+/* ajuste fino al ejemplo */
+.g5s.c-ink .g5h .ic { color: var(--ink); } .g5s.c-teal .g5h { color: var(--green); }
+.g5i .tx small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); margin-top: 1px; }
+.g5i .ico { background: color-mix(in srgb, var(--green) 12%, transparent); }
+.red6 { background: var(--surface); border: 1.5px solid var(--red); border-radius: var(--radius); padding: 4px 16px; }
+.red6 > div { padding: 11px 0; } .red6 > div + div { border-top: 1px solid color-mix(in srgb, var(--red) 18%, var(--surface)); }
+.red6 b { display: block; font-size: 12.5px; color: var(--red); } .red6 span { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.3; margin-top: 2px; } .red6 span.mu { font-weight: 400; font-size: 13.5px; color: var(--muted); }
+.gl { margin: 4px 0 14px; } .gl .r { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600; margin-bottom: 6px; } .gl .r span { color: var(--muted); font-weight: 500; white-space: nowrap; }
+.n6 .gl:last-of-type { margin-bottom: 4px; }
+body.n6home .topbar { display: none; } body.n6home main { padding-top: calc(14px + env(safe-area-inset-top)); }
+body.n6home { padding-top: 0; } body.n6home main { padding-top: calc(10px + env(safe-area-inset-top)); }
+.g5h { flex-wrap: nowrap; } .g5h .meta, .g5h small { white-space: nowrap; font-size: 12.5px; }

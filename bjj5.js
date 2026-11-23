@@ -5,6 +5,7 @@
   const { esc, today, fmtDate } = APP;
   const V = APP.views;
   const $ = APP.$;
+  const ui = APP.ui;
 
   // ---------------- iconos de línea ----------------
   const P = {
@@ -50,7 +51,7 @@
 
   // ---------------- animación solo al cambiar de pantalla ----------------
   let lastHash = ''; const render0 = APP.render;
-  APP.render = function () { const v = $('#view'); const ch = location.hash !== lastHash; lastHash = location.hash; if (v) v.classList.toggle('anim', ch); return render0.apply(this, arguments); };
+  APP.render = function () { const v = $('#view'); const ch = location.hash !== lastHash; lastHash = location.hash; if (v) v.classList.toggle('anim', ch); const hh = location.hash.replace(/^#\/?/, '').split('/')[0]; document.body.classList.toggle('n6home', hh === '' || hh === 'inicio' || hh === 'entrenos'); return render0.apply(this, arguments); };
 
   // ---------------- piezas ----------------
   const kids = (html) => { const d = document.createElement('div'); d.innerHTML = html; return Array.prototype.slice.call(d.children); };
@@ -96,14 +97,14 @@
     if (G.reto) G.semana.push(G.reto);
     return G;
   }
-  // ---------- bloques compactos (diseño del ejemplo) ----------
+  // ---------- bloques compactos (diseño del ejemplo aprobado) ----------
   const DLB = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const longDate = () => { try { return new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); } catch (e) { return fmtDate(today()); } };
   const weekData = () => {
     const t = today(); const ws = ST.weekStart(t); const we = ST.addDays(ws, 6);
     const weekS = S.sessions.filter((x) => x.date >= ws && x.date <= we); const minutes = weekS.reduce((a, x) => a + (Number(x.duration) || 0), 0);
     const p = S.profile; const target = p && Number(p.weeklyTarget) ? Number(p.weeklyTarget) : (Object.keys(S.plan.days).filter((k) => S.plan.days[k].on).length || 0);
-    const gy = APP.gymInfo ? APP.gymInfo() : { n: 0 };
-    return { t, ws, weekS, minutes, target, gyN: gy.n, n: weekS.length + gy.n, nb: weekS.length };
+    return { t, ws, weekS, minutes, target, nb: weekS.length };
   };
   const stripHtml = (w) => '<div class="n6wk">' + DLB.map((l, i) => {
     const d = ST.addDays(w.ws, i); const done = S.sessions.some((x) => x.date === d) || ((S.gym && S.gym.logs) || []).some((x) => x.date === d);
@@ -111,53 +112,81 @@
     const cls = done ? 'd' : d === w.t ? 't' : planned ? 'p' : '';
     return '<button data-act="dayPeek" data-d="' + d + '" aria-label="' + esc(fmtDate(d)) + '"><span>' + l + '</span><b class="' + cls + '">' + (done ? ic('check', 15, '#fff', 2.6) : '') + '</b></button>';
   }).join('') + '</div>';
-  function hoyBlock() {
-    const t = today(); const a = APP.advice ? APP.advice() : null; const doneToday = S.sessions.filter((x) => x.date === t);
-    const nx = APP.plan ? APP.plan.next() : null; let title, sub, act, lab, key = '', dd = '';
+  const todayInfo = () => {
+    const t = today(); const a = APP.advice ? APP.advice() : null; const doneToday = S.sessions.filter((x) => x.date === t); const nx = APP.plan ? APP.plan.next() : null;
+    const o = { a, nx, doneToday, title: '', sub: '', act: 'newSession', lab: 'Registrar entreno', key: '', dd: '', line: '' };
     if (nx && !(doneToday.length && nx.inDays === 0)) {
-      const when = nx.inDays === 0 ? 'Hoy' : nx.inDays === 1 ? 'Mañana' : fmtDate(nx.date);
-      title = nx.focus || 'Clase de BJJ'; sub = when + (nx.start ? ' · ' + nx.start : ''); act = nx.inDays === 0 ? 'regPlanned' : 'newSession'; lab = nx.inDays === 0 ? 'Registrar entreno' : 'Ver el plan'; key = nx.key; dd = nx.date;
-    } else if (doneToday.length) { title = 'Entreno registrado'; sub = (doneToday[0].type || 'Entrenamiento') + (doneToday[0].duration ? ' · ' + doneToday[0].duration + ' min' : ''); act = 'newSession'; lab = 'Registrar otro'; }
-    else { title = '¿Has entrenado hoy?'; sub = 'Registra tu entreno en un minuto'; act = 'newSession'; lab = 'Registrar entreno'; }
-    if (a && a.gym && a.gym.today) sub += ' · gym: ' + a.gym.today;
-    let h = '<div class="n6"><div class="t">' + esc(title) + '</div><div class="s">' + esc(sub) + '</div>';
+      const when = nx.inDays === 0 ? '' : (nx.inDays === 1 ? 'Mañana' : fmtDate(nx.date)) + ' · ';
+      o.title = nx.focus || 'Clase de BJJ'; o.sub = when + (nx.start || (nx.inDays === 0 ? 'hoy' : '')); o.act = nx.inDays === 0 ? 'regPlanned' : 'newSession'; o.lab = nx.inDays === 0 ? 'Registrar entreno' : 'Ver el plan'; o.key = nx.key; o.dd = nx.date;
+      o.line = (nx.inDays === 0 ? 'Hoy: ' : (nx.inDays === 1 ? 'Mañana: ' : fmtDate(nx.date) + ': ')) + (nx.focus ? nx.focus.charAt(0).toLowerCase() + nx.focus.slice(1) : 'clase de BJJ') + (nx.start ? ', ' + nx.start : '');
+    } else if (doneToday.length) { o.title = 'Entreno registrado'; o.sub = (doneToday[0].type || 'Entrenamiento') + (doneToday[0].duration ? ' · ' + doneToday[0].duration + ' min' : ''); o.lab = 'Registrar otro'; o.line = 'Hoy: entreno registrado'; }
+    else { o.title = '¿Has entrenado hoy?'; o.sub = 'Registra tu entreno en un minuto'; o.line = 'Hoy: sin clase planificada'; }
+    if (a && a.gym && a.gym.today) o.sub += ' · y gym: ' + a.gym.today;
+    return o;
+  };
+  const intLine = (a, why) => { if (!a) return ''; const r = String(a.b.rng).replace('-', '–'); return 'Intensidad recomendada ' + esc(r) + ' de 5' + (why ? ' · en el gym, ' + a.gym.lo + '–' + a.gym.hi + ' repeticiones en reserva' : '') + ' <a class="n6l" data-act="intWhy" role="button">Por qué</a>'; };
+  function hoyBlock() {
+    const o = todayInfo(); const a = o.a; let h = '<div class="n6"><div class="t">' + esc(o.title) + '</div><div class="s">' + esc(o.sub) + '</div>';
     if (a) { const m = String(a.b.rng).match(/(\d)(?:-(\d))?/); const lo = m ? +m[1] : 0, hi = m ? +(m[2] || m[1]) : 0;
-      h += '<div class="seg5" aria-label="Intensidad de 1 a 5">' + [1, 2, 3, 4, 5].map((n) => '<span><i class="' + (n >= lo && n <= hi ? 'on' : '') + '"></i>' + n + '</span>').join('') + '</div>';
-      h += '<div class="s" style="margin-top:8px">Intensidad recomendada ' + esc(String(a.b.rng).replace('-', '–')) + ' de 5 · ' + esc(a.b.name) + ' · en el gym, ' + a.gym.lo + '–' + a.gym.hi + ' repeticiones en reserva <a class="n6l" data-act="intWhy" role="button">Por qué</a></div>'; }
-    h += '<button class="n6go" data-act="' + act + '"' + (key ? ' data-key="' + key + '" data-d="' + dd + '"' : '') + '>' + ic('pen', 17, '#fff', 1.9) + lab + '</button></div>';
-    return h;
+      h += '<div class="seg5" aria-label="Intensidad de 1 a 5">' + [1, 2, 3, 4, 5].map((n) => '<span><i class="' + (n >= lo && n <= hi ? 'on' : '') + '"></i>' + n + '</span>').join('') + '</div><div class="s" style="margin-top:8px">' + intLine(a, true) + '</div>'; }
+    return h + '<button class="n6go" data-act="' + o.act + '"' + (o.key ? ' data-key="' + o.key + '" data-d="' + o.dd + '"' : '') + '>' + ic('pen', 17, '#fff', 1.9) + o.lab + '</button></div>';
   }
-  function weekBlock() {
+  function weekBlock(bjj) {
     const w = weekData(); const pct = w.target ? Math.min(100, Math.round((w.nb / w.target) * 100)) : (w.nb ? 100 : 0); const left = Math.max(0, w.target - w.nb);
-    let streak = 0; const need = w.target || 1; let ws = w.ws; const inW = (x) => S.sessions.filter((y) => y.date >= x && y.date <= ST.addDays(x, 6)).length;
-    if (inW(ws) >= need) streak++; ws = ST.addDays(ws, -7); while (inW(ws) >= need && streak < 520) { streak++; ws = ST.addDays(ws, -7); }
-    const txt = (w.minutes ? APP.hm(w.minutes) + ' esta semana · ' : '') + (w.target ? (left ? 'te faltan ' + left + (left === 1 ? ' entreno' : ' entrenos') + ' para tu objetivo' : 'objetivo de la semana cumplido') : 'define tu objetivo semanal en Objetivos') + (streak ? ' · ' + streak + (streak === 1 ? ' semana' : ' semanas') + ' seguidas' : '');
-    return { meta: w.nb + (w.target ? ' de ' + w.target : '') + ' entrenos', html: '<div class="n6">' + stripHtml(w) + '<div class="n6bar"><i style="width:' + Math.max(pct, w.nb ? 4 : 2) + '%"></i></div><div class="s" style="margin-top:8px">' + esc(txt) + '</div></div>' };
+    const meta = w.nb + (w.target ? ' de ' + w.target : '') + ' entrenos';
+    if (bjj) { const o = todayInfo(); return { meta, html: '<div class="n6">' + stripHtml(w) + '<div class="t" style="font-size:19px">' + esc(o.line) + '</div><div class="s">' + intLine(o.a, false) + '</div></div>' }; }
+    const txt = !w.nb ? 'Aún no has entrenado esta semana' + (w.target ? ' · tienes ' + w.target + ' entrenos planificados' : '') : (w.minutes ? APP.hm(w.minutes) + ' esta semana · ' : '') + (w.target ? (left ? 'te faltan ' + left + (left === 1 ? ' entreno' : ' entrenos') + ' para tu objetivo' : 'objetivo de la semana cumplido') : 'define tu objetivo semanal en BJJ');
+    return { meta, html: '<div class="n6">' + stripHtml(w) + '<div class="n6bar"><i style="width:' + Math.max(pct, w.nb ? 4 : 3) + '%"></i></div><div class="s" style="margin-top:8px">' + esc(txt) + '</div></div>' };
   }
   function videoBlock() {
     const vi = vinfo(); const td = vi.today;
     if (!td) return '<div class="n6"><div class="s" style="margin:0">' + (vi.total ? 'Hoy no tienes vídeo planificado.' : 'Añade vídeos y planifica uno por día.') + '</div><a class="n6go o" href="#/videos">' + ic('video', 17) + (vi.total ? 'Ver el plan' : 'Añadir vídeos') + '</a></div>';
-    return '<div class="n6"><a class="n6vt" href="#/video/' + td.id + '"><span class="th">' + (APP.vidThumb ? APP.vidThumb(td) : '') + '<i>' + ic('play', 18, '#fff', 1.8) + '</i></span><span class="tx"><b>' + esc(td.title) + '</b><span>' + esc([td.sub, td.cat].filter(Boolean)[0] || 'Vídeo') + '</span></span></a><a class="n6go" href="#/video/' + td.id + '">' + ic('play', 17, '#fff', 1.8) + 'Ver y apuntar</a><a class="n6l n6c" href="#/videos">Plan de vídeos · ' + vi.done + ' de ' + vi.total + ' vistos</a></div>';
+    const cat = vi.catName ? vi.catName(td.cat) : ''; const sub = [cat, td.sub].filter(Boolean).filter((x, i, ar) => ar.indexOf(x) === i).join(' · ');
+    return '<div class="n6"><a class="n6vt" href="#/video/' + td.id + '"><span class="th">' + (APP.vidThumb ? APP.vidThumb(td) : '') + '<i>' + ic('play', 18, '#fff', 1.8) + '</i></span><span class="tx"><b>' + esc(td.title) + '</b><span>' + esc(sub) + '</span></span></a><a class="n6go" href="#/video/' + td.id + '">' + ic('play', 17, '#fff', 1.8) + 'Ver y apuntar</a></div>';
   }
+  const vmeta = () => { const vi = vinfo(); return vi.weekTotal ? vi.weekDone + ' de ' + vi.weekTotal + ' esta semana' : ''; };
   function esencialBlock() {
     const t = today(); let h = '';
     if (APP.nutri) {
       const tg = APP.nutri.targets(t); const tot = APP.nutri.dayTotal(t); const wt = APP.nutri.waterTarget(t); const ml = APP.nutri.waterCount(t) * APP.nutri.glassMl();
       const wts = APP.gym && APP.gym.weights ? APP.gym.weights() : []; const lw = wts[wts.length - 1]; const tr = APP.gym && APP.gym.weightTrend ? APP.gym.weightTrend() : null; const f = (n) => Math.round(n).toLocaleString('es-ES');
-      h += '<div class="n6sm"><a href="#/nutri"><b>' + (tg ? f(tot.k) : '–') + '</b><span>' + (tg ? 'kcal de ' + f(tg.kcal) : 'calcula tu objetivo') + '</span></a><a href="#/nutri"><b>' + (Math.round(ml / 10) / 100).toLocaleString('es-ES') + ' L</b><span>agua de ' + (Math.round(wt.ml / 10) / 100).toLocaleString('es-ES') + '</span></a><a href="#/gym/peso"><b>' + (lw ? String(lw.kg).replace('.', ',') : '–') + '</b><span>' + (lw ? 'kg' + (tr ? ', ' + (tr.diff > 0 ? 'sube ' : 'baja ') + Math.abs(Math.round(tr.diff * 10) / 10).toString().replace('.', ',') : '') : 'añade tu peso') + '</span></a></div>';
+      const ws = tr ? (Math.abs(tr.diff) < 0.3 ? 'tendencia estable' : tr.diff > 0 ? 'sube ' + Math.abs(Math.round(tr.diff * 10) / 10).toString().replace('.', ',') : 'baja ' + Math.abs(Math.round(tr.diff * 10) / 10).toString().replace('.', ',')) : '';
+      h += '<div class="n6sm"><a href="#/nutri"><b>' + (tg ? f(tot.k) : '–') + '</b><span>' + (tg ? 'kcal de ' + f(tg.kcal) : 'calcula tu objetivo') + '</span></a><a href="#/nutri"><b>' + (Math.round(ml / 10) / 100).toLocaleString('es-ES') + ' L</b><span>agua de ' + (Math.round(wt.ml / 10) / 100).toLocaleString('es-ES') + '</span></a><a href="#/gym/peso"><b>' + (lw ? String(lw.kg).replace('.', ',') : '–') + '</b><span>' + (lw ? 'kg' + (ws ? ', ' + ws : '') : 'añade tu peso') + '</span></a></div>';
     }
     const w = (APP.weak ? APP.weak() : [])[0];
-    h += '<div class="n6k">A mejorar ahora</div><div class="g5list"><a class="g5i" href="#/entrenos"><span class="ico c-red">' + ic('alert', 17) + '</span><span class="tx">' + (w ? esc(w.title) : 'Cosas a mejorar') + '</span><span class="rt">' + ic('chev', 15) + '</span></a></div>';
+    h += '<div class="n6k">A mejorar ahora</div><div class="g5list"><a class="g5i" href="#/entrenos"><span class="ico c-red">' + ic('alert', 17) + '</span><span class="tx">' + (w ? esc(w.title) + '<small>' + esc(w.why) + '</small>' : 'Cosas a mejorar<small>Registra rounds para detectar tus puntos débiles</small>') + '</span><span class="rt">' + ic('chev', 15) + '</span></a></div>';
     return h;
   }
+  // «Cosas a mejorar» compacto, sacado del bloque rojo de siempre
+  function redCompact() {
+    const r = redInner(); if (!r) return '';
+    const secs = []; let cur = null;
+    Array.prototype.slice.call(r.children).forEach((e) => { if (e.classList.contains('rh')) { cur = { label: e.textContent.replace(/\s*·\s*[^·]*$/, '').trim(), items: [], empty: '' }; secs.push(cur); } else if (cur) { if (e.classList.contains('rl')) cur.items.push(e); else if (e.tagName === 'P') cur.empty = e.textContent; } });
+    const row = (sc) => { let v = '';
+      if (sc.items.length) { const it = sc.items[0]; const b = it.querySelector('b'); const clk = it.getAttribute('data-act') ? ' data-act="' + it.getAttribute('data-act') + '" data-id="' + esc(it.getAttribute('data-id') || '') + '" style="cursor:pointer"' : '';
+        v = '<span' + clk + '>' + esc((b ? b.textContent : it.textContent).replace(/\s*›\s*$/, '')) + '</span>'; }
+      else v = '<span class="mu">' + esc(sc.empty || 'Sin datos todavía') + '</span>';
+      return '<div><b>' + esc(sc.label) + '</b>' + v + '</div>'; };
+    return '<div class="red6">' + secs.map(row).join('') + '</div>';
+  }
+  const row2 = (href, icon, label, sub, right) => '<a class="g5i" href="' + href + '"><span class="ico">' + ic(icon, 17) + '</span><span class="tx">' + label + (sub ? '<small>' + sub + '</small>' : '') + '</span><span class="rt">' + (right || '') + ic('chev', 15) + '</span></a>';
+  // objetivos: barras compactas; el editor de siempre se abre debajo
+  ui.objOpen = ui.objOpen || false;
+  APP.actions.objOpen = () => { ui.objOpen = !ui.objOpen; APP.render(); };
+  function objBlock(oldPlan) {
+    const t = today(); const gs = (APP.goalsOn ? APP.goalsOn(t) : []).concat(APP.goalsOfPeriod ? APP.goalsOfPeriod('week') : []).filter((g, i, ar) => ar.indexOf(g) === i).slice(0, 4);
+    const fmt = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
+    const bars = gs.length ? '<div class="n6">' + gs.map((g, i) => { const p = APP.goalProgress2(g, t); const right = p.target ? fmt(p.score) + ' de ' + p.target : (p.done ? 'Cumplido' : 'Pendiente');
+      return '<div class="gl"><div class="r">' + esc(g.text) + '<span>' + right + '</span></div><div class="n6bar"><i style="width:' + Math.max(p.pct || 0, 3) + '%;' + (i % 2 ? 'background:var(--blue)' : '') + '"></i></div></div>'; }).join('') + '<button class="n6go o" data-act="objOpen">' + (ui.objOpen ? 'Ocultar el editor' : 'Añadir o editar objetivos') + '</button></div>' : '';
+    return bars + (!gs.length || ui.objOpen ? oldPlan.map((e) => e.outerHTML).join('') : '');
+  }
   V.inicio = () => {
-    const G = splitInicio(); const vi = vinfo(); const wb = weekBlock();
-    let h = '<div class="ttl"><h2>Inicio<small>' + esc(fmtDate(today())) + '</small></h2></div>';
+    const G = splitInicio(); const wb = weekBlock(false); const vm = vmeta();
+    let h = '<div class="ttl"><h2>Inicio<small>' + esc(longDate()) + '</small></h2></div>';
     h += sec('', 'Hoy toca entrenar', 'target', 'c-teal', [hoyBlock()]);
-    h += sec('', 'Progreso de la semana', 'chart', 'c-teal', [wb.html], wb.meta);
-    h += sec('', 'Tu tarea de hoy: plan y vídeo', 'video', 'c-violet', [videoBlock()]);
-    h += sec('', 'Lo esencial', 'gauge', 'c-blue', [esencialBlock()].concat(G.onb));
-    h += list('Apartados', [row('#/entrenos', 'user', 'c-teal', 'BJJ'), row('#/videos', 'video', 'c-violet', 'Vídeos', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/gym', 'dumb', 'c-blue', 'Físico'), row('#/nutri', 'leaf', 'c-amber', 'Nutrición'), row('#/mas', 'more', 'c-pink', 'Más')]);
+    h += sec('', 'Progreso de la semana', 'chart', 'c-ink', [wb.html], wb.meta);
+    h += sec('', 'Tu tarea de hoy: plan y vídeo', 'video', 'c-ink', [videoBlock()], vm);
+    h += sec('', 'Lo esencial', 'gauge', 'c-ink', [esencialBlock()].concat(G.onb));
     return h;
   };
   const _unusedInicio = () => {
@@ -187,15 +216,30 @@
     });
     const vi = vinfo(); const due = APP.dueCount ? APP.dueCount() : 0; const ls = APP.loadStatus ? APP.loadStatus() : null;
     let h = G.title;
-    const wb = weekBlock(); const W = splitInicio();
-    h += sec('', 'Cosas a mejorar', 'alert', 'c-red', G.red ? [G.red] : []);
-    h += sec('', 'Hoy y esta semana', 'clock', 'c-amber', [hoyBlock(), wb.html, loadPanel()].concat(W.reto ? [W.reto] : []), wb.meta);
-    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-violet', [videoBlock()]);
-    h += sec('', 'Objetivos', 'target', 'c-teal', G.plan);
-    h += '<div class="g5h" style="margin-top:6px"><span>Todo lo demás</span></div>';
-    h += list('Estudiar', [row('#/videos', 'video', 'c-violet', 'Vídeos y plan', vi.total ? vi.done + ' / ' + vi.total : ''), row('#/estudio', 'cap', 'c-violet', 'Estudio', String((S.study || []).length)), row('#/repaso', 'repeat', 'c-violet', 'Repaso', due ? String(due) : ''), row('#/apuntes', 'pen', 'c-violet', 'Apuntes', String(S.notes.length)), row('#/biblio', 'lib', 'c-violet', 'Biblioteca de técnicas')]);
-    h += list('Entrenar', [row('#/plan', 'cal', 'c-blue', 'Plan semanal'), row('#/juego', 'user', 'c-blue', 'Mi juego'), row('#/arbol', 'tree', 'c-blue', 'Game plan'), row('#/analisis', 'users', 'c-blue', 'Análisis de rolas'), row('#/fisico', 'flex', 'c-blue', 'Preparación física')]);
-    h += list('Control', [row('#/progreso', 'trophy', 'c-pink', 'Progreso y logros'), row('#/stats', 'chart', 'c-pink', 'Estadísticas'), row('#/carga', 'gauge', 'c-pink', 'Carga y lesiones'), row('#/coach', 'chat', 'c-pink', 'Entrenador'), row('#/informe', 'book', 'c-pink', 'Informe semanal'), row('#/ciencia', 'info', 'c-pink', 'Base científica')]);
+    const wb = weekBlock(true); const W = splitInicio();
+    const hasRed = G.red; if (hasRed) G.red.remove;
+    h += sec('', 'Cosas a mejorar', 'alert', 'c-red', [redCompact()]);
+    h += sec('', 'Hoy y esta semana', 'clock', 'c-ink', [wb.html], wb.meta);
+    h += sec('', 'Tu tarea de plan y vídeo', 'video', 'c-ink', [videoBlock()], vmeta());
+    h += sec('', 'Objetivos', 'target', 'c-ink', [objBlock(G.plan)]);
+    h += '<div class="n6k">Todo lo demás</div><div class="g5list">' + [
+      row2('#/apuntes', 'pen', 'Apuntes', S.notes.length + (S.notes.length === 1 ? ' nota de técnicas' : ' notas de técnicas')),
+      row2('#/biblio', 'lib', 'Biblioteca técnica', 'fichas de técnicas y posiciones'),
+      row2('#/arbol', 'tree', 'Game plan', 'tu árbol de decisión'),
+      row2('#/stats', 'chart', 'Estadísticas y carga', 'rounds, finalizaciones, semanas'),
+      row2('#/coach', 'flex', 'Entrenador y ciencia', 'análisis con tus datos'),
+      row2('#/videos', 'video', 'Vídeos y plan', 'categorías, calendario y apuntes', vi.total ? vi.done + ' / ' + vi.total : ''),
+      row2('#/estudio', 'cap', 'Estudio', 'técnicas que estás aprendiendo'),
+      row2('#/repaso', 'repeat', 'Repaso', 'apuntes que toca repasar', due ? String(due) : ''),
+      row2('#/plan', 'cal', 'Plan semanal', 'tus días y horarios de clase'),
+      row2('#/juego', 'user', 'Mi juego', 'tus posiciones y finalizaciones'),
+      row2('#/analisis', 'users', 'Análisis de rolas', 'qué pasó en cada round'),
+      row2('#/fisico', 'dumb', 'Preparación física', 'técnicas según tu cuerpo'),
+      row2('#/progreso', 'trophy', 'Progreso y logros', 'tu evolución'),
+      row2('#/carga', 'gauge', 'Carga y lesiones', 'fatiga y molestias'),
+      row2('#/informe', 'book', 'Informe semanal', 'resumen de la semana'),
+      row2('#/ciencia', 'info', 'Base científica', 'de dónde salen las recomendaciones')].join('') + '</div>';
+    h += loadPanel() + (W.reto ? W.reto.outerHTML : '');
     h += '<div class="g5k">Historial</div>' + G.rest.map((e) => e.outerHTML).join('');
     return h;
   };

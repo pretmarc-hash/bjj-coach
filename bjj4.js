@@ -229,7 +229,7 @@
   A.vdAdd = (el) => {
     const cid = (el && el.dataset && el.dataset.cat) || ui.vd.lastCat || 'pasar'; const sub = (el && el.dataset && el.dataset.sub) || '';
     APP.openSheet('Añadir vídeo',
-      field('Enlace (YouTube, Vimeo o vídeo directo .mp4)', '<input id="vd-url" type="url" inputmode="url" placeholder="https://youtu.be/…">') +
+      field('Enlace (YouTube, Vimeo, Submeta, .mp4…)', '<input id="vd-url" type="url" inputmode="url" placeholder="https://youtu.be/…">') +
       '<div class="small muted" style="text-align:center;margin:-4px 0 8px">— o —</div><label class="btn secondary block" style="display:block;text-align:center;margin-bottom:12px">🎞 Elegir vídeo de mi móvil<input type="file" accept="video/*" id="vd-file" data-input="vdFile" style="display:none"></label><div id="vd-fileinfo" class="small muted" style="margin:-4px 0 10px"></div>' +
       field('Título', '<input id="vd-title" placeholder="Ej.: Knee slice paso a paso">') +
       field('Categoría', '<select id="vd-cat" data-input="vdCat">' + CATS.map((c) => '<option value="' + c.id + '"' + (c.id === cid ? ' selected' : '') + '>' + c.ico + ' ' + esc(c.name) + '</option>').join('') + '</select>') +
@@ -271,8 +271,13 @@
     if (x.kind === 'vimeo') return navigator.onLine ? '<div class="vwrap"><iframe id="v-frame" src="https://player.vimeo.com/video/' + x.vimeo + '?playsinline=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>' : offline();
     if (x.kind === 'file') return navigator.onLine ? '<video id="v-vid" src="' + esc(x.url) + '" controls playsinline preload="metadata" class="vvid"></video>' : offline();
     if (x.kind === 'local') return '<video id="v-vid" controls playsinline preload="metadata" class="vvid"></video><div class="small muted" id="v-lmsg" style="margin-top:6px">Cargando desde tu móvil…</div>';
+    if (x.kind === 'link' && !(APP.ui.vframe && APP.ui.vframe[x.id]) && /(^|\.)(submeta\.io|submeta\.com|teachable\.com|thinkific\.com|kajabi\.com|gumroad\.com|bjjfanatics\.com|vhx\.tv|podia\.com)$/i.test((() => { try { return new URL(x.url).hostname; } catch (e) { return ''; } })())) {
+      let host = ''; try { host = new URL(x.url).hostname.replace(/^www\./, ''); } catch (e) { /* url rara */ }
+      return '<div style="padding:4px 2px"><div class="t" style="font-size:17px">Lección en ' + esc(host) + '</div><div class="s">Lo normal es abrirla en otra pestaña con tu sesión iniciada y volver aquí a apuntar. También puedes probar a verla dentro de la app: si Submeta lo permite, funcionará; si sale en blanco, usa el botón de arriba.</div><a class="n6go" target="_blank" rel="noopener" href="' + esc(x.url) + '">Ver la lección ↗</a><button class="n6go o" data-act="vFrameTry" data-id="' + esc(x.id) + '">Probar a verla aquí dentro</button></div>';
+    }
     return (navigator.onLine ? '<div class="vwrap"><iframe id="v-frame" src="' + esc(x.url) + '" referrerpolicy="no-referrer"></iframe></div><p class="small muted" style="margin:8px 0 0">Si ves la página en blanco, esa web no permite verse dentro de otras apps. Descarga el vídeo y súbelo con «Editar › Cambiar origen», o usa un enlace de YouTube/Vimeo.</p>' : offline()) + '<a class="small" style="color:var(--green)" target="_blank" rel="noopener" href="' + esc(x.url) + '">Abrir en el navegador ↗ (sale de la app)</a>';
   }
+  A.vFrameTry = (el) => { APP.ui.vframe = APP.ui.vframe || {}; APP.ui.vframe[el.dataset.id] = true; APP.render(); };
   const offline = () => '<div class="empty" style="padding:18px">Sin conexión: este vídeo necesita internet. Tus apuntes sí funcionan. Los vídeos guardados en el móvil se ven sin conexión.</div>';
   function vInit(x) {
     ytVP = null;
@@ -354,5 +359,5 @@
   };
   A.vdClear = async () => { if (!APP.confirm('¿Quitar del plan los vídeos aún no vistos de este mes?')) return; const m = ui.vd.m; vid().plan = vid().plan.filter((e) => !(e.date.slice(0, 7) === m && vget(e.vid) && !vget(e.vid).done)); await saveVid(); rk(); };
 
-  APP.vidInfo = () => ({ done: items().filter((x) => x.done).length, total: items().length, today: vidToday() });
+  APP.vidInfo = () => { const ws = ST.weekStart(today()), we = ST.addDays(ws, 6); const wk = vid().plan.filter((e) => e.date >= ws && e.date <= we && vget(e.vid)); return { done: items().filter((x) => x.done).length, total: items().length, today: vidToday(), weekTotal: wk.length, weekDone: wk.filter((e) => vget(e.vid).done).length, catName: (id) => catOf(id).name }; };
 })();
