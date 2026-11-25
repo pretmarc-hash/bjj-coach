@@ -65,12 +65,12 @@
     let h = modeSeg() + '<div class="row between" style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/apuntes">← Temas</a>' + (notes.length ? '<button class="btn small secondary" data-act="noteReview" data-topic="' + esc(topic) + '">▶ Repasar</button>' : '') + '</div>' +
       '<div class="card hero"><h2>' + esc(APP.tn(topic)) + '</h2><div class="muted">' + notes.length + (notes.length === 1 ? ' apunte' : ' apuntes') + (t ? ' · <a href="#" style="color:#fff" data-act="tech" data-id="' + t.id + '">ver ficha</a>' : '') + '</div></div>';
     const root = nodes().find((n) => !n.parent && same(n.label, topic));
-    h += '<div class="card"><div class="row between"><h3>Diagrama de decisión</h3>' + (root ? '<a class="btn small ghost" style="text-decoration:none" href="#/arbol">Game plan</a>' : '') + '</div>' +
+    h += '<div class="card"><div class="row between"><h3>Diagrama de decisión</h3>' + (root ? '<span class="row" style="gap:6px"><a class="btn small ghost" style="text-decoration:none" href="#/arbol">Game plan</a><button class="btn small ghost" data-act="diagDel" data-id="' + root.id + '">Eliminar</button></span>' : '') + '</div>' +
       (root ? '<p class="muted small" style="margin:0 0 8px">Qué haces según cómo reacciona el rival. Toca + para añadir una rama y escribe la condición (por ejemplo «si está muy levantado»).</p>' + situation(root)
         : '<p class="muted small" style="margin:0 0 10px">Organiza qué hacer desde aquí según la postura del rival: por ejemplo, si está muy levantado, con una rodilla en el suelo o con la postura baja, y qué técnica usas en cada caso.</p><button class="btn block" data-act="treeStart" data-topic="' + esc(topic) + '">+ Crear diagrama de decisión</button>') + '</div>';
     secs.forEach((s) => {
       const ns = notes.filter((n) => same(n.section || '', s));
-      h += '<div class="card"><div class="row between"><h3>' + esc(s) + ' <span class="pill-n">(' + ns.length + ')</span></h3><button class="btn small ghost" data-act="noteNew" data-topic="' + esc(topic) + '" data-section="' + esc(s) + '">+ Apunte</button></div>' + (ns.length ? ns.map((n) => noteCard(n)).join('') : '<p class="muted small">Vacío. Añade aquí lo que trabajes de este apartado.</p>') + '</div>';
+      h += '<div class="card"><div class="row between"><h3>' + esc(s) + ' <span class="pill-n">(' + ns.length + ')</span></h3><span class="row" style="gap:6px"><button class="btn small ghost" data-act="noteNew" data-topic="' + esc(topic) + '" data-section="' + esc(s) + '">+ Apunte</button><button class="btn small ghost" data-act="sectionDel" data-topic="' + esc(topic) + '" data-section="' + esc(s) + '" aria-label="Eliminar apartado">Eliminar</button></span></div>' + (ns.length ? ns.map((n) => noteCard(n)).join('') : '<p class="muted small">Vacío. Añade aquí lo que trabajes de este apartado.</p>') + '</div>';
     });
     const loose = notes.filter((n) => !n.section);
     if (loose.length) h += '<div class="card"><h3>Sin apartado</h3>' + loose.map((n) => noteCard(n)).join('') + '</div>';
@@ -90,6 +90,17 @@
     const topic = el.dataset.topic; const name = val('sec-name').trim() || sel('secpick')[0]; if (!name) return APP.toast('Elige o escribe un apartado');
     const cur = sectionsOf(topic); if (!cur.some((c) => same(c, name))) cur.push(name);
     S.noteTopics[topic] = cur; await APP.saveMeta('noteTopics', S.noteTopics); APP.closeSheet(); rk();
+  };
+  A.sectionDel = async (el) => {
+    const topic = el.dataset.topic, sec = el.dataset.section; const ns = S.notes.filter((n) => n.topic === topic && same(n.section || '', sec));
+    if (!APP.confirm('¿Eliminar el apartado «' + sec + '»?' + (ns.length ? ' Sus ' + ns.length + (ns.length === 1 ? ' apunte pasará' : ' apuntes pasarán') + ' a «Sin apartado» (no se borran).' : ''))) return;
+    ns.forEach((n) => { n.section = ''; }); S.noteTopics[topic] = (S.noteTopics[topic] || []).filter((c) => !same(c, sec));
+    await saveNotes(); await APP.saveMeta('noteTopics', S.noteTopics); rk(); APP.toast('Apartado eliminado');
+  };
+  A.diagDel = async (el) => {
+    const root = nodes().find((n) => n.id === el.dataset.id); if (!root) return; const ids = new Set(descendants(root.id).concat(root.id));
+    if (!APP.confirm('¿Eliminar el diagrama de «' + APP.tn(root.label) + '»' + (ids.size > 1 ? ' y sus ' + (ids.size - 1) + ' ramas' : '') + '? Los apuntes no se borran.')) return;
+    S.tree.nodes = nodes().filter((n) => !ids.has(n.id)); await saveTree(); rk(); APP.toast('Diagrama eliminado');
   };
   A.topicDel = async (el) => {
     const topic = el.dataset.topic; const n = S.notes.filter((x) => x.topic === topic).length;

@@ -1,5 +1,5 @@
-const CACHE = 'bjj-coach-v23';
-const FILES = ['./', './index.html', './styles.css?v=23', './stats.js?v=23', './core.js?v=23', './training.js?v=23', './plan.js?v=23', './notes.js?v=23', './gym.js?v=23', './nutri-data.js?v=23', './nutri.js?v=23', './views.js?v=23', './bjj2.js?v=23', './bjj3.js?v=23', './bjj4.js?v=23', './bjj5.js?v=23', './app.js?v=23', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'bjj-coach-v24';
+const FILES = ['./', './index.html', './styles.css?v=24', './stats.js?v=24', './core.js?v=24', './training.js?v=24', './plan.js?v=24', './notes.js?v=24', './gym.js?v=24', './nutri-data.js?v=24', './nutri.js?v=24', './views.js?v=24', './bjj2.js?v=24', './bjj3.js?v=24', './bjj4.js?v=24', './bjj5.js?v=24', './app.js?v=24', './lib-index.json', './lib-base.json', './lib-extra.json', './lib-fichas.json', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
