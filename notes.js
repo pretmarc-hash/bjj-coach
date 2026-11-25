@@ -12,7 +12,7 @@
   const canonName = (x) => APP.canon(x).name;
   const same = (a, b) => ST.norm(a) === ST.norm(b);
   const saveNotes = () => APP.saveMeta('notes', S.notes);
-  const topics = () => { const m = new Map(); Object.keys(S.noteTopics).forEach((t) => m.set(t, [])); S.notes.forEach((n) => { if (!m.has(n.topic)) m.set(n.topic, []); m.get(n.topic).push(n); }); return m; };
+  const topics = () => { const m = new Map(); Object.keys(S.noteTopics).forEach((t) => m.set(t, [])); S.notes.filter(inMode).forEach((n) => { if (!m.has(n.topic)) m.set(n.topic, []); m.get(n.topic).push(n); }); Array.from(m.keys()).forEach((t) => { if (!m.get(t).length && S.notes.some((n) => n.topic === t)) m.delete(t); }); return m; };
   const sectionsOf = (topic) => { const out = (S.noteTopics[topic] || []).slice(); S.notes.filter((n) => n.topic === topic).forEach((n) => { if (n.section && !out.some((s) => same(s, n.section))) out.push(n.section); }); return out; };
   // Apuntes relacionados con una técnica o posición: por título o por tema.
   APP.notesFor = (name) => { const c = canonName(name); return S.notes.filter((n) => same(n.topic, c) || same(canonName(n.title || ''), c)); };
@@ -20,7 +20,7 @@
   const matchText = (n, q) => [n.title, n.body, n.mistakes, n.section, n.topic, APP.tn(n.topic), APP.tn(n.title || '')].concat(n.keys || []).some((x) => ST.norm(x || '').includes(q));
 
   function noteCard(n, open) {
-    return '<details class="note"' + (open ? ' open' : '') + '><summary><span class="nt">' + esc(APP.tn(n.title) || 'Sin título') + '</span><span class="pill-n">' + (n.keys || []).length + ' detalles' + (n.mode && n.mode !== 'both' ? ' · ' + (n.mode === 'gi' ? 'GI' : 'NO-GI') : '') + '</span></summary>' +
+    return '<details class="note"' + (open ? ' open' : '') + '><summary><span class="nt">' + esc(APP.tn(n.title) || 'Sin título') + '</span><span class="pill-n">' + (n.keys || []).length + ' detalles' + (n.mode && n.mode !== 'both' ? ' · ' + (n.mode === 'gi' ? 'Kimono' : 'Sin kimono') : '') + '</span></summary>' +
       ((n.keys || []).length ? '<p class="small muted" style="margin:10px 0 4px">Detalles clave</p><ul class="keys">' + n.keys.map((k) => '<li>' + esc(k) + '</li>').join('') + '</ul>' : '') +
       (n.body ? '<p class="small muted" style="margin:10px 0 4px">Explicación</p><p style="white-space:pre-wrap">' + esc(n.body) + '</p>' : '') +
       (n.mistakes ? '<p class="small muted" style="margin:10px 0 4px">Errores a evitar</p><p style="white-space:pre-wrap">' + esc(n.mistakes) + '</p>' : '') +
@@ -28,19 +28,26 @@
       (n.fromDate ? '<p class="notefrom">📝 Del entreno del ' + fmtDate(n.fromDate) + ' · ' + (({ hard: '😓 Me costó', ok: '😐 Regular', good: '💪 Salió bien' })[n.rating] || '') + '</p>' + (APP.techHistory ? APP.techHistory(n.title).map((h) => '<p class="small muted" style="margin:2px 0">' + fmtDate(h.date) + ' · ' + (({ hard: 'Me costó', ok: 'Regular', good: 'Salió bien' })[h.rating] || '–') + '</p>').join('') : '') : '') + '<div class="row between" style="margin-top:8px"><span class="pill-n">Actualizado ' + fmtDate(n.updated || n.created) + '</span><div class="row"><button class="btn small secondary" data-act="noteEdit" data-id="' + n.id + '">Editar</button><button class="btn small ghost" data-act="noteDel" data-id="' + n.id + '">Borrar</button></div></div></details>';
   }
 
-  ui.notes = { q: '' };
+  const MODES = [['gi', 'Kimono'], ['nogi', 'Sin kimono']];
+  const modeOf = () => { try { const m = localStorage.getItem('bjj-notes-mode'); return m === 'nogi' ? 'nogi' : 'gi'; } catch (e) { return 'gi'; } };
+  ui.notes = { q: '', m: modeOf() };
+  // un apunte «Ambas» sale en las dos categorías
+  const inMode = (n) => !n.mode || n.mode === 'both' || n.mode === ui.notes.m;
+  const modeName = (m) => (m === 'gi' ? 'Kimono' : m === 'nogi' ? 'Sin kimono' : 'Ambas');
+  A.notesMode = (el) => { ui.notes.m = el.dataset.v === 'nogi' ? 'nogi' : 'gi'; try { localStorage.setItem('bjj-notes-mode', ui.notes.m); } catch (e) { /* sin almacenamiento */ } rk(); };
+  const modeSeg = () => '<div class="seg" role="tablist">' + MODES.map((x) => '<button class="' + (ui.notes.m === x[0] ? 'on' : '') + '" data-act="notesMode" data-v="' + x[0] + '">' + x[1] + ' <span class="pill-n">' + S.notes.filter((n) => !n.mode || n.mode === 'both' || n.mode === x[0]).length + '</span></button>').join('') + '</div>';
   function notesIndex() {
     const q = ST.norm(ui.notes.q); const tp = topics();
     if (q) {
       const canonQ = APP.findTech(ui.notes.q); // «media guardia» encuentra el tema «Half Guard»
       const tHits = Array.from(tp.keys()).filter((t) => ST.norm(t).includes(q) || ST.norm(APP.tn(t)).includes(q) || (canonQ && same(t, canonQ.name)));
-      const nHits = S.notes.filter((n) => matchText(n, q) || (canonQ && same(canonName(n.title || ''), canonQ.name)));
+      const nHits = S.notes.filter(inMode).filter((n) => matchText(n, q) || (canonQ && same(canonName(n.title || ''), canonQ.name)));
       return (tHits.length ? '<p class="small muted">Temas</p><div class="tiles">' + tHits.map((t) => topicTile(t, tp.get(t))).join('') + '</div>' : '') +
         (nHits.length ? '<p class="small muted" style="margin-top:12px">Apuntes (' + nHits.length + ')</p>' + nHits.map((n) => '<div class="pill-n" style="margin-top:8px">' + esc(APP.tn(n.topic)) + ' › ' + esc(n.section || 'Sin apartado') + '</div>' + noteCard(n)).join('') : '') +
         (!tHits.length && !nHits.length ? '<div class="empty">Nada coincide con «' + esc(ui.notes.q) + '».<br><button class="btn small" style="margin-top:10px" data-act="noteNew" data-topic="' + esc(canonQ ? canonQ.name : ui.notes.q) + '">Crear apunte sobre esto</button></div>' : '');
     }
     const list = Array.from(tp.keys()).sort((a, b) => APP.tn(a).localeCompare(APP.tn(b)));
-    return list.length ? '<div class="tiles">' + list.map((t) => topicTile(t, tp.get(t))).join('') + '</div>' : '<div class="empty">Aún no tienes apuntes.<br>Crea un tema (por ejemplo «Media guardia») y dentro añade apartados como salidas, raspados o finalizaciones.</div>';
+    return list.length ? '<div class="tiles">' + list.map((t) => topicTile(t, tp.get(t))).join('') + '</div>' : '<div class="empty">Aún no tienes apuntes de ' + (ui.notes.m === 'gi' ? 'kimono' : 'sin kimono') + '.<br>Crea un tema (por ejemplo «Media guardia») y dentro añade apartados como salidas, raspados o finalizaciones.</div>';
   }
   function topicTile(t, notes) {
     const secs = sectionsOf(t).length;
@@ -48,15 +55,19 @@
   }
   V.apuntes = (arg) => {
     if (arg) return topicPage(decodeURIComponent(arg));
-    return '<div class="card"><input type="search" placeholder="Buscar: media guardia, kimura, agarre…" value="' + esc(ui.notes.q) + '" data-input="noteSearch" style="margin-bottom:10px"><div class="row"><button class="btn block" data-act="noteNew">+ Nuevo apunte</button><button class="btn secondary block" data-act="topicNew">+ Nuevo tema</button></div></div>' +
+    return modeSeg() + '<div class="card"><input type="search" placeholder="Buscar: media guardia, kimura, agarre…" value="' + esc(ui.notes.q) + '" data-input="noteSearch" style="margin-bottom:10px"><div class="row"><button class="btn block" data-act="noteNew">+ Nuevo apunte</button><button class="btn secondary block" data-act="topicNew">+ Nuevo tema</button></div></div>' +
       '<div id="notes-list">' + notesIndex() + '</div>';
   };
   A.noteSearch = (el) => { ui.notes.q = el.value; const l = APP.$('#notes-list'); if (l) l.innerHTML = notesIndex(); };
 
   function topicPage(topic) {
-    const secs = sectionsOf(topic); const notes = S.notes.filter((n) => n.topic === topic); const t = APP.findTech(topic);
-    let h = '<div class="row between" style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/apuntes">← Temas</a>' + (notes.length ? '<button class="btn small secondary" data-act="noteReview" data-topic="' + esc(topic) + '">▶ Repasar</button>' : '') + '</div>' +
+    const secs = sectionsOf(topic); const notes = S.notes.filter((n) => n.topic === topic && inMode(n)); const t = APP.findTech(topic);
+    let h = modeSeg() + '<div class="row between" style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/apuntes">← Temas</a>' + (notes.length ? '<button class="btn small secondary" data-act="noteReview" data-topic="' + esc(topic) + '">▶ Repasar</button>' : '') + '</div>' +
       '<div class="card hero"><h2>' + esc(APP.tn(topic)) + '</h2><div class="muted">' + notes.length + (notes.length === 1 ? ' apunte' : ' apuntes') + (t ? ' · <a href="#" style="color:#fff" data-act="tech" data-id="' + t.id + '">ver ficha</a>' : '') + '</div></div>';
+    const root = nodes().find((n) => !n.parent && same(n.label, topic));
+    h += '<div class="card"><div class="row between"><h3>Diagrama de decisión</h3>' + (root ? '<a class="btn small ghost" style="text-decoration:none" href="#/arbol">Game plan</a>' : '') + '</div>' +
+      (root ? '<p class="muted small" style="margin:0 0 8px">Qué haces según cómo reacciona el rival. Toca + para añadir una rama y escribe la condición (por ejemplo «si está muy levantado»).</p>' + situation(root)
+        : '<p class="muted small" style="margin:0 0 10px">Organiza qué hacer desde aquí según la postura del rival: por ejemplo, si está muy levantado, con una rodilla en el suelo o con la postura baja, y qué técnica usas en cada caso.</p><button class="btn block" data-act="treeStart" data-topic="' + esc(topic) + '">+ Crear diagrama de decisión</button>') + '</div>';
     secs.forEach((s) => {
       const ns = notes.filter((n) => same(n.section || '', s));
       h += '<div class="card"><div class="row between"><h3>' + esc(s) + ' <span class="pill-n">(' + ns.length + ')</span></h3><button class="btn small ghost" data-act="noteNew" data-topic="' + esc(topic) + '" data-section="' + esc(s) + '">+ Apunte</button></div>' + (ns.length ? ns.map((n) => noteCard(n)).join('') : '<p class="muted small">Vacío. Añade aquí lo que trabajes de este apartado.</p>') + '</div>';
@@ -96,7 +107,7 @@
       field('Detalles clave (uno por línea)', '<textarea id="nt-keys" rows="5" placeholder="Agarre por debajo, cabeza pegada a la cadera&#10;Bloquear la rodilla antes de subir">' + esc((n.keys || []).join('\n')) + '</textarea>') +
       field('Explicación paso a paso', '<textarea id="nt-body" rows="5" placeholder="Opcional">' + esc(n.body || '') + '</textarea>') +
       field('Errores a evitar', '<textarea id="nt-mis" placeholder="Opcional">' + esc(n.mistakes || '') + '</textarea>') +
-      group('Modalidad', chips('ntmode', [{ v: 'both', l: 'Ambas' }, { v: 'gi', l: 'GI' }, { v: 'nogi', l: 'NO-GI' }], n.mode || 'both', false, true)) +
+      group('Categoría', chips('ntmode', [{ v: 'gi', l: 'Kimono' }, { v: 'nogi', l: 'Sin kimono' }, { v: 'both', l: 'Ambas' }], n.mode || preset.mode || ui.notes.m || 'both', false, true)) +
       field('Enlace a un vídeo', '<input id="nt-link" type="url" inputmode="url" placeholder="Opcional: https://…" value="' + esc(n.link || '') + '">') +
       '<button class="btn block" data-act="noteSave" data-id="' + (n.id || '') + '">Guardar apunte</button>');
   }
@@ -117,7 +128,7 @@
   A.noteDel = async (el) => { if (!APP.confirm('¿Borrar este apunte?')) return; S.notes = S.notes.filter((n) => n.id !== el.dataset.id); await saveNotes(); if (APP.sheetOpen()) APP.closeSheet(); rk(); };
 
   // Repaso tipo tarjeta: primero el nombre, después los detalles.
-  A.noteReview = (el) => { ui.review = { list: S.notes.filter((n) => n.topic === el.dataset.topic), i: 0, shown: false }; reviewShow(); };
+  A.noteReview = (el) => { ui.review = { list: S.notes.filter((n) => n.topic === el.dataset.topic && inMode(n)), i: 0, shown: false }; reviewShow(); };
   function reviewShow() {
     const r = ui.review; const n = r.list[r.i]; if (!n) return APP.closeSheet();
     APP.openSheet('Repaso ' + (r.i + 1) + ' de ' + r.list.length, '<div class="card" style="text-align:center"><div class="pill-n">' + esc(n.section || '') + '</div><h2 style="margin:8px 0">' + esc(APP.tn(n.title)) + '</h2>' + (r.shown ? '' : '<p class="muted">Intenta recordar los detalles clave antes de verlos.</p>') + '</div>' +
@@ -164,6 +175,7 @@
   };
   V.arbol = () => '<div class="card">' + APP.treeHTML() + '</div>';
 
+  A.treeStart = async (el) => { const t = el.dataset.topic; if (!nodes().some((n) => !n.parent && same(n.label, t))) { nodes().push({ id: uid(), parent: null, label: t, cond: '' }); await saveTree(); } rk(); };
   A.nodeToggle = async (el) => { const n = nodes().find((x) => x.id === el.dataset.id); if (n) { n.collapsed = !n.collapsed; await saveTree(); rk(); } };
   function nodeForm(n, parent) {
     n = n || {}; const p = nodes().find((x) => x.id === parent);
