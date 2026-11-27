@@ -35,7 +35,7 @@
   const inMode = (n) => !n.mode || n.mode === 'both' || n.mode === ui.notes.m;
   const modeName = (m) => (m === 'gi' ? 'Kimono' : m === 'nogi' ? 'Sin kimono' : 'Ambas');
   A.notesMode = (el) => { ui.notes.m = el.dataset.v === 'nogi' ? 'nogi' : 'gi'; try { localStorage.setItem('bjj-notes-mode', ui.notes.m); } catch (e) { /* sin almacenamiento */ } rk(); };
-  const modeSeg = () => '<div class="seg" role="tablist">' + MODES.map((x) => '<button class="' + (ui.notes.m === x[0] ? 'on' : '') + '" data-act="notesMode" data-v="' + x[0] + '">' + x[1] + ' <span class="pill-n">' + S.notes.filter((n) => !n.mode || n.mode === 'both' || n.mode === x[0]).length + '</span></button>').join('') + '</div>';
+  const modeSeg = () => '<div class="seg" role="tablist">' + MODES.map((x) => '<button class="' + (ui.notes.m === x[0] ? 'on' : '') + '" data-act="notesMode" data-v="' + x[0] + '">' + x[1] + ' <span class="pill-n" title="Apuntes de esta categoría, de todos los temas">' + S.notes.filter((n) => !n.mode || n.mode === 'both' || n.mode === x[0]).length + '</span></button>').join('') + '</div>';
   function notesIndex() {
     const q = ST.norm(ui.notes.q); const tp = topics();
     if (q) {
@@ -64,6 +64,8 @@
     const secs = sectionsOf(topic); const notes = S.notes.filter((n) => n.topic === topic && inMode(n)); const t = APP.findTech(topic);
     let h = modeSeg() + '<div class="row between" style="margin-bottom:10px"><a class="btn small ghost" style="text-decoration:none" href="#/apuntes">← Temas</a>' + (notes.length ? '<button class="btn small secondary" data-act="noteReview" data-topic="' + esc(topic) + '">▶ Repasar</button>' : '') + '</div>' +
       '<div class="card hero"><h2>' + esc(APP.tn(topic)) + '</h2><div class="muted">' + notes.length + (notes.length === 1 ? ' apunte' : ' apuntes') + (t ? ' · <a href="#" style="color:#fff" data-act="tech" data-id="' + t.id + '">ver ficha</a>' : '') + '</div></div>';
+    const other = S.notes.filter((n) => n.topic === topic && !inMode(n)); const om = ui.notes.m === 'gi' ? 'nogi' : 'gi';
+    if (other.length) h += '<div class="card" style="padding:12px 14px"><div class="small">Este tema tiene <b>' + other.length + (other.length === 1 ? ' apunte' : ' apuntes') + '</b> en <b>' + modeName(om) + '</b>.</div><button class="btn small secondary" style="margin-top:8px" data-act="notesMode" data-v="' + om + '">Ver ' + modeName(om).toLowerCase() + '</button></div>';
     const root = nodes().find((n) => !n.parent && same(n.label, topic));
     h += '<div class="card"><div class="row between"><h3>Diagrama de decisión</h3>' + (root ? '<span class="row" style="gap:6px"><a class="btn small ghost" style="text-decoration:none" href="#/arbol">Game plan</a><button class="btn small ghost" data-act="diagDel" data-id="' + root.id + '">Eliminar</button></span>' : '') + '</div>' +
       (root ? '<p class="muted small" style="margin:0 0 8px">Qué haces según cómo reacciona el rival. Toca + para añadir una rama y escribe la condición (por ejemplo «si está muy levantado»).</p>' + situation(root)
