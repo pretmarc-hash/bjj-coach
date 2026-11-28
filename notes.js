@@ -25,7 +25,7 @@
       (n.body ? '<p class="small muted" style="margin:10px 0 4px">Explicación</p><p style="white-space:pre-wrap">' + esc(n.body) + '</p>' : '') +
       (n.mistakes ? '<p class="small muted" style="margin:10px 0 4px">Errores a evitar</p><p style="white-space:pre-wrap">' + esc(n.mistakes) + '</p>' : '') +
       (n.link && /^https?:\/\//.test(n.link) ? '<p class="small"><a href="' + esc(n.link) + '" target="_blank" rel="noopener">Ver vídeo o enlace</a></p>' : '') +
-      (n.fromDate ? '<p class="notefrom">📝 Del entreno del ' + fmtDate(n.fromDate) + ' · ' + (({ hard: '😓 Me costó', ok: '😐 Regular', good: '💪 Salió bien' })[n.rating] || '') + '</p>' + (APP.techHistory ? APP.techHistory(n.title).map((h) => '<p class="small muted" style="margin:2px 0">' + fmtDate(h.date) + ' · ' + (({ hard: 'Me costó', ok: 'Regular', good: 'Salió bien' })[h.rating] || '–') + '</p>').join('') : '') : '') + '<div class="row between" style="margin-top:8px"><span class="pill-n">Actualizado ' + fmtDate(n.updated || n.created) + '</span><div class="row"><button class="btn small secondary" data-act="noteEdit" data-id="' + n.id + '">Editar</button><button class="btn small ghost" data-act="noteDel" data-id="' + n.id + '">Borrar</button></div></div></details>';
+      (n.fromDate ? '<p class="notefrom">📝 Del entreno del ' + fmtDate(n.fromDate) + ' · ' + (({ hard: '😓 Me costó', ok: '😐 Regular', good: '💪 Salió bien' })[n.rating] || '') + '</p>' + (APP.techHistory ? APP.techHistory(n.title).map((h) => '<p class="small muted" style="margin:2px 0">' + fmtDate(h.date) + ' · ' + (({ hard: 'Me costó', ok: 'Regular', good: 'Salió bien' })[h.rating] || '–') + '</p>').join('') : '') : '') + '<div class="row between" style="margin-top:8px"><span class="pill-n">Actualizado ' + fmtDate(n.updated || n.created) + '</span><div class="row"><button class="btn small secondary" data-act="noteEdit" data-id="' + n.id + '">Editar</button><button class="btn small ghost" data-act="noteMove" data-id="' + n.id + '">Mover</button><button class="btn small ghost" data-act="noteDel" data-id="' + n.id + '">Borrar</button></div></div></details>';
   }
 
   const MODES = [['gi', 'Kimono'], ['nogi', 'Sin kimono']];
@@ -137,6 +137,33 @@
     if (section) { const cur = S.noteTopics[topic] || []; if (!cur.some((c) => same(c, section))) { cur.push(section); S.noteTopics[topic] = cur; await APP.saveMeta('noteTopics', S.noteTopics); } }
     await saveNotes(); APP.closeSheet(); APP.toast('Apunte guardado');
     if (/^#\/(apuntes)/.test(location.hash)) rk(); else APP.go('#/apuntes/' + encodeURIComponent(topic));
+  };
+  // ---- Mover un apunte a otro tema, apartado o categoría
+  const allTopics = () => Array.from(new Set(Object.keys(S.noteTopics).concat(S.notes.map((n) => n.topic)))).sort((a, b) => APP.tn(a).localeCompare(APP.tn(b)));
+  const secOpts = (topic, cur) => '<option value="">Sin apartado</option>' + Array.from(new Set(sectionsOf(topic).concat(SECTIONS))).map((x) => '<option value="' + esc(x) + '"' + (cur && same(cur, x) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+  A.noteMove = (el) => {
+    const n = S.notes.find((x) => x.id === el.dataset.id); if (!n) return;
+    if (APP.sheetOpen()) APP.closeSheet();
+    APP.openSheet('Mover «' + APP.tn(n.title) + '»',
+      '<p class="muted small" style="margin:0 0 10px">Ahora está en <b>' + esc(APP.tn(n.topic)) + '</b>' + (n.section ? ' › ' + esc(n.section) : '') + ' · ' + modeName(n.mode || 'both') + '.</p>' +
+      field('Tema', '<select id="mv-topic" data-input="mvTopic">' + allTopics().map((t) => '<option value="' + esc(t) + '"' + (t === n.topic ? ' selected' : '') + '>' + esc(APP.tn(t)) + '</option>').join('') + '</select>') +
+      field('O escribe un tema nuevo', '<input id="mv-newtopic" list="dl-pos" autocomplete="off" placeholder="Opcional">') +
+      field('Apartado', '<select id="mv-sec">' + secOpts(n.topic, n.section) + '</select>') +
+      field('O escribe un apartado nuevo', '<input id="mv-newsec" placeholder="Opcional">') +
+      group('Categoría', chips('mvmode', [{ v: 'gi', l: 'Kimono' }, { v: 'nogi', l: 'Sin kimono' }, { v: 'both', l: 'Ambas' }], n.mode || 'both', false, true)) +
+      '<button class="btn block" data-act="noteMoveSave" data-id="' + n.id + '">Mover aquí</button>');
+  };
+  A.mvTopic = (el) => { const sc = APP.$('#mv-sec'); if (sc) sc.innerHTML = secOpts(el.value, ''); };
+  A.noteMoveSave = async (el) => {
+    const n = S.notes.find((x) => x.id === el.dataset.id); if (!n) return;
+    const nt = val('mv-newtopic').trim(); const topic = nt ? canonName(nt) : val('mv-topic'); if (!topic) return APP.toast('Elige un tema');
+    const ns = val('mv-newsec').trim(); const section = ns || val('mv-sec');
+    n.topic = topic; n.section = section; n.mode = sel('mvmode')[0] || n.mode || 'both'; n.updated = today();
+    const cur = S.noteTopics[topic] || (S.noteTopics[topic] = []); if (section && !cur.some((c) => same(c, section))) cur.push(section);
+    await saveNotes(); await APP.saveMeta('noteTopics', S.noteTopics); APP.closeSheet();
+    // si ahora está en otra categoría, cambiar a ella para que se vea dónde ha ido
+    if (!inMode(n)) ui.notes.m = n.mode;
+    APP.toast('Movido a ' + APP.tn(topic) + (section ? ' › ' + section : '')); APP.go('#/apuntes/' + encodeURIComponent(topic));
   };
   A.noteDel = async (el) => { if (!APP.confirm('¿Borrar este apunte?')) return; S.notes = S.notes.filter((n) => n.id !== el.dataset.id); await saveNotes(); if (APP.sheetOpen()) APP.closeSheet(); rk(); };
 
